@@ -1,4 +1,4 @@
-package com.ncorti.kotlin.template.app.ui.components
+package com.ncorti.kotlin.template.app
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -24,9 +24,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ncorti.kotlin.template.library.FactorialCalculator
 import kotlinx.coroutines.launch
-import java.lang.IllegalStateException
 
 @Suppress("LongMethod")
 @Composable
@@ -105,4 +103,16 @@ fun FactorialPreview() {
     MaterialTheme {
         Factorial()
     }
+}
+
+object FactorialCalculator {
+    private const val MAX_FACTORIAL_64BIT = 20
+
+    tailrec fun computeFactorial(input: Long, temp: Long = 1L): Long =
+        when {
+            input < 0 -> error("Factorial is not defined for negative numbers")
+            input > MAX_FACTORIAL_64BIT -> error("Only a factorial up to 20 can fit in a 64-bit Long")
+            input == 0L -> temp
+            else -> computeFactorial(input - 1, temp * input)
+        }
 }
