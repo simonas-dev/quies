@@ -1,4 +1,4 @@
-package com.ncorti.kotlin.template.app
+package dev.simonas.quies
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi

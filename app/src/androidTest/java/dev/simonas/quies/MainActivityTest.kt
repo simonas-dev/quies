@@ -1,4 +1,4 @@
-package com.ncorti.kotlin.template.app
+package dev.simonas.quies
 
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed

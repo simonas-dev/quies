@@ -1,4 +1,4 @@
-package com.ncorti.kotlin.template.app
+package dev.simonas.quies
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
