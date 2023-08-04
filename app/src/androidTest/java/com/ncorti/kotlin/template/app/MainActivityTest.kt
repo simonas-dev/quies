@@ -1,14 +1,12 @@
 package com.ncorti.kotlin.template.app
 
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
-import androidx.test.espresso.action.ViewActions.typeText
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.ext.junit.rules.activityScenarioRule
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
 import org.junit.Test
@@ -18,14 +16,14 @@ import org.junit.runner.RunWith
 class MainActivityTest {
 
     @get:Rule
-    val rule = activityScenarioRule<MainActivity>()
+    val rule = createAndroidComposeRule<MainActivity>()
 
     @Test
-    fun typeANumber_resultIsDisplayed() {
-        onView(withId(R.id.edit_text_factorial)).perform(typeText("1"), closeSoftKeyboard())
-        onView(withId(R.id.button_compute)).perform(click())
-
-        onView(withId(R.id.text_result)).check(matches(isDisplayed()))
-        onView(withId(R.id.text_result)).check(matches(withText("1")))
+    fun useAppContext() {
+        rule.onNodeWithTag("Input").performClick().performTextInput("5")
+        rule.onNodeWithText("COMPUTE").performClick()
+        rule.onNodeWithTag("FactorialResult")
+            .assertIsDisplayed()
+            .assert(androidx.compose.ui.test.hasText("120"))
     }
 }
