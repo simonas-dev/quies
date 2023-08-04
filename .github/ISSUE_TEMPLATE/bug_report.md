@@ -21,4 +21,4 @@ about: Create a report to help us improve
 ## 📱 Tech info
  - Device: <!-- e.g. Nexus One -->
  - OS: <!-- e.g. 7.1.1 -->
- - Library/App version: <!-- e.g. 1.0.0 -->
+ - App version: <!-- e.g. 1.0.0 -->
