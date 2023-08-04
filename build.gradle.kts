@@ -6,7 +6,6 @@ plugins {
     kotlin("android") apply false
     alias(libs.plugins.detekt)
     alias(libs.plugins.versions)
-    cleanup
     base
 }
 
@@ -22,7 +21,7 @@ subprojects {
     }
 
     detekt {
-        config = rootProject.files("config/detekt/detekt.yml")
+        config.setFrom(rootProject.files("config/detekt/detekt.yml"))
     }
 
     dependencies {
