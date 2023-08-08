@@ -26,5 +26,9 @@ jobs:
         run: ./gradlew detekt lint
       - name: Build
         run: ./gradlew build
-      - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest
+      - name: Create Service Account Key for Flank
+        env:
+          FLANK_SERVICE_ACCOUNT_KEY: ${{ secrets.FLANK_SERVICE_ACCOUNT_KEY }}
+        run: echo $FLANK_SERVICE_ACCOUNT_KEY | base64 -d > app/flank-service-account-key.json
+      - name: Run Tests
+        run: ./gradlew testDebugUnitTest flankRun --continue

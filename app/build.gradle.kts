@@ -1,5 +1,7 @@
 plugins {
     id("com.android.application")
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.simple.flank)
     kotlin("android")
 }
 
@@ -34,12 +36,24 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
     buildTypes {
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("debug")
+            isDebuggable = true
+        }
         getByName("release") {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+    }
+    signingConfigs {
+        getByName("debug") {
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+            storeFile = file("debug.keystore")
+            storePassword = "android"
         }
     }
     lint {
@@ -57,6 +71,8 @@ dependencies {
     implementation(libs.compose.material)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling)
+    implementation(libs.firebase.analytics.ktx)
+    implementation(platform(libs.firebase.bom))
 
     debugImplementation(libs.compose.ui.test.manifest)
 
@@ -68,4 +84,9 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.compose.ui.test.junit4)
     androidTestImplementation(libs.espresso.core)
+}
+
+simpleFlank {
+    // Will be created at GitHub CI job runtime via $FLANK_SERVICE_ACCOUNT_KEY secret.
+    credentialsFile.set(file("flank-service-account-key.json"))
 }

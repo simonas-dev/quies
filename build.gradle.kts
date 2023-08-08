@@ -2,6 +2,7 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     alias(libs.plugins.detekt)
+    alias(libs.plugins.google.services) apply false
     alias(libs.plugins.versions)
     base
     id("com.android.application") apply false
