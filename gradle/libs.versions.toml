@@ -6,8 +6,9 @@ androidx_test_ext = "1.1.5"
 appcompat = "1.6.1"
 benmanesversion = "0.47.0"
 compile_sdk_version = "33"
-compose = "1.4.3"
-compose_compilerextension = "1.4.5"
+compose_compiler = "1.4.3"
+compose-lifecycle = "2.6.1"
+compose_material3 = "1.1.1"
 constraint_layout = "2.1.4"
 core_ktx = "1.10.1"
 detekt = "1.23.1"
@@ -16,7 +17,7 @@ firebase_bom = "32.2.2"
 firebase_ktx = "21.3.0"
 google_services = "4.3.15"
 junit = "4.13.2"
-kotlin = "1.8.20"
+kotlin = "1.8.10"
 ktlint_gradle = "11.5.0"
 min_sdk_version = "21"
 simple_flank = "0.4.0"
@@ -32,12 +33,13 @@ androidx_test_ext_junit = { module = "androidx.test.ext:junit", version.ref = "a
 androidx_test_ext_junit_ktx = { module = "androidx.test.ext:junit-ktx", version.ref = "androidx.test.ext" }
 androidx_test_rules = { module = "androidx.test:rules", version.ref = "androidx.test" }
 androidx_test_runner = { module = "androidx.test:runner", version.ref = "androidx.test" }
-compose_foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
-compose_material = { module = "androidx.compose.material:material", version.ref = "compose" }
-compose_ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
-compose_ui_test_junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose" }
-compose_ui_test_manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose" }
-compose_ui_tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
+compose_foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose_compiler" }
+compose_lifecycle = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "compose-lifecycle" }
+compose_material3 = { module = "androidx.compose.material3:material3", version.ref = "compose_material3" }
+compose_ui = { module = "androidx.compose.ui:ui", version.ref = "compose_compiler" }
+compose_ui_test_junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose_compiler" }
+compose_ui_test_manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose_compiler" }
+compose_ui_tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose_compiler" }
 detekt_formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 espresso_core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso.core" }
 firebase-analytics-ktx =  { module = "com.google.firebase:firebase-analytics-ktx", version.ref = "firebase_ktx" }
@@ -49,5 +51,5 @@ kgp = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kot
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 google_services = { id = "com.google.gms.google-services", version.ref = "google_services" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint.gradle" }
-versions = { id = "com.github.ben-manes.versions", version.ref = "benmanesversion" }
 simple_flank = { id = "io.github.flank.gradle.simple-flank", version.ref = "simple_flank" }
+versions = { id = "com.github.ben-manes.versions", version.ref = "benmanesversion" }

@@ -8,10 +8,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,15 +32,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppMain() {
     MaterialTheme {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text(text = "Kotlin Android Template") },
-                    backgroundColor = MaterialTheme.colors.primary
-                )
-            },
-            backgroundColor = MaterialTheme.colors.background
-        ) {
+        Scaffold {
             Box(
                 modifier = Modifier
                     .padding(it)
@@ -49,7 +40,7 @@ fun AppMain() {
                     .wrapContentSize(align = Alignment.Center)
                     .padding(horizontal = 8.dp)
             ) {
-                Factorial()
+                Text("Hello!")
             }
         }
     }
