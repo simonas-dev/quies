@@ -684,6 +684,8 @@ style:
   UnusedPrivateMember:
     active: true
     allowedNames: '(_|ignored|expected|serialVersionUID)'
+    ignoreAnnotated:
+      - Preview
   UseAnyOrNoneInsteadOfFind:
     active: true
   UseArrayLiteralsInAnnotations:
@@ -726,7 +728,7 @@ style:
 # https://github.com/detekt/detekt/blob/main/detekt-formatting/src/main/resources/config/config.yml
 formatting:
   active: true
-  android: false
+  android: true
   autoCorrect: true
   AnnotationOnSeparateLine:
     active: true
