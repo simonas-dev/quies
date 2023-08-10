@@ -1,6 +1,10 @@
+import org.jetbrains.kotlin.konan.properties.Properties
+import com.github.triplet.gradle.androidpublisher.ReleaseStatus
+
 plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.play.publisher)
     alias(libs.plugins.simple.flank)
     id("com.android.application")
     id("kotlin-kapt")
@@ -12,6 +16,7 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.min.sdk.version.get().toInt()
+        targetSdk = libs.versions.compile.sdk.version.get().toInt()
         namespace = "dev.simonas.quies"
 
         applicationId = AppCoordinates.APP_ID
@@ -38,25 +43,46 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
         freeCompilerArgs = listOf("-Xcontext-receivers")
     }
+    signingConfigs {
+        getByName("debug") {
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+            storeFile = rootProject.file("app/debug.keystore")
+            storePassword = "android"
+        }
+        create("release") {
+            // Will be created by CI using $RELEASE_KEYSTORE_PROPS
+            val keystoreProps = rootProject.file("app/keystore.properties")
+            if (keystoreProps.exists()) {
+                val properties = Properties().apply {
+                    load(keystoreProps.reader())
+                }
+                keyAlias = properties.getProperty("keystoreAlias")
+                keyPassword = properties.getProperty("aliasPassword")
+                // Will be created by CI using $RELEASE_KEYSTORE
+                storeFile = rootProject.file("app/release.keystore")
+                storePassword = properties.getProperty("keystorePassword")
+            } else {
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+                storeFile = rootProject.file("app/debug.keystore")
+                storePassword = "android"
+            }
+        }
+    }
     buildTypes {
         getByName("debug") {
             signingConfig = signingConfigs.getByName("debug")
             isDebuggable = true
         }
         getByName("release") {
-            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-        }
-    }
-    signingConfigs {
-        getByName("debug") {
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-            storeFile = file("debug.keystore")
-            storePassword = "android"
         }
     }
     lint {
@@ -131,4 +157,12 @@ simpleFlank {
             )
         )
     )
+}
+
+play {
+    defaultToAppBundles.set(true)
+    releaseStatus.set(com.github.triplet.gradle.androidpublisher.ReleaseStatus.DRAFT)
+    // Will be created at GitHub CI job runtime via $PUBLISHER_SERVICE_ACCOUNT_KEY secret.
+    serviceAccountCredentials.set(file("publisher-service-account-key.json"))
+    track.set("internal")
 }
