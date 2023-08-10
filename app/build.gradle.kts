@@ -17,7 +17,7 @@ android {
         applicationId = AppCoordinates.APP_ID
         versionCode = AppCoordinates.APP_VERSION_CODE
         versionName = AppCoordinates.APP_VERSION_NAME
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "dev.simonas.quies.HiltTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -60,8 +60,10 @@ android {
         }
     }
     lint {
+        disable.add("GradleDependency")
         warningsAsErrors = true
         abortOnError = true
+        baseline = rootProject.file("app/lint-baseline.xml")
     }
     packaging {
         resources.excludes += "DebugProbesKt.bin"
@@ -87,27 +89,46 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.javapoet)
     implementation(platform(libs.firebase.bom))
+    implementation(libs.compose.navigation)
+    implementation(libs.hilt.navigation.compose)
 
     kapt(libs.hilt.android.compiler)
 
     debugImplementation(libs.compose.ui.test.manifest)
 
+    kaptTest(libs.hilt.android.compiler)
     testImplementation(libs.coroutines.android)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.hilt.android)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.mockito.kotlin)
     testImplementation(libs.turbine)
     testImplementation(libs.truth)
-
+    
+    androidTestImplementation(libs.hilt.android)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.ext.junit.ktx)
     androidTestImplementation(libs.androidx.test.rules)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.compose.ui.test.junit4)
     androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.hilt.testing)
+    androidTestImplementation(libs.mockito.android)
+    kaptAndroidTest(libs.hilt.android.compiler)
 }
 
 simpleFlank {
     // Will be created at GitHub CI job runtime via $FLANK_SERVICE_ACCOUNT_KEY secret.
     credentialsFile.set(file("flank-service-account-key.json"))
+    devices.set(
+        listOf(
+            io.github.flank.gradle.Device(
+                id = "oriole",
+                osVersion = 31,
+                make =  "Google",
+                model = "Pixel 6",
+            )
+        )
+    )
 }
