@@ -1,6 +1,12 @@
 # IDEA
 .idea/androidTestResultsUserPreferences.xml
 
+# Secrets should remain secret
+flank-service-account-key.json
+publisher-service-account-key.json
+keystore.properties
+release.keystore
+
 # Created by https://www.toptal.com/developers/gitignore/api/macos,linux,gradle,windows,android,androidstudio,java,kotlin
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,linux,gradle,windows,android,androidstudio,java,kotlin
 
