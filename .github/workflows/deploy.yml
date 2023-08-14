@@ -26,7 +26,7 @@ jobs:
           PUBLISHER_SERVICE_ACCOUNT_KEY: ${{ secrets.PUBLISHER_SERVICE_ACCOUNT_KEY }}
           RELEASE_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}
           RELEASE_KEYSTORE_PROPS: ${{ secrets.RELEASE_KEYSTORE_PROPS }}
-      - run: |
+        run: |
           echo PUBLISHER_SERVICE_ACCOUNT_KEY | base64 -d > app/publisher-service-account-key.json
           echo RELEASE_KEYSTORE_PROPS | base64 -d > app/keystore.properties
           echo RELEASE_KEYSTORE | base64 -d > app/release.keystore
