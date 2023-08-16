@@ -1,6 +1,7 @@
 package dev.simonas.quies.card
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -22,12 +23,17 @@ class CardUITest : UITest() {
 
     @Test
     fun init() {
+        onNodeWithText("Dating")
+            .performClick()
+
         showsCardScreen()
         showsInitialQuestion()
     }
 
     @Test
     fun clickOnInitialQuestionCard() {
+        onNodeWithText("Dating")
+            .performClick()
         onNodeWithText("When I was a kid, what do you think I wanted to become?")
             .performClick()
 

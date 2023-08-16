@@ -1,8 +1,9 @@
 package dev.simonas.quies.card
 
+import androidx.lifecycle.SavedStateHandle
 import com.google.common.truth.Truth.assertThat
 import dev.simonas.quies.questions.Question
-import dev.simonas.quies.questions.QuestionRoller
+import dev.simonas.quies.router.NavRoutes
 import dev.simonas.quies.utils.testLast
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -13,22 +14,31 @@ import org.mockito.kotlin.whenever
 
 internal class CardViewModelTest {
 
-    val rollerQuestion = Question(
-        text = "Random question?"
+    val gameSetId = "gameSetId"
+    val nextQuestion = Question(
+        id = "",
+        text = "Random question?",
+        gameSetIds = listOf(gameSetId),
     )
-    val questionRoller: QuestionRoller = mock {
-        on { roll() }.thenReturn(rollerQuestion)
+    val getNextQuestion: GetNextQuestion = mock {
+        on { invoke(gameSetId) }.thenReturn(nextQuestion)
     }
+    val stateHandle = SavedStateHandle(
+        mapOf(
+            NavRoutes.ARG_GAME_SET to gameSetId,
+        )
+    )
 
     val subject = CardViewModel(
-        questionRoller = questionRoller,
+        stateHandle = stateHandle,
+        getNextQuestion = getNextQuestion,
     )
 
     @Test
     fun `shows question`() = runTest {
         subject.state.testLast { state ->
             assertThat(state.question)
-                .isEqualTo(rollerQuestion)
+                .isEqualTo(nextQuestion)
         }
     }
 
@@ -36,12 +46,14 @@ internal class CardViewModelTest {
     inner class `next question` {
 
         val nextRollerQuestion = Question(
-            text = "Next Random question?"
+            id = "",
+            text = "Next Random question?",
+            gameSetIds = listOf(gameSetId),
         )
 
         @BeforeEach
         fun setUp() {
-            whenever(questionRoller.roll())
+            whenever(getNextQuestion.invoke(gameSetId))
                 .thenReturn(nextRollerQuestion)
         }
 
