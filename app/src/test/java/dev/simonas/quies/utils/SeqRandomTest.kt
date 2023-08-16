@@ -8,16 +8,22 @@ internal class SeqRandomTest {
     val subject = SeqRandom()
 
     @Test
-    fun `first random int is zero`() {
-        assertThat(subject.nextInt())
-            .isEqualTo(0)
+    fun `3 digits around zero`() {
+        val sequence = (1..3).map {
+            subject.nextInt(Int.MAX_VALUE)
+        }
+        assertThat(sequence)
+            .isEqualTo(listOf(0, 1, 2))
     }
 
     @Test
-    fun `last random int is max int`() {
-        subject.skip(Int.MAX_VALUE)
-        assertThat(subject.nextInt())
-            .isEqualTo(Int.MAX_VALUE)
+    fun `3 digits around max int`() {
+        subject.skip(Int.MAX_VALUE - 1)
+        val sequence = (1..3).map {
+            subject.nextInt(Int.MAX_VALUE)
+        }
+        assertThat(sequence)
+            .isEqualTo(listOf(2147483646, 0, 1))
     }
 
     @Test
@@ -26,6 +32,6 @@ internal class SeqRandomTest {
             subject.nextInt(0, 999)
         }
         assertThat(sequence)
-            .isInOrder()
+            .isEqualTo((0 until 999).toList())
     }
 }

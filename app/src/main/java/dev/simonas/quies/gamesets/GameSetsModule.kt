@@ -1,4 +1,4 @@
-package dev.simonas.quies.questions
+package dev.simonas.quies.gamesets
 
 import dagger.Binds
 import dagger.Module
@@ -7,10 +7,10 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-internal interface QuestionsModule {
+internal interface GameSetsModule {
 
     @Binds
-    fun questionRepository(
-        repository: LocalQuestionRepository
-    ): QuestionRepository
+    fun gameSetRepository(
+        repository: InMemGameSetRepository
+    ): GameSetRepository
 }
