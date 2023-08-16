@@ -1,5 +1,6 @@
 package dev.simonas.quies.gamesets
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -47,6 +48,7 @@ internal fun GameSetsScreen(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun GameSetsScreen(
     state: GameSetsViewModel.State,
