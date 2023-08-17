@@ -14,9 +14,13 @@ internal class GetNextQuestion @Inject constructor(
 
     fun invoke(
         gameSetId: String,
+        level: Question.Level,
     ): Question {
         return questionRepository.getAll()
-            .filter { it.gameSetIds.contains(gameSetId) }
+            .filter { question ->
+                question.level == level &&
+                    question.gameSetIds.contains(gameSetId)
+            }
             .random(random)
     }
 }

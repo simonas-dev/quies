@@ -20,14 +20,20 @@ internal class CardViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(
         State(
-            question = getNextQuestion.invoke(gameSetId),
+            question = getNextQuestion.invoke(
+                gameSetId = gameSetId,
+                level = Question.Level.Easy,
+            ),
         )
     )
 
     val state: StateFlow<State> = _state
 
-    fun next() {
-        val nextQuestion = getNextQuestion.invoke(gameSetId)
+    fun next(level: Question.Level) {
+        val nextQuestion = getNextQuestion.invoke(
+            gameSetId = gameSetId,
+            level = level,
+        )
         _state.update {
             it.copy(
                 question = nextQuestion,

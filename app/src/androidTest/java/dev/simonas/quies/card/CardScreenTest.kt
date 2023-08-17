@@ -12,9 +12,9 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
 @HiltAndroidTest
-class CardScreenTest : ComponentTest() {
+internal class CardScreenTest : ComponentTest() {
 
-    val nextQuestion: () -> Unit = mock()
+    val nextQuestion: (Question.Level) -> Unit = mock()
     val back: () -> Unit = mock()
 
     val content: @Composable () -> Unit = {
@@ -23,6 +23,7 @@ class CardScreenTest : ComponentTest() {
                 question = Question(
                     id = "",
                     text = "Could you bring me some coffee?",
+                    level = Question.Level.Easy,
                     gameSetIds = emptyList(),
                 )
             ),
@@ -38,12 +39,30 @@ class CardScreenTest : ComponentTest() {
     }
 
     @Test
-    fun clicksOnCard() {
+    fun clicksOnEasyLevel() {
         setContent { content() }
-        onNodeWithText("Could you bring me some coffee?")
+        onNodeWithText("1")
             .performClick()
 
-        requestsNextQuestion()
+        requestsNextEasyQuestion()
+    }
+
+    @Test
+    fun clicksOnMediumLevel() {
+        setContent { content() }
+        onNodeWithText("2")
+            .performClick()
+
+        requestsNextMediumQuestion()
+    }
+
+    @Test
+    fun clicksOtHardLevel() {
+        setContent { content() }
+        onNodeWithText("3")
+            .performClick()
+
+        requestsNextHardQuestion()
     }
 
     @Test
@@ -60,8 +79,16 @@ class CardScreenTest : ComponentTest() {
             .assertIsDisplayed()
     }
 
-    private fun requestsNextQuestion() {
-        verify(nextQuestion).invoke()
+    private fun requestsNextEasyQuestion() {
+        verify(nextQuestion).invoke(Question.Level.Easy)
+    }
+
+    private fun requestsNextMediumQuestion() {
+        verify(nextQuestion).invoke(Question.Level.Medium)
+    }
+
+    private fun requestsNextHardQuestion() {
+        verify(nextQuestion).invoke(Question.Level.Hard)
     }
 
     private fun requestsBack() {
