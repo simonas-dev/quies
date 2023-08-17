@@ -13,7 +13,7 @@ class CardTest : ComponentTest() {
     fun init() {
         setContent {
             Card(
-                text = "Could you bring me some coffee?",
+                centerText = "Could you bring me some coffee?",
             )
         }
 
@@ -23,7 +23,7 @@ class CardTest : ComponentTest() {
     @Test
     fun proceedToNextQuestion() {
         setContent {
-            Card(text = "Could you bring me some coffee?")
+            Card(centerText = "Could you bring me some coffee?")
         }
 
         showsInitialQuestion()

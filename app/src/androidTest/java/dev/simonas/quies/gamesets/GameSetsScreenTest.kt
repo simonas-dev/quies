@@ -42,17 +42,17 @@ internal class GameSetsScreenTest : ComponentTest() {
     @Test
     fun `selects game set 1`() {
         setContent { content() }
-        onNodeWithText("Game Set 1")
+        onNodeWithText("GAME SET 1")
             .performClick()
 
         gameSet1Selected()
     }
 
     private fun showsGameSets() {
-        onNodeWithText("Game Set 1")
+        onNodeWithText("GAME SET 1")
             .assertIsDisplayed()
 
-        onNodeWithText("Game Set 2")
+        onNodeWithText("GAME SET 2")
             .assertIsDisplayed()
     }
 

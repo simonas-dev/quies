@@ -19,16 +19,18 @@ class GameSetsUITest : UITest() {
 
     @Test
     fun clicksOnGameSet() {
-        onNodeWithText("Dating")
+        onNodeWithText("DATING")
             .performClick()
 
         showsCardScreen()
     }
 
     private fun showsGameSets() {
-        onNodeWithText("Dating")
+        onNodeWithText("DATING")
             .assertIsDisplayed()
-        onNodeWithText("Friendship")
+        onNodeWithText("FRIENDSHIP")
+            .assertIsDisplayed()
+        onNodeWithText("DEBATE")
             .assertIsDisplayed()
     }
 
