@@ -2,6 +2,7 @@ package dev.simonas.quies.card
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -14,19 +15,48 @@ import org.mockito.Mockito.verify
 @HiltAndroidTest
 internal class CardScreenTest : ComponentTest() {
 
+    val questionClosed: (Question) -> Unit = mock()
+    val changeLevel: (Question.Level) -> Unit = mock()
     val nextQuestion: (Question.Level) -> Unit = mock()
     val back: () -> Unit = mock()
 
-    val content: @Composable () -> Unit = {
+    val pickingContent: @Composable () -> Unit = {
         CardScreen(
-            state = CardViewModel.State(
-                question = Question(
-                    id = "",
-                    text = "Could you bring me some coffee?",
-                    level = Question.Level.Easy,
-                    gameSetIds = emptyList(),
-                )
+            state = CardViewModel.State.Picking(
+                currentLevel = Question.Level.Easy,
+                nextLevel = Question.Level.Medium,
             ),
+            onQuestionClosed = questionClosed,
+            onChangeLevel = changeLevel,
+            onNextQuestion = nextQuestion,
+            onBack = back,
+        )
+    }
+
+    val easyCoffeeQuestion = Question(
+        id = "coffee_question",
+        text = "Could you bring me some coffee?",
+        level = Question.Level.Easy,
+        gameSetIds = emptyList(),
+    )
+
+    val showingContent: @Composable () -> Unit = {
+        CardScreen(
+            state = CardViewModel.State.Showing(
+                question = easyCoffeeQuestion,
+            ),
+            onQuestionClosed = questionClosed,
+            onChangeLevel = changeLevel,
+            onNextQuestion = nextQuestion,
+            onBack = back,
+        )
+    }
+
+    val landingContent: @Composable () -> Unit = {
+        CardScreen(
+            state = CardViewModel.State.Landing,
+            onQuestionClosed = questionClosed,
+            onChangeLevel = changeLevel,
             onNextQuestion = nextQuestion,
             onBack = back,
         )
@@ -34,48 +64,84 @@ internal class CardScreenTest : ComponentTest() {
 
     @Test
     fun init() {
-        setContent { content() }
-        showsInitialQuestion()
+        setContent { landingContent() }
+        showsLevels()
     }
 
     @Test
     fun clicksOnEasyLevel() {
-        setContent { content() }
-        onNodeWithText("1")
+        setContent { landingContent() }
+        onNodeWithText("LEVEL 1")
             .performClick()
+        mainClock.advanceTimeBy(800)
 
         requestsNextEasyQuestion()
     }
 
     @Test
     fun clicksOnMediumLevel() {
-        setContent { content() }
-        onNodeWithText("2")
+        setContent { landingContent() }
+        onNodeWithText("LEVEL 2")
             .performClick()
+        mainClock.advanceTimeBy(800)
 
         requestsNextMediumQuestion()
     }
 
     @Test
-    fun clicksOtHardLevel() {
-        setContent { content() }
-        onNodeWithText("3")
+    fun clicksOnHardLevel() {
+        setContent { landingContent() }
+        onNodeWithText("LEVEL 3")
             .performClick()
+        mainClock.advanceTimeBy(800)
 
         requestsNextHardQuestion()
     }
 
     @Test
     fun clicksOnExit() {
-        setContent { content() }
-        onNodeWithText("exit")
+        setContent { pickingContent() }
+        onNodeWithTag(CardScreen.TAG_EXIT)
             .performClick()
 
         requestsBack()
     }
 
-    private fun showsInitialQuestion() {
-        onNodeWithText("Could you bring me some coffee?")
+    @Test
+    fun clicksOnChangeLevel() {
+        setContent { pickingContent() }
+        onNodeWithTag(CardScreen.TAG_NEXT_LEVEL)
+            .performClick()
+
+        requestsChangeLevel()
+    }
+
+    @Test
+    fun clicksOnNextEasyQuestion() {
+        setContent { pickingContent() }
+        onNodeWithTag(CardScreen.TAG_NEXT_CARD)
+            .performClick()
+        mainClock.advanceTimeBy(500)
+
+        requestsNextEasyQuestion()
+    }
+
+    @Test
+    fun closesQuestion() {
+        setContent { showingContent() }
+        onNodeWithTag(CardScreen.TAG_CLOSE_CARD)
+            .performClick()
+        mainClock.advanceTimeBy(500)
+
+        requestsCloseQuestion()
+    }
+
+    private fun showsLevels() {
+        onNodeWithText("LEVEL 1")
+            .assertIsDisplayed()
+        onNodeWithText("LEVEL 2")
+            .assertIsDisplayed()
+        onNodeWithText("LEVEL 3")
             .assertIsDisplayed()
     }
 
@@ -93,5 +159,13 @@ internal class CardScreenTest : ComponentTest() {
 
     private fun requestsBack() {
         verify(back).invoke()
+    }
+
+    private fun requestsChangeLevel() {
+        verify(changeLevel).invoke(Question.Level.Medium)
+    }
+
+    private fun requestsCloseQuestion() {
+        verify(questionClosed).invoke(easyCoffeeQuestion)
     }
 }

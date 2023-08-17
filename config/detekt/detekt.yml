@@ -582,6 +582,8 @@ style:
     ignoreEnums: false
     ignoreRanges: false
     ignoreExtensionFunctions: true
+    ignoreAnnotated:
+      - 'Composable'
   MandatoryBracesIfStatements:
     active: false
   MandatoryBracesLoops:
