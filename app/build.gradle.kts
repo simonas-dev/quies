@@ -161,7 +161,6 @@ simpleFlank {
 
 play {
     defaultToAppBundles.set(true)
-    releaseStatus.set(com.github.triplet.gradle.androidpublisher.ReleaseStatus.DRAFT)
     // Will be created at GitHub CI job runtime via $PUBLISHER_SERVICE_ACCOUNT_KEY secret.
     serviceAccountCredentials.set(file("publisher-service-account-key.json"))
     track.set("internal")
