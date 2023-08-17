@@ -31,13 +31,33 @@ class CardUITest : UITest() {
     }
 
     @Test
-    fun clickOnInitialQuestionCard() {
-        onNodeWithText("Dating")
+    fun clickOnEasyQuestionCard() {
+        onNodeWithText("Friendship")
             .performClick()
-        onNodeWithText("When I was a kid, what do you think I wanted to become?")
+        onNodeWithTag(CardScreen.TAG_LEVEL_EASY)
             .performClick()
 
-        showsNextQuestion()
+        showsNextEasyQuestion()
+    }
+
+    @Test
+    fun clickOnMediumQuestionCard() {
+        onNodeWithText("Dating")
+            .performClick()
+        onNodeWithTag(CardScreen.TAG_LEVEL_MEDIUM)
+            .performClick()
+
+        showsNextMediumQuestion()
+    }
+
+    @Test
+    fun clickOnHardQuestionCard() {
+        onNodeWithText("Dating")
+            .performClick()
+        onNodeWithTag(CardScreen.TAG_LEVEL_HARD)
+            .performClick()
+
+        showsNextHardQuestion()
     }
 
     private fun showsCardScreen() {
@@ -50,8 +70,18 @@ class CardUITest : UITest() {
             .assertIsDisplayed()
     }
 
-    private fun showsNextQuestion() {
-        onNodeWithText("What could bring us closer together?")
+    private fun showsNextEasyQuestion() {
+        onNodeWithText("Am I someone who loves mornings or prefers staying up late?")
+            .assertIsDisplayed()
+    }
+
+    private fun showsNextMediumQuestion() {
+        onNodeWithText("What does my body language right now?")
+            .assertIsDisplayed()
+    }
+
+    private fun showsNextHardQuestion() {
+        onNodeWithText("How do you feel when you’re around me?")
             .assertIsDisplayed()
     }
 }

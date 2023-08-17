@@ -15,13 +15,15 @@ import org.mockito.kotlin.whenever
 internal class CardViewModelTest {
 
     val gameSetId = "gameSetId"
+    val level = Question.Level.Easy
     val nextQuestion = Question(
         id = "",
         text = "Random question?",
+        level = Question.Level.Easy,
         gameSetIds = listOf(gameSetId),
     )
     val getNextQuestion: GetNextQuestion = mock {
-        on { invoke(gameSetId) }.thenReturn(nextQuestion)
+        on { invoke(gameSetId, level) }.thenReturn(nextQuestion)
     }
     val stateHandle = SavedStateHandle(
         mapOf(
@@ -49,11 +51,12 @@ internal class CardViewModelTest {
             id = "",
             text = "Next Random question?",
             gameSetIds = listOf(gameSetId),
+            level = Question.Level.Hard,
         )
 
         @BeforeEach
         fun setUp() {
-            whenever(getNextQuestion.invoke(gameSetId))
+            whenever(getNextQuestion.invoke(gameSetId, Question.Level.Hard))
                 .thenReturn(nextRollerQuestion)
         }
 
