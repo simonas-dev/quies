@@ -24,8 +24,9 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - name: Static Analysis
         run: ./gradlew detekt lint
-      - name: Build
-        run: ./gradlew build
+      - name: Compile Sources
+        # Sanity check before proceeding to tests.
+        run: ./gradlew compileDebugAndroidTestSources compileDebugSources compileDebugUnitTestSources compileReleaseSources
       - name: Create Service Account Key for Flank
         env:
           FLANK_SERVICE_ACCOUNT_KEY: ${{ secrets.FLANK_SERVICE_ACCOUNT_KEY }}
