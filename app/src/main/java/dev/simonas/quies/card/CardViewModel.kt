@@ -3,7 +3,7 @@ package dev.simonas.quies.card
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.simonas.quies.questions.Question
+import dev.simonas.quies.data.Question
 import dev.simonas.quies.router.NavRoutes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

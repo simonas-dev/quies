@@ -6,6 +6,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import dev.simonas.quies.ComponentTest
+import dev.simonas.quies.data.GameSet
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify

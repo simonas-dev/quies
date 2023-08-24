@@ -117,6 +117,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.compose.navigation)
     implementation(libs.hilt.navigation.compose)
+    implementation(project(":data"))
 
     kapt(libs.hilt.android.compiler)
 

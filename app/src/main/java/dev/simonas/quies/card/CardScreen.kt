@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.simonas.quies.questions.Question
+import dev.simonas.quies.data.Question
 import dev.simonas.quies.utils.QDevices
 import dev.simonas.quies.utils.animatePlacement
 import dev.simonas.quies.utils.createTestTag
@@ -448,7 +448,6 @@ private fun PreviewShowing() {
     CardScreen(
         state = CardViewModel.State.Showing(
             question = Question(
-                id = "1",
                 text = "If there's a reality show I'd binge-watch, " +
                     "which one do you imagine it would be?",
                 level = Question.Level.Easy,

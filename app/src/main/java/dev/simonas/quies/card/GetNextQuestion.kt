@@ -1,7 +1,7 @@
 package dev.simonas.quies.card
 
-import dev.simonas.quies.questions.Question
-import dev.simonas.quies.questions.QuestionRepository
+import dev.simonas.quies.data.Question
+import dev.simonas.quies.data.QuestionRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.random.Random
