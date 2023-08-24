@@ -1,6 +1,8 @@
 package dev.simonas.quies.gamesets
 
 import com.google.common.truth.Truth.assertThat
+import dev.simonas.quies.data.GameSet
+import dev.simonas.quies.data.GameSetRepository
 import dev.simonas.quies.utils.testLast
 import kotlinx.coroutines.test.runTest
 import org.junit.Test

@@ -112,9 +112,6 @@ output.json
 # BlueJ files
 *.ctxt
 
-# Build release generated
-*.txt
-
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 

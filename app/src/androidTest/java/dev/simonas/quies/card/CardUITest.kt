@@ -6,14 +6,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import dagger.hilt.android.testing.HiltAndroidTest
 import dev.simonas.quies.UITest
-import dev.simonas.quies.gamesets.GameSet
-import dev.simonas.quies.gamesets.GameSets
 import dev.simonas.quies.gamesets.GameSetsScreen
-import javax.inject.Inject
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.RuleChain
 
 @HiltAndroidTest
 class CardUITest : UITest() {
@@ -123,17 +117,17 @@ class CardUITest : UITest() {
     }
 
     private fun showsEasyQuestion() {
-        onNodeWithText("When I was a kid, what do you think I wanted to become?")
+        onNodeWithText("What's one thing you love about your hometown?")
             .assertIsDisplayed()
     }
 
     private fun showsMediumQuestion() {
-        onNodeWithText("What could bring us closer together?")
+        onNodeWithText("What qualities are you looking for in a friend?")
             .assertIsDisplayed()
     }
 
     private fun showsHardQuestion() {
-        onNodeWithText("Should the father have a say in the pregnancy?")
+        onNodeWithText("Does the influence of technology on social interactions creates social pressures to conform that in turn reduces our individuality and leads to more psychological issues?")
             .assertIsDisplayed()
     }
 
@@ -160,7 +154,7 @@ class CardUITest : UITest() {
     }
 
     private fun showsNextHardQuestion() {
-        onNodeWithText("Should laws focus on individual rights or the greater good?")
+        onNodeWithText("Is it ethical to introduce human-like consciousness into AI systems?")
             .assertIsDisplayed()
     }
 }

@@ -1,8 +1,8 @@
 package dev.simonas.quies.card
 
 import com.google.common.truth.Truth.assertThat
-import dev.simonas.quies.questions.Question
-import dev.simonas.quies.questions.QuestionRepository
+import dev.simonas.quies.data.Question
+import dev.simonas.quies.data.QuestionRepository
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
@@ -21,7 +21,6 @@ internal class GetNextQuestionTest {
     @Test
     fun `returns question from expected game set`() {
         val expectedQuestion = Question(
-            id = "1",
             text = "hello?",
             level = Question.Level.Easy,
             gameSetIds = listOf("1"),
@@ -40,7 +39,6 @@ internal class GetNextQuestionTest {
     @Test
     fun `returns question from expected level`() {
         val expectedQuestion = Question(
-            id = "1",
             text = "hello?",
             level = Question.Level.Medium,
             gameSetIds = listOf("1"),

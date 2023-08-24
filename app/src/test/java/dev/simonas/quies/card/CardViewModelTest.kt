@@ -2,7 +2,7 @@ package dev.simonas.quies.card
 
 import androidx.lifecycle.SavedStateHandle
 import com.google.common.truth.Truth.assertThat
-import dev.simonas.quies.questions.Question
+import dev.simonas.quies.data.Question
 import dev.simonas.quies.router.NavRoutes
 import dev.simonas.quies.utils.az
 import dev.simonas.quies.utils.testLast
@@ -40,7 +40,6 @@ internal class CardViewModelTest {
     inner class `next question` {
 
         val nextRollerQuestion = Question(
-            id = "",
             text = "Next Random question?",
             gameSetIds = listOf(gameSetId),
             level = Question.Level.Hard,
@@ -91,7 +90,6 @@ internal class CardViewModelTest {
     inner class `close question` {
 
         val closedQuestion = Question(
-            id = "",
             text = "",
             level = Question.Level.Easy,
             gameSetIds = emptyList(),

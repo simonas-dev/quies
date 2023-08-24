@@ -1,5 +1,5 @@
 [versions]
-agp = "8.1.0"
+agp = "8.1.1"
 androidx_activity_compose = "1.7.2"
 androidx_test = "1.5.0"
 androidx_test_ext = "1.1.5"
@@ -23,6 +23,7 @@ hilt-navigation-compose = "1.0.0"
 javapoet = "1.13.0"
 junit = "4.13.2"
 junit-jupiter = "5.8.1"
+kaml = "0.55.0"
 kotlin = "1.8.10"
 ktlint_gradle = "11.5.0"
 min_sdk_version = "31"
@@ -33,6 +34,9 @@ simple_flank = "0.4.0"
 target_sdk_version = "33"
 truth = "1.1.5"
 turbine = "1.0.0"
+org-jetbrains-kotlin-jvm = "1.8.0"
+agp2 = "8.1.0"
+material = "1.8.0"
 
 [libraries]
 agp = { module = "com.android.tools.build:gradle", version.ref = "agp" }
@@ -67,11 +71,13 @@ hilt-testing = { module = "com.google.dagger:hilt-android-testing", version.ref 
 javapoet = { module = "com.squareup:javapoet", version.ref = "javapoet" }
 junit = { module = "junit:junit", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 kgp = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockito-android" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito-kotlin" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine"}
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
@@ -82,3 +88,5 @@ ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint.gradle" }
 play_publisher = { id = "com.github.triplet.play", version.ref = "play_publisher" }
 simple_flank = { id = "io.github.flank.gradle.simple-flank", version.ref = "simple_flank" }
 versions = { id = "com.github.ben-manes.versions", version.ref = "benmanesversion" }
+org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "org-jetbrains-kotlin-jvm" }
+com-android-library = { id = "com.android.library", version.ref = "agp2" }

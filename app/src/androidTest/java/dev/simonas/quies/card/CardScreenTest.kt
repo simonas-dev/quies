@@ -7,7 +7,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import dagger.hilt.android.testing.HiltAndroidTest
 import dev.simonas.quies.ComponentTest
-import dev.simonas.quies.questions.Question
+import dev.simonas.quies.data.Question
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
@@ -34,7 +34,6 @@ internal class CardScreenTest : ComponentTest() {
     }
 
     val easyCoffeeQuestion = Question(
-        id = "coffee_question",
         text = "Could you bring me some coffee?",
         level = Question.Level.Easy,
         gameSetIds = emptyList(),

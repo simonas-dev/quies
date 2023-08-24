@@ -19,7 +19,21 @@ jobs:
           java-version: '17'
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
-      - name: Create Secrets
+      - name: Replace Example Content
+        env:
+          DATA_FETCH_GH_TOKEN: ${{ secrets.DATA_FETCH_GH_TOKEN }}
+          DATA_AES_KEY: ${{ secrets.DATA_AES_KEY }}
+          DATA_AES_IV: ${{ secrets.DATA_AES_IV }}
+        run:
+          ./data/downloadProdSource.sh $DATA_FETCH_GH_TOKEN
+          ./data/replaceSecrets.sh -k $DATA_AES_KEY -i DATA_AES_IV
+      - name: Create Service Account Key for Flank
+        env:
+          FLANK_SERVICE_ACCOUNT_KEY: ${{ secrets.FLANK_SERVICE_ACCOUNT_KEY }}
+        run: echo $FLANK_SERVICE_ACCOUNT_KEY | base64 -d > app/flank-service-account-key.json
+      - name: Run Tests
+        run: ./gradlew flankRun
+      - name: Create Artifact Secrets
         env:
           PUBLISHER_SERVICE_ACCOUNT_KEY: ${{ secrets.PUBLISHER_SERVICE_ACCOUNT_KEY }}
           RELEASE_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}

@@ -21,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.simonas.quies.card.Card
 import dev.simonas.quies.card.vertical
+import dev.simonas.quies.data.GameSet
 import dev.simonas.quies.utils.QDevices
 import dev.simonas.quies.utils.createTestTag
 
