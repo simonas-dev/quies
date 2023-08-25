@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.simonas.quies.data.Question
@@ -39,8 +40,6 @@ import dev.simonas.quies.utils.createTestTag
 
 internal object CardScreen {
     val TAG_SCREEN = createTestTag("screen")
-    val TAG_NEXT_CARD = createTestTag("next_card")
-    val TAG_NEXT_LEVEL = createTestTag("next_level")
     val TAG_CLOSE_CARD = createTestTag("close_card")
     val TAG_EXIT = createTestTag("exit")
 }
@@ -290,7 +289,7 @@ private fun BoxScope.Showing(
         finishedListener = {
             onQuestionClosed(state.question)
         },
-        label = "close animation",
+        label = "closeCardAnim",
     )
 
     LaunchedEffect(Unit) {
@@ -309,14 +308,8 @@ private fun BoxScope.Showing(
 
     Card(
         modifier = Modifier
-            .animatePlacement()
-            .offset(x = ((-470 + 84) * closeCardAnim).dp)
-            .align(
-                when {
-                    isClosed -> Alignment.CenterStart
-                    else -> Alignment.Center
-                }
-            ),
+            .offset(x = ((-470 - 64) * closeCardAnim).dp)
+            .align(Alignment.Center),
         centerText = state.question.text,
         textAlpha = startupAnimation,
     )
@@ -339,6 +332,7 @@ private fun BoxScope.Showing(
     )
 }
 
+@Suppress("CyclomaticComplexMethod") // I know... later.
 @Composable
 private fun BoxScope.Picking(
     state: CardViewModel.State.Picking,
@@ -360,7 +354,7 @@ private fun BoxScope.Picking(
         )
     }
 
-    var isPicked: Boolean by remember { mutableStateOf(false) }
+    var isPicked: Boolean by remember(state.nextLevel) { mutableStateOf(false) }
     val pickedCardAnim: Float by animateFloatAsState(
         animationSpec = tween(
             durationMillis = 400,
@@ -375,6 +369,37 @@ private fun BoxScope.Picking(
         label = "close animation",
     )
 
+    val level1Anim: Float by animateFloatAsState(
+        animationSpec = tween(
+            durationMillis = 400,
+        ),
+        targetValue = when {
+            state.currentLevel == Question.Level.Easy -> 1f
+            else -> 0f
+        },
+        label = "level1Anim",
+    )
+    val level2Anim: Float by animateFloatAsState(
+        animationSpec = tween(
+            durationMillis = 400,
+        ),
+        targetValue = when {
+            state.currentLevel == Question.Level.Medium -> 1f
+            else -> 0f
+        },
+        label = "level2Anim",
+    )
+    val level3Anim: Float by animateFloatAsState(
+        animationSpec = tween(
+            durationMillis = 400,
+        ),
+        targetValue = when {
+            state.currentLevel == Question.Level.Hard -> 1f
+            else -> 0f
+        },
+        label = "level3Anim",
+    )
+
     Button(
         modifier = Modifier
             .testTag(CardScreen.TAG_EXIT)
@@ -383,36 +408,113 @@ private fun BoxScope.Picking(
         onClick = onBack,
         colors = ButtonDefaults.outlinedButtonColors(),
         content = {
-            Text("exit")
+            Text("X")
         }
     )
 
     Card(
         modifier = Modifier
             .animatePlacement()
-            .offset(x = (-470 + 84).dp)
-            .align(Alignment.CenterStart),
+            .offset(x = (-470 - 64).dp)
+            .align(Alignment.Center),
     )
 
     Card(
         modifier = Modifier
-            .testTag(CardScreen.TAG_NEXT_CARD)
+            .zIndex(
+                when {
+                    state.currentLevel == Question.Level.Easy -> 3f
+                    state.nextLevel == Question.Level.Easy -> 2f
+                    else -> 1f
+                }
+            )
+            .offset(x = ((470 + 64) - (470 + 64) * level1Anim).dp)
+            .let {
+                if (state.currentLevel != Question.Level.Easy) {
+                    it.offset(x = (128 * (1 - startupAnimation)).dp)
+                } else {
+                    it
+                }
+            }
             .align(Alignment.Center),
-        sideText = state.currentLevel.toText(),
+        sideText = Question.Level.Easy.toText(),
         textAlpha = pickedCardAnim,
         onClick = {
-            isPicked = true
+            when {
+                level1Anim != 1f && level1Anim != 0f -> Unit
+                state.currentLevel == Question.Level.Easy -> {
+                    onNextQuestion(Question.Level.Easy)
+                }
+                else -> {
+                    onChangeLevel(Question.Level.Easy)
+                }
+            }
         }
     )
 
     Card(
         modifier = Modifier
-            .testTag(CardScreen.TAG_NEXT_LEVEL)
-            .align(Alignment.CenterEnd)
-            .offset(x = (470 - 84 * startupAnimation * pickedCardAnim).dp),
-        sideText = state.nextLevel.toText(),
+            .zIndex(
+                when {
+                    state.currentLevel == Question.Level.Medium -> 3f
+                    state.nextLevel == Question.Level.Medium -> 2f
+                    else -> 1f
+                }
+            )
+            .offset(x = ((470 + 64) - (470 + 64) * level2Anim).dp)
+            .let {
+                if (state.currentLevel != Question.Level.Medium) {
+                    it.offset(x = (128 * (1 - startupAnimation)).dp)
+                } else {
+                    it
+                }
+            }
+            .align(Alignment.Center),
+        sideText = Question.Level.Medium.toText(),
+        textAlpha = pickedCardAnim,
         onClick = {
-            onChangeLevel(state.nextLevel)
+            when {
+                level2Anim != 1f && level2Anim != 0f -> Unit
+                state.currentLevel == Question.Level.Medium -> {
+                    onNextQuestion(Question.Level.Medium)
+                }
+                else -> {
+                    onChangeLevel(Question.Level.Medium)
+                }
+            }
+        }
+    )
+
+    Card(
+        modifier = Modifier
+            .zIndex(
+                when {
+                    state.currentLevel == Question.Level.Hard -> 3f
+                    state.nextLevel == Question.Level.Hard -> 2f
+                    else -> 1f
+                }
+            )
+            .offset(x = ((470 + 64) - (470 + 64) * level3Anim).dp)
+            .let {
+                if (state.currentLevel != Question.Level.Hard) {
+                    it.offset(x = (128 * (1 - startupAnimation)).dp)
+                } else {
+                    it
+                }
+            }
+            .align(Alignment.Center),
+        sideText = Question.Level.Hard.toText(),
+        textAlpha = pickedCardAnim,
+        onClick = {
+            when {
+                level3Anim != 1f && level3Anim != 0f -> Unit
+                state.currentLevel == Question.Level.Hard -> {
+                    onNextQuestion(Question.Level.Hard)
+                }
+                else -> {
+                    onChangeLevel(Question.Level.Hard)
+                }
+            }
         }
     )
 }

@@ -59,8 +59,8 @@ class CardUITest : UITest() {
         onNodeWithTag(CardScreen.TAG_CLOSE_CARD)
             .performClick()
 
-        showsNextLevelCard()
-        showsNextCard()
+        showsNextLevelCardAsEasy()
+        showsNextCardAsHard()
         showsExit()
     }
 
@@ -72,7 +72,7 @@ class CardUITest : UITest() {
             .performClick()
         onNodeWithTag(CardScreen.TAG_CLOSE_CARD)
             .performClick()
-        onNodeWithTag(CardScreen.TAG_NEXT_LEVEL)
+        onNodeWithText("LEVEL 1")
             .performClick()
 
         currentLevelIsEasy()
@@ -86,7 +86,7 @@ class CardUITest : UITest() {
             .performClick()
         onNodeWithTag(CardScreen.TAG_CLOSE_CARD)
             .performClick()
-        onNodeWithTag(CardScreen.TAG_NEXT_CARD)
+        onNodeWithText("LEVEL 3")
             .performClick()
 
         showsNextHardQuestion()
@@ -131,18 +131,18 @@ class CardUITest : UITest() {
             .assertIsDisplayed()
     }
 
-    private fun showsNextLevelCard() {
-        onNodeWithTag(CardScreen.TAG_NEXT_LEVEL)
+    private fun showsNextLevelCardAsEasy() {
+        onNodeWithText("LEVEL 1")
             .assertIsDisplayed()
     }
 
-    private fun showsNextCard() {
-        onNodeWithTag(CardScreen.TAG_NEXT_CARD)
+    private fun showsNextCardAsHard() {
+        onNodeWithText("LEVEL 3")
             .assertIsDisplayed()
     }
 
     private fun showsExit() {
-        onNodeWithTag(CardScreen.TAG_NEXT_CARD)
+        onNodeWithTag(CardScreen.TAG_EXIT)
             .assertIsDisplayed()
     }
 

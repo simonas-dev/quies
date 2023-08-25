@@ -54,7 +54,7 @@ internal fun GameSetsScreen(
                     .testTag(GameSetsScreen.TAG_SCREEN)
                     .padding(it)
                     .fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 64.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 itemsIndexed(state.gameSets) { index, set ->
@@ -63,8 +63,8 @@ internal fun GameSetsScreen(
                             .vertical()
                             .zIndex(9999f - index)
                             .offset(
-                                x = (-32 * index).dp,
-                                y = (470 / 2).dp,
+                                x = (-48 * index).dp,
+                                y = (470 / 2f).dp,
                             )
                             .rotate(90f),
                         sideText = set.name.uppercase(),
