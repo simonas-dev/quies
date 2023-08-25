@@ -1,5 +1,5 @@
 # IDEA
-.idea/androidTestResultsUserPreferences.xml
+.idea/
 
 # Secrets should remain secret
 flank-service-account-key.json

@@ -1,10 +1,17 @@
 package dev.simonas.quies.card
 
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -20,8 +27,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Exit
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
@@ -98,6 +111,12 @@ internal fun Card(
         Box(
             modifier = Modifier.fillMaxHeight(),
         ) {
+            if (onClick != null) {
+                BackgroundArt(
+                    isAnimated = false,
+                )
+            }
+
             if (centerText != null) {
                 Text(
                     modifier = Modifier
@@ -144,6 +163,70 @@ internal fun Card(
     }
 }
 
+@Composable
+fun BackgroundArt(
+    isAnimated: Boolean,
+) {
+    val time: Float
+    when {
+        isAnimated -> {
+            val infiniteScale = rememberInfiniteTransition(
+                label = "sinus time swing",
+            )
+
+            val temp by infiniteScale.animateFloat(
+                initialValue = 0f,
+                targetValue = 1f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(
+                        durationMillis = 4000,
+                        easing = CubicBezierEasing(.4f, 0f, .6f, 1f),
+                    ),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+                label = "sinus time swing",
+            )
+            time = temp
+        }
+        else -> {
+            time = 0.5f
+        }
+    }
+
+    Spacer(
+        modifier = Modifier
+            .fillMaxSize()
+            .drawWithCache {
+                val movement = 2.dp.toPx()
+                val margin = 12.dp.toPx()
+                val radius = 64.dp.toPx() * ((size.width - margin * 2) / size.width)
+                val color = QColors.cardSecondaryTextColor.copy(
+                    alpha = 0.1f,
+                )
+                val stroke = 6.toDp().toPx()
+                val path = Path()
+                val rect = RoundRect(
+                    rect = Rect(margin, margin, size.width - margin, size.height - margin),
+                    radiusX = radius,
+                    radiusY = radius,
+                )
+                val multiOffset = (movement * 2f) / size.width
+                path.addRoundRect(rect)
+
+                onDrawBehind {
+                    val animMulti = 1f + (multiOffset / 2f) + multiOffset * time
+                    scale(animMulti) {
+                        drawPath(
+                            path = path,
+                            color = color,
+                            style = Stroke(width = stroke),
+                        )
+                    }
+                }
+            }
+    )
+}
+
 fun Modifier.vertical() =
     layout { measurable, constraints ->
         val placeable = measurable.measure(constraints)
@@ -160,6 +243,7 @@ fun Modifier.vertical() =
 private fun PreviewCard() {
     Card(
         centerText = "Pick someone in the group you don’t know and guess what they studied in college?",
-        sideText = "LEVEL 1"
+        sideText = "LEVEL 1",
+        onClick = {},
     )
 }
