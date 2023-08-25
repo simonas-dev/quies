@@ -109,7 +109,7 @@ internal class CardScreenTest : ComponentTest() {
     @Test
     fun clicksOnChangeLevel() {
         setContent { pickingContent() }
-        onNodeWithTag(CardScreen.TAG_NEXT_LEVEL)
+        onNodeWithText("LEVEL 2")
             .performClick()
 
         requestsChangeLevel()
@@ -118,7 +118,7 @@ internal class CardScreenTest : ComponentTest() {
     @Test
     fun clicksOnNextEasyQuestion() {
         setContent { pickingContent() }
-        onNodeWithTag(CardScreen.TAG_NEXT_CARD)
+        onNodeWithText("LEVEL 1")
             .performClick()
         mainClock.advanceTimeBy(500)
 
