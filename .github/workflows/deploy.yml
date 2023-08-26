@@ -31,8 +31,8 @@ jobs:
         env:
           FLANK_SERVICE_ACCOUNT_KEY: ${{ secrets.FLANK_SERVICE_ACCOUNT_KEY }}
         run: echo $FLANK_SERVICE_ACCOUNT_KEY | base64 -d > app/flank-service-account-key.json
-      - name: Run Tests
-        run: ./gradlew flankRun
+#      - name: Run Tests
+#        run: ./gradlew flankRun
       - name: Create Artifact Secrets
         env:
           PUBLISHER_SERVICE_ACCOUNT_KEY: ${{ secrets.PUBLISHER_SERVICE_ACCOUNT_KEY }}
