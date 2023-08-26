@@ -1,11 +1,6 @@
 package dev.simonas.quies.card
 
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Box
@@ -49,6 +44,8 @@ import androidx.compose.ui.unit.sp
 import dev.simonas.quies.card.Card.TAG_CENTER_TEXT
 import dev.simonas.quies.card.Card.TAG_SIDE_TEXT
 import dev.simonas.quies.template.QColors
+import dev.simonas.quies.utils.timeMillisAsState
+import kotlin.math.sin
 
 internal object Card {
     const val TAG_CENTER_TEXT = "text_center"
@@ -112,9 +109,7 @@ internal fun Card(
             modifier = Modifier.fillMaxHeight(),
         ) {
             if (onClick != null) {
-                BackgroundArt(
-                    isAnimated = false,
-                )
+                BackgroundArt()
             }
 
             if (centerText != null) {
@@ -164,41 +159,15 @@ internal fun Card(
 }
 
 @Composable
-fun BackgroundArt(
-    isAnimated: Boolean,
-) {
-    val time: Float
-    when {
-        isAnimated -> {
-            val infiniteScale = rememberInfiniteTransition(
-                label = "sinus time swing",
-            )
-
-            val temp by infiniteScale.animateFloat(
-                initialValue = 0f,
-                targetValue = 1f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(
-                        durationMillis = 4000,
-                        easing = CubicBezierEasing(.4f, 0f, .6f, 1f),
-                    ),
-                    repeatMode = RepeatMode.Reverse,
-                ),
-                label = "sinus time swing",
-            )
-            time = temp
-        }
-        else -> {
-            time = 0.5f
-        }
-    }
+fun BackgroundArt() {
+    val millis = timeMillisAsState()
 
     Spacer(
         modifier = Modifier
             .fillMaxSize()
             .drawWithCache {
-                val movement = 2.dp.toPx()
-                val margin = 12.dp.toPx()
+                val movement = 4.dp.toPx()
+                val margin = 16.dp.toPx()
                 val radius = 64.dp.toPx() * ((size.width - margin * 2) / size.width)
                 val color = QColors.cardSecondaryTextColor.copy(
                     alpha = 0.1f,
@@ -214,7 +183,9 @@ fun BackgroundArt(
                 path.addRoundRect(rect)
 
                 onDrawBehind {
-                    val animMulti = 1f + (multiOffset / 2f) + multiOffset * time
+                    val sinT = sin(millis.value / 2000f)
+                    val timeF = (1f + sinT) / 2f
+                    val animMulti = 1f + (multiOffset / 2f) + multiOffset * timeF
                     scale(animMulti) {
                         drawPath(
                             path = path,
