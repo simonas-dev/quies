@@ -26,10 +26,11 @@ internal class CardScreenTest : ComponentTest() {
                 currentLevel = Question.Level.Easy,
                 nextLevel = Question.Level.Medium,
             ),
+            onNextQuestion = nextQuestion,
             onQuestionClosed = questionClosed,
             onChangeLevel = changeLevel,
-            onNextQuestion = nextQuestion,
             onBack = back,
+            prevQuestions = prevQuestions,
         )
     }
 
@@ -44,20 +45,22 @@ internal class CardScreenTest : ComponentTest() {
             state = CardViewModel.State.Showing(
                 question = easyCoffeeQuestion,
             ),
+            onNextQuestion = nextQuestion,
             onQuestionClosed = questionClosed,
             onChangeLevel = changeLevel,
-            onNextQuestion = nextQuestion,
             onBack = back,
+            prevQuestions = prevQuestions,
         )
     }
 
     val landingContent: @Composable () -> Unit = {
         CardScreen(
             state = CardViewModel.State.Landing,
+            onNextQuestion = nextQuestion,
             onQuestionClosed = questionClosed,
             onChangeLevel = changeLevel,
-            onNextQuestion = nextQuestion,
             onBack = back,
+            prevQuestions = prevQuestions,
         )
     }
 

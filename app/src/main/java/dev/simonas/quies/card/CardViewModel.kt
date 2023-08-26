@@ -7,6 +7,7 @@ import dev.simonas.quies.data.Question
 import dev.simonas.quies.router.NavRoutes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,11 +18,17 @@ internal class CardViewModel @Inject constructor(
 
     private val gameSetId: String = requireNotNull(stateHandle[NavRoutes.ARG_GAME_SET])
 
+    private val _previousQuestions = MutableStateFlow(emptyList<Question>())
+
     private val _state = MutableStateFlow<State>(State.Landing)
 
     val state: StateFlow<State> = _state
+    val previousQuestions: StateFlow<List<Question>> = _previousQuestions
 
     fun closed(question: Question) {
+        _previousQuestions.update {
+            it.plus(question)
+        }
         changeLevel(
             level = question.level,
         )
