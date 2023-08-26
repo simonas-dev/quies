@@ -39,6 +39,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.simonas.quies.card.Card.TAG_CENTER_TEXT
@@ -55,6 +56,7 @@ internal object Card {
 @Composable
 internal fun Card(
     modifier: Modifier = Modifier,
+    shadowElevation: Dp = 4.dp,
     centerText: String? = null,
     sideText: String? = null,
     textAlpha: Float = 1f,
@@ -76,7 +78,7 @@ internal fun Card(
     Surface(
         shape = RoundedCornerShape(CornerSize(64.dp)),
         color = QColors.cardBackground,
-        shadowElevation = 4.dp,
+        shadowElevation = shadowElevation,
         enabled = onClick != null,
         onClick = { onClick?.invoke() },
         modifier = modifier

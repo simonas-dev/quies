@@ -1,11 +1,8 @@
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package dev.simonas.quies.card
 
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +35,7 @@ import dev.simonas.quies.data.Question
 import dev.simonas.quies.utils.QDevices
 import dev.simonas.quies.utils.animatePlacement
 import dev.simonas.quies.utils.createTestTag
+import kotlin.math.sin
 
 internal object CardScreen {
     val TAG_SCREEN = createTestTag("screen")
@@ -44,14 +43,24 @@ internal object CardScreen {
     val TAG_EXIT = createTestTag("exit")
 }
 
+@Suppress("MagicNumber")
+private fun closedCardX(index: Int): Dp =
+    (-470 - 64 - 4 * sin(index * 1000f) * sin(index * 300f) - 0.5 * index).dp
+
+@Suppress("MagicNumber")
+private fun closedCardY(index: Int): Dp =
+    (4 * sin(index * 1000f) * sin(index * 300f)).dp
+
 @Composable
 internal fun CardScreen(
     cardViewModel: CardViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
     val state = cardViewModel.state.collectAsStateWithLifecycle()
+    val prevQuestions = cardViewModel.previousQuestions.collectAsStateWithLifecycle()
     CardScreen(
         state = state.value,
+        prevQuestions = prevQuestions.value,
         onNextQuestion = { level ->
             cardViewModel.next(level)
         },
@@ -68,6 +77,7 @@ internal fun CardScreen(
 @Composable
 internal fun CardScreen(
     state: CardViewModel.State,
+    prevQuestions: List<Question>,
     onNextQuestion: (Question.Level) -> Unit,
     onQuestionClosed: (Question) -> Unit,
     onChangeLevel: (Question.Level) -> Unit,
@@ -81,6 +91,17 @@ internal fun CardScreen(
                     .padding(it)
                     .fillMaxSize()
             ) {
+                prevQuestions.forEachIndexed { index, _ ->
+                    Card(
+                        modifier = Modifier
+                            .offset(
+                                x = closedCardX(index),
+                                y = closedCardY(index),
+                            )
+                            .align(Alignment.Center),
+                    )
+                }
+
                 when (state) {
                     is CardViewModel.State.Landing -> {
                         Landing(
@@ -98,6 +119,7 @@ internal fun CardScreen(
                     is CardViewModel.State.Showing -> {
                         Showing(
                             state = state,
+                            prevQuestions = prevQuestions,
                             onQuestionClosed = onQuestionClosed,
                         )
                     }
@@ -259,6 +281,7 @@ private fun BoxScope.Landing(
 @Composable
 private fun BoxScope.Showing(
     state: CardViewModel.State.Showing,
+    prevQuestions: List<Question>,
     onQuestionClosed: (Question) -> Unit,
 ) {
     var startupAnimation: Float by remember { mutableStateOf(0f) }
@@ -306,9 +329,13 @@ private fun BoxScope.Showing(
         )
     }
 
+    val index = prevQuestions.size
     Card(
         modifier = Modifier
-            .offset(x = ((-470 - 64) * closeCardAnim).dp)
+            .offset(
+                x = closedCardX(index) * closeCardAnim,
+                y = closedCardY(index) * closeCardAnim,
+            )
             .align(Alignment.Center),
         centerText = state.question.text,
         textAlpha = startupAnimation,
@@ -317,14 +344,8 @@ private fun BoxScope.Showing(
     Card(
         modifier = Modifier
             .testTag(CardScreen.TAG_CLOSE_CARD)
-            .animatePlacement()
-            .align(
-                when {
-                    isClosed -> Alignment.Center
-                    else -> Alignment.CenterEnd
-                }
-            )
-            .offset(x = ((470 - 84 * showCloseQuestionAnimation) * (1 - closeCardAnim)).dp),
+            .align(Alignment.Center)
+            .offset(x = ((470 + 64 + (128 - 128 * showCloseQuestionAnimation)) * (1 - closeCardAnim)).dp),
         sideText = state.question.level.toText(),
         onClick = {
             isClosed = true
@@ -360,8 +381,8 @@ private fun BoxScope.Picking(
             durationMillis = 400,
         ),
         targetValue = when {
-            isPicked -> 0f
-            else -> 1f
+            isPicked -> 1f
+            else -> 0f
         },
         finishedListener = {
             onNextQuestion(state.currentLevel)
@@ -414,13 +435,6 @@ private fun BoxScope.Picking(
 
     Card(
         modifier = Modifier
-            .animatePlacement()
-            .offset(x = (-470 - 64).dp)
-            .align(Alignment.Center),
-    )
-
-    Card(
-        modifier = Modifier
             .zIndex(
                 when {
                     state.currentLevel == Question.Level.Easy -> 3f
@@ -431,14 +445,14 @@ private fun BoxScope.Picking(
             .offset(x = ((470 + 64) - (470 + 64) * level1Anim).dp)
             .let {
                 if (state.currentLevel != Question.Level.Easy) {
-                    it.offset(x = (128 * (1 - startupAnimation)).dp)
+                    it.offset(x = (128 * (1 - startupAnimation) + 128 * pickedCardAnim).dp)
                 } else {
                     it
                 }
             }
             .align(Alignment.Center),
         sideText = Question.Level.Easy.toText(),
-        textAlpha = pickedCardAnim,
+        textAlpha = (1f - pickedCardAnim),
         onClick = {
             when {
                 level1Anim != 1f && level1Anim != 0f -> Unit
@@ -464,14 +478,14 @@ private fun BoxScope.Picking(
             .offset(x = ((470 + 64) - (470 + 64) * level2Anim).dp)
             .let {
                 if (state.currentLevel != Question.Level.Medium) {
-                    it.offset(x = (128 * (1 - startupAnimation)).dp)
+                    it.offset(x = (128 * (1 - startupAnimation) + 128 * pickedCardAnim).dp)
                 } else {
                     it
                 }
             }
             .align(Alignment.Center),
         sideText = Question.Level.Medium.toText(),
-        textAlpha = pickedCardAnim,
+        textAlpha = (1f - pickedCardAnim),
         onClick = {
             when {
                 level2Anim != 1f && level2Anim != 0f -> Unit
@@ -497,14 +511,14 @@ private fun BoxScope.Picking(
             .offset(x = ((470 + 64) - (470 + 64) * level3Anim).dp)
             .let {
                 if (state.currentLevel != Question.Level.Hard) {
-                    it.offset(x = (128 * (1 - startupAnimation)).dp)
+                    it.offset(x = (128 * (1 - startupAnimation) + 128 * pickedCardAnim).dp)
                 } else {
                     it
                 }
             }
             .align(Alignment.Center),
         sideText = Question.Level.Hard.toText(),
-        textAlpha = pickedCardAnim,
+        textAlpha = (1f - pickedCardAnim),
         onClick = {
             when {
                 level3Anim != 1f && level3Anim != 0f -> Unit
@@ -537,10 +551,11 @@ private fun Question.Level.toText(): String =
 internal fun PreviewLanding() {
     CardScreen(
         state = CardViewModel.State.Landing,
-        onQuestionClosed = {},
         onNextQuestion = {},
+        onQuestionClosed = {},
         onChangeLevel = {},
         onBack = {},
+        prevQuestions = emptyList(),
     )
 }
 
@@ -556,10 +571,11 @@ private fun PreviewShowing() {
                 gameSetIds = listOf("1"),
             )
         ),
-        onQuestionClosed = {},
         onNextQuestion = {},
+        onQuestionClosed = {},
         onChangeLevel = {},
         onBack = {},
+        prevQuestions = emptyList(),
     )
 }
 
@@ -571,9 +587,10 @@ private fun PreviewPicking() {
             currentLevel = Question.Level.Medium,
             nextLevel = Question.Level.Hard,
         ),
-        onQuestionClosed = {},
         onNextQuestion = {},
+        onQuestionClosed = {},
         onChangeLevel = {},
         onBack = {},
+        prevQuestions = emptyList(),
     )
 }
