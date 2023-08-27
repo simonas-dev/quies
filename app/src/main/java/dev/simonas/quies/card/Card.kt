@@ -29,7 +29,6 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Exit
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
@@ -123,8 +122,8 @@ internal fun Card(
                         .testTag(TAG_CENTER_TEXT),
                     color = QColors.cardPrimaryTextColor,
                     text = centerText,
-                    fontSize = 24.sp,
-                    lineHeight = 32.sp,
+                    fontSize = 20.sp,
+                    lineHeight = 24.sp,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -162,39 +161,33 @@ internal fun Card(
 
 @Composable
 fun BackgroundArt() {
-    val millis = timeSecsAsState()
+    val secs = timeSecsAsState()
 
     Spacer(
         modifier = Modifier
             .fillMaxSize()
             .drawWithCache {
-                val movement = 8.dp.toPx()
-                val margin = 16.dp.toPx()
-                val radius = 64.dp.toPx() * ((size.width - margin * 2) / size.width)
                 val color = QColors.cardSecondaryTextColor.copy(
                     alpha = 0.1f,
                 )
-                val stroke = 6.toDp().toPx()
-                val path = Path()
-                val rect = RoundRect(
-                    rect = Rect(margin, margin, size.width - margin, size.height - margin),
-                    radiusX = radius,
-                    radiusY = radius,
-                )
-                val multiOffset = (movement * 2f) / size.width
-                path.addRoundRect(rect)
-
                 onDrawBehind {
-                    val sinT = sin(millis.value / 2f)
-                    val timeF = (1f + sinT) / 2f
-                    val animMulti = 1f + (multiOffset / 2f) + multiOffset * timeF
-                    scale(animMulti) {
-                        drawPath(
-                            path = path,
-                            color = color,
-                            style = Stroke(width = stroke),
-                        )
-                    }
+                    val sinT = sin(secs.value / 2f)
+                    val multi = 1.05f + 0.1f * sinT
+                    val margin = 16.dp.toPx() * multi
+                    val radius = 64.dp.toPx() * ((size.width - margin * 2) / size.width)
+                    val stroke = 6.toDp().toPx() * multi
+                    val path = Path()
+                    val rect = RoundRect(
+                        rect = Rect(margin, margin, size.width - margin, size.height - margin),
+                        radiusX = radius,
+                        radiusY = radius,
+                    )
+                    path.addRoundRect(rect)
+                    drawPath(
+                        path = path,
+                        color = color,
+                        style = Stroke(width = stroke * multi),
+                    )
                 }
             }
     )
