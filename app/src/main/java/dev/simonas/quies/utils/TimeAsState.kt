@@ -5,19 +5,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.isActive
 
 @Composable
 fun timeSecsAsState(): State<Float> {
     val toolingOverride = remember { mutableStateOf(getTimeInSecs()) }
     LaunchedEffect(Unit) {
-        launch(Dispatchers.Default) {
-            while (true) {
-                toolingOverride.value = getTimeInSecs()
-                delay(240.Hz)
-            }
+        while (isActive) {
+            awaitFrame()
+            toolingOverride.value = getTimeInSecs()
         }
     }
     return toolingOverride
@@ -25,6 +22,3 @@ fun timeSecsAsState(): State<Float> {
 
 private fun getTimeInSecs(): Float =
     (System.currentTimeMillis() % (Float.MAX_VALUE.toInt())) / 1000f
-
-private val Int.Hz: Long
-    get() = 1 / this * 1000L
