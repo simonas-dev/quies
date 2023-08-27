@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.sp
 import dev.simonas.quies.card.Card.TAG_CENTER_TEXT
 import dev.simonas.quies.card.Card.TAG_SIDE_TEXT
 import dev.simonas.quies.template.QColors
-import dev.simonas.quies.utils.timeMillisAsState
+import dev.simonas.quies.utils.timeSecsAsState
 import kotlin.math.sin
 
 internal object Card {
@@ -162,13 +162,13 @@ internal fun Card(
 
 @Composable
 fun BackgroundArt() {
-    val millis = timeMillisAsState()
+    val millis = timeSecsAsState()
 
     Spacer(
         modifier = Modifier
             .fillMaxSize()
             .drawWithCache {
-                val movement = 4.dp.toPx()
+                val movement = 8.dp.toPx()
                 val margin = 16.dp.toPx()
                 val radius = 64.dp.toPx() * ((size.width - margin * 2) / size.width)
                 val color = QColors.cardSecondaryTextColor.copy(
@@ -185,7 +185,7 @@ fun BackgroundArt() {
                 path.addRoundRect(rect)
 
                 onDrawBehind {
-                    val sinT = sin(millis.value / 2000f)
+                    val sinT = sin(millis.value / 2f)
                     val timeF = (1f + sinT) / 2f
                     val animMulti = 1f + (multiOffset / 2f) + multiOffset * timeF
                     scale(animMulti) {
