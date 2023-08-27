@@ -16,7 +16,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +31,7 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.simonas.quies.data.Question
+import dev.simonas.quies.utils.KeepScreenOn
 import dev.simonas.quies.utils.QDevices
 import dev.simonas.quies.utils.animatePlacement
 import dev.simonas.quies.utils.createTestTag
@@ -83,6 +83,8 @@ internal fun CardScreen(
     onChangeLevel: (Question.Level) -> Unit,
     onBack: () -> Unit,
 ) {
+    KeepScreenOn()
+
     MaterialTheme {
         Scaffold {
             Box(
