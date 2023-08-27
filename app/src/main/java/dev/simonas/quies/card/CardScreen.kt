@@ -41,13 +41,12 @@ internal object CardScreen {
     val TAG_SCREEN = createTestTag("screen")
     val TAG_CLOSE_CARD = createTestTag("close_card")
     val TAG_EXIT = createTestTag("exit")
+    val TAG_PREV_QUESTIONS = createTestTag("close_card")
 }
 
-@Suppress("MagicNumber")
 private fun closedCardX(index: Int): Dp =
     (-470 - 64 - 4 * sin(index * 1000f) * sin(index * 300f) - 0.5 * index).dp
 
-@Suppress("MagicNumber")
 private fun closedCardY(index: Int): Dp =
     (4 * sin(index * 1000f) * sin(index * 300f)).dp
 
@@ -96,6 +95,7 @@ internal fun CardScreen(
                 prevQuestions.forEachIndexed { index, _ ->
                     Card(
                         modifier = Modifier
+                            .testTag(CardScreen.TAG_PREV_QUESTIONS)
                             .offset(
                                 x = closedCardX(index),
                                 y = closedCardY(index),

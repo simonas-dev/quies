@@ -62,7 +62,6 @@ private fun decryptFile(fileInputStream: InputStream): String {
     return decryptedBytes
 }
 
-@Suppress("MagicNumber")
 private fun String.decodeHex(): ByteArray {
     check(length % 2 == 0) { "Must have an even length" }
 

@@ -135,6 +135,7 @@ complexity:
     constructorThreshold: 7
     ignoreDefaultParameters: false
     ignoreDataClasses: true
+    ignoreAnnotated: 'Composable'
     ignoreAnnotatedParameter: []
   MethodOverloading:
     active: false
@@ -173,7 +174,7 @@ complexity:
     thresholdInObjects: 11
     thresholdInEnums: 11
     ignoreDeprecated: false
-    ignorePrivate: false
+    ignorePrivate: true
     ignoreOverridden: false
 
 coroutines:
@@ -564,26 +565,6 @@ style:
   LoopWithTooManyJumpStatements:
     active: true
     maxJumpCount: 1
-  MagicNumber:
-    active: true
-    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.kts']
-    ignoreNumbers:
-      - '-1'
-      - '0'
-      - '1'
-      - '2'
-    ignoreHashCodeFunction: true
-    ignorePropertyDeclaration: false
-    ignoreLocalVariableDeclaration: false
-    ignoreConstantDeclaration: true
-    ignoreCompanionObjectPropertyDeclaration: true
-    ignoreAnnotation: false
-    ignoreNamedArgument: true
-    ignoreEnums: false
-    ignoreRanges: false
-    ignoreExtensionFunctions: true
-    ignoreAnnotated:
-      - 'Composable'
   MandatoryBracesIfStatements:
     active: false
   MandatoryBracesLoops:

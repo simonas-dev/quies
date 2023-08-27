@@ -2,6 +2,7 @@ package dev.simonas.quies.card
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -30,7 +31,7 @@ internal class CardScreenTest : ComponentTest() {
             onQuestionClosed = questionClosed,
             onChangeLevel = changeLevel,
             onBack = back,
-            prevQuestions = prevQuestions,
+            prevQuestions = emptyList(),
         )
     }
 
@@ -49,7 +50,7 @@ internal class CardScreenTest : ComponentTest() {
             onQuestionClosed = questionClosed,
             onChangeLevel = changeLevel,
             onBack = back,
-            prevQuestions = prevQuestions,
+            prevQuestions = emptyList(),
         )
     }
 
@@ -60,7 +61,23 @@ internal class CardScreenTest : ComponentTest() {
             onQuestionClosed = questionClosed,
             onChangeLevel = changeLevel,
             onBack = back,
-            prevQuestions = prevQuestions,
+            prevQuestions = emptyList(),
+        )
+    }
+    val answeredQuestionsContent: @Composable () -> Unit = {
+        CardScreen(
+            state = CardViewModel.State.Landing,
+            onNextQuestion = nextQuestion,
+            onQuestionClosed = questionClosed,
+            onChangeLevel = changeLevel,
+            onBack = back,
+            prevQuestions = listOf(
+                Question(
+                    text = "",
+                    level = Question.Level.Easy,
+                    gameSetIds = emptyList(),
+                )
+            ),
         )
     }
 
@@ -68,6 +85,7 @@ internal class CardScreenTest : ComponentTest() {
     fun init() {
         setContent { landingContent() }
         showsLevels()
+        prevQuestionsHidden()
     }
 
     @Test
@@ -138,6 +156,13 @@ internal class CardScreenTest : ComponentTest() {
         requestsCloseQuestion()
     }
 
+    @Test
+    fun withAnsweredQuestions() {
+        setContent(answeredQuestionsContent)
+
+        displaysPrevQuestions()
+    }
+
     private fun showsLevels() {
         onNodeWithText("LEVEL 1")
             .assertIsDisplayed()
@@ -169,5 +194,15 @@ internal class CardScreenTest : ComponentTest() {
 
     private fun requestsCloseQuestion() {
         verify(questionClosed).invoke(easyCoffeeQuestion)
+    }
+
+    private fun displaysPrevQuestions() {
+        onNodeWithTag(CardScreen.TAG_PREV_QUESTIONS)
+            .assertIsDisplayed()
+    }
+
+    private fun prevQuestionsHidden() {
+        onNodeWithTag(CardScreen.TAG_PREV_QUESTIONS)
+            .assertDoesNotExist()
     }
 }
