@@ -109,6 +109,7 @@ complexity:
     ignoreSingleWhenExpression: false
     ignoreSimpleWhenEntries: false
     ignoreNestingFunctions: false
+    ignoreAnnotated: 'Composable'
     nestingFunctions:
       - 'also'
       - 'apply'

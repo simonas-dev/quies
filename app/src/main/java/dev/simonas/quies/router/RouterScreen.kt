@@ -9,7 +9,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import dev.simonas.quies.card.CardScreen
+import dev.simonas.quies.card.CardScreen2
 import dev.simonas.quies.gamesets.GameSetsScreen
 import dev.simonas.quies.router.RouterScreen.TAG_SCREEN
 import dev.simonas.quies.utils.createTestTag
@@ -28,7 +28,7 @@ internal fun RouterScreen() {
         startDestination = NavRoutes.GameSet.build(),
     ) {
         composable(NavRoutes.Card) {
-            CardScreen(
+            CardScreen2(
                 onBack = {
                     navController.popBackStack()
                 }

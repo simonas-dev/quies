@@ -1,16 +1,23 @@
 package dev.simonas.quies.card
 
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import dagger.hilt.android.testing.HiltAndroidTest
 import dev.simonas.quies.UITest
+import dev.simonas.quies.card.CardScreen2.questionState
 import dev.simonas.quies.gamesets.GameSetsScreen
 import org.junit.Test
 
 @HiltAndroidTest
 class CardUITest : UITest() {
+
+    private fun onNodeWithState(state: QuestionComponent.State) =
+        onNode(SemanticsMatcher.expectValue(questionState, state))
 
     @Test
     fun init() {
@@ -35,7 +42,9 @@ class CardUITest : UITest() {
         onNodeWithText("DATING")
             .performClick()
         onNodeWithText("LEVEL 2")
-            .performClick()
+            .performTouchInput {
+                click(topCenter)
+            }
 
         showsMediumQuestion()
     }
@@ -51,56 +60,36 @@ class CardUITest : UITest() {
     }
 
     @Test
-    fun closeQuestion() {
-        onNodeWithText("DEBATE")
-            .performClick()
-        onNodeWithText("LEVEL 3")
-            .performClick()
-        onNodeWithTag(CardScreen.TAG_CLOSE_CARD)
-            .performClick()
-
-        showsNextLevelCardAsEasy()
-        showsNextCardAsHard()
-        showsExit()
-    }
-
-    @Test
-    fun changeLevel() {
-        onNodeWithText("DEBATE")
-            .performClick()
-        onNodeWithText("LEVEL 3")
-            .performClick()
-        onNodeWithTag(CardScreen.TAG_CLOSE_CARD)
-            .performClick()
-        onNodeWithText("LEVEL 1")
-            .performClick()
-
-        currentLevelIsEasy()
-    }
-
-    @Test
     fun nextQuestion() {
         onNodeWithText("DEBATE")
             .performClick()
         onNodeWithText("LEVEL 3")
             .performClick()
-        onNodeWithTag(CardScreen.TAG_CLOSE_CARD)
+        onNodeWithState(QuestionComponent.State.NextHidden)
             .performClick()
-        onNodeWithText("LEVEL 3")
+        onNodeWithState(QuestionComponent.State.PrimaryHidden)
             .performClick()
 
         showsNextHardQuestion()
     }
 
     @Test
+    fun togglesMenu() {
+        onNodeWithText("DEBATE")
+            .performClick()
+        onNodeWithTag(CardScreen2.TAG_MENU_TOGGLE)
+            .performClick()
+
+        showsExit()
+    }
+
+    @Test
     fun exit() {
         onNodeWithText("DEBATE")
             .performClick()
-        onNodeWithText("LEVEL 3")
+        onNodeWithTag(CardScreen2.TAG_MENU_TOGGLE)
             .performClick()
-        onNodeWithTag(CardScreen.TAG_CLOSE_CARD)
-            .performClick()
-        onNodeWithTag(CardScreen.TAG_EXIT)
+        onNodeWithTag(CardScreen2.TAG_EXIT)
             .performClick()
 
         showsGameSetScreen()
@@ -112,7 +101,7 @@ class CardUITest : UITest() {
     }
 
     private fun showsCardScreen() {
-        onNodeWithTag(CardScreen.TAG_SCREEN)
+        onNodeWithTag(CardScreen2.TAG_SCREEN)
             .assertIsDisplayed()
     }
 
@@ -131,25 +120,8 @@ class CardUITest : UITest() {
             .assertIsDisplayed()
     }
 
-    private fun showsNextLevelCardAsEasy() {
-        onNodeWithText("LEVEL 1")
-            .assertIsDisplayed()
-    }
-
-    private fun showsNextCardAsHard() {
-        onNodeWithText("LEVEL 3")
-            .assertIsDisplayed()
-    }
-
     private fun showsExit() {
-        onNodeWithTag(CardScreen.TAG_EXIT)
-            .assertIsDisplayed()
-    }
-
-    private fun currentLevelIsEasy() {
-        onNodeWithText("LEVEL 1")
-            .assertIsDisplayed()
-        onNodeWithText("LEVEL 2")
+        onNodeWithTag(CardScreen2.TAG_EXIT)
             .assertIsDisplayed()
     }
 

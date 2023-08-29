@@ -8,6 +8,24 @@ internal class SeqRandomTest {
     val subject = SeqRandom()
 
     @Test
+    fun `bitcount 1`() {
+        val sequence = (1..3).map {
+            subject.nextInt(from = 0, until = 2)
+        }
+        assertThat(sequence)
+            .isEqualTo(listOf(0, 1, 0))
+    }
+
+    @Test
+    fun `bitcount 2`() {
+        val sequence = (1..4).map {
+            subject.nextInt(from = 0, until = 3)
+        }
+        assertThat(sequence)
+            .isEqualTo(listOf(0, 1, 2, 0))
+    }
+
+    @Test
     fun `3 digits around zero`() {
         val sequence = (1..3).map {
             subject.nextInt(Int.MAX_VALUE)

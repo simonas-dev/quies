@@ -1,7 +1,8 @@
 package dev.simonas.quies.card
 
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +30,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Exit
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
@@ -50,6 +52,8 @@ import kotlin.math.sin
 internal object Card {
     const val TAG_CENTER_TEXT = "text_center"
     const val TAG_SIDE_TEXT = "text_side"
+    val width = 470.dp
+    val height = 288.dp
 }
 
 @Composable
@@ -59,12 +63,14 @@ internal fun Card(
     centerText: String? = null,
     sideText: String? = null,
     textAlpha: Float = 1f,
+    sideTextAlpha: Float = 1f,
     onClick: (() -> Unit)? = null,
 ) {
     var isTouching: Boolean by remember { mutableStateOf(false) }
     val scale: Float by animateFloatAsState(
-        animationSpec = tween(
-            durationMillis = 400,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow,
         ),
         targetValue = when {
             onClick == null -> 1f
@@ -74,13 +80,17 @@ internal fun Card(
         label = "touch animation",
     )
 
+    val shape = RoundedCornerShape(CornerSize(64.dp))
     Surface(
-        shape = RoundedCornerShape(CornerSize(64.dp)),
+        shape = shape,
         color = QColors.cardBackground,
-        shadowElevation = shadowElevation,
         enabled = onClick != null,
         onClick = { onClick?.invoke() },
         modifier = modifier
+            .graphicsLayer {
+                this.shape = shape
+                this.shadowElevation = shadowElevation.toPx()
+            }
             .pointerInput(Unit) {
                 awaitEachGesture {
                     while (true) {
@@ -103,8 +113,8 @@ internal fun Card(
                 }
             }
             .scale(scale)
-            .width(470.dp)
-            .height(288.dp),
+            .width(Card.width)
+            .height(Card.height),
     ) {
         Box(
             modifier = Modifier.fillMaxHeight(),
@@ -118,7 +128,9 @@ internal fun Card(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .width(278.dp)
-                        .alpha(textAlpha)
+                        .graphicsLayer {
+                            alpha = textAlpha
+                        }
                         .testTag(TAG_CENTER_TEXT),
                     color = QColors.cardPrimaryTextColor,
                     text = centerText,
@@ -133,7 +145,9 @@ internal fun Card(
                         .vertical()
                         .align(Alignment.CenterStart)
                         .rotate(-90f)
-                        .alpha(textAlpha)
+                        .graphicsLayer {
+                            alpha = sideTextAlpha
+                        }
                         .padding(top = 40.dp,)
                         .testTag(TAG_SIDE_TEXT),
                     color = QColors.cardSecondaryTextColor,
@@ -146,7 +160,9 @@ internal fun Card(
                         .vertical()
                         .align(Alignment.CenterEnd)
                         .rotate(-90f)
-                        .alpha(textAlpha)
+                        .graphicsLayer {
+                            alpha = sideTextAlpha
+                        }
                         .padding(bottom = 40.dp)
                         .testTag(TAG_SIDE_TEXT),
                     color = QColors.cardSecondaryTextColor,

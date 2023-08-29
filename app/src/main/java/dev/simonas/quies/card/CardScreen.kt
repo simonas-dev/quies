@@ -28,8 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.simonas.quies.data.Question
 import dev.simonas.quies.utils.KeepScreenOn
 import dev.simonas.quies.utils.QDevices
@@ -50,29 +48,28 @@ private fun closedCardX(index: Int): Dp =
 private fun closedCardY(index: Int): Dp =
     (4 * sin(index * 1000f) * sin(index * 300f)).dp
 
-@Composable
-internal fun CardScreen(
-    cardViewModel: CardViewModel = hiltViewModel(),
-    onBack: () -> Unit,
-) {
-    val state = cardViewModel.state.collectAsStateWithLifecycle()
-    val prevQuestions = cardViewModel.previousQuestions.collectAsStateWithLifecycle()
-    CardScreen(
-        state = state.value,
-        prevQuestions = prevQuestions.value,
-        onNextQuestion = { level ->
-            cardViewModel.next(level)
-        },
-        onQuestionClosed = { question ->
-            cardViewModel.closed(question)
-        },
-        onChangeLevel = { level ->
-            cardViewModel.changeLevel(level)
-        },
-        onBack = onBack,
-    )
-}
-
+/**
+ * Biggest drawback of [CardScreen] is that it's difficult to create smooth transitions of
+ * cards moving to a different states.
+ *
+ * The model is based on the whole screen transitioning to a different state. When transitioning
+ * from one state to another to have a smooth animation the very end of exit transition has to match
+ * a start animation of the new state.
+ *
+ * For example [CardViewModel.State.Landing] after selecting the wanted level starts an exit
+ * animation and only after the animation finishes it invokes [onNextQuestion] that finally
+ * changes the the state after which the [CardViewModel.State.Showing] start animation has to match
+ * the end of the previous state exactly – which it still doesn't.
+ *
+ * Keeping track of these starts and ends becomes exceedingly hard.
+ *
+ * Because of this decided to redo this with a different mindset – render every card as an
+ * independent component. Then the UI layer is responsible just for rendering the state of cards
+ * and view models responsibility is to mutate the states.
+ *
+ * Keeping this just for visibility since it might be useful to somebody looking at this as a
+ * reference.
+ */
 @Composable
 internal fun CardScreen(
     state: CardViewModel.State,
