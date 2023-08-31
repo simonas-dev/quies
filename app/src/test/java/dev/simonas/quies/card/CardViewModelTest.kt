@@ -43,6 +43,7 @@ internal class CardViewModelTest {
             text = "Next Random question?",
             gameSetIds = listOf(gameSetId),
             level = Question.Level.Hard,
+            levelDescription = "This is a test.",
         )
 
         @BeforeEach
@@ -92,6 +93,7 @@ internal class CardViewModelTest {
         val closedQuestion = Question(
             text = "",
             level = Question.Level.Easy,
+            levelDescription = "This is a test.",
             gameSetIds = emptyList(),
         )
 

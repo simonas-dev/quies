@@ -14,36 +14,43 @@ internal class ShuffleQuestionDeckTest {
         Question(
             text = "a",
             level = Question.Level.Easy,
+            levelDescription = "",
             gameSetIds = listOf("1"),
         ),
         Question(
             text = "b",
             level = Question.Level.Easy,
+            levelDescription = "",
             gameSetIds = listOf("1"),
         ),
         Question(
             text = "c",
             level = Question.Level.Easy,
+            levelDescription = "",
             gameSetIds = listOf("2"),
         ),
         Question(
             text = "d",
             level = Question.Level.Easy,
+            levelDescription = "",
             gameSetIds = listOf("2"),
         ),
         Question(
             text = "e",
             level = Question.Level.Easy,
+            levelDescription = "",
             gameSetIds = listOf("3"),
         ),
         Question(
             text = "f",
             level = Question.Level.Hard,
+            levelDescription = "",
             gameSetIds = listOf("3"),
         ),
         Question(
             text = "g",
             level = Question.Level.Hard,
+            levelDescription = "",
             gameSetIds = listOf("3"),
         ),
     )

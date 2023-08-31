@@ -183,6 +183,16 @@ private fun BoxScope.StatefulCard(
         },
         label = "centerTextAlpha",
     )
+    val centerVerticalTextAlpha by animateFloatAsState(
+        animationSpec = tween(
+            durationMillis = ANIM_DURATION,
+        ),
+        targetValue = when (component.state) {
+            QuestionComponent.State.Landing -> 1f
+            else -> 0f
+        },
+        label = "centerTextAlpha",
+    )
     val sideTextAlpha by animateFloatAsState(
         animationSpec = tween(
             durationMillis = ANIM_DURATION,
@@ -290,6 +300,8 @@ private fun BoxScope.StatefulCard(
             }
         ),
         centerText = component.text,
+        centerVerticalText = component.levelDescription,
+        centerVerticalTextAlpha = centerVerticalTextAlpha,
         sideText = component.level.toText(),
         textAlpha = centerTextAlpha,
         sideTextAlpha = sideTextAlpha,
@@ -313,13 +325,13 @@ private fun computeOffsetX(
         QuestionComponent.State.Landing -> {
             when (level) {
                 QuestionComponent.Level.Easy -> {
-                    offset -= 64 * 3
+                    offset -= 470 / 2
                 }
                 QuestionComponent.Level.Medium -> {
                     // nothing
                 }
                 QuestionComponent.Level.Hard -> {
-                    offset += 64 * 3
+                    offset += 470 / 2
                 }
             }
         }

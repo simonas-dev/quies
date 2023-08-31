@@ -22,10 +22,12 @@ internal class GameSetsScreenTest : ComponentTest() {
                     GameSet(
                         id = "1",
                         name = "Game Set 1",
+                        description = "Why is the world round baby?",
                     ),
                     GameSet(
                         id = "2",
                         name = "Game Set 2",
+                        description = "Why is the world round baby2?",
                     )
                 )
             ),
@@ -38,6 +40,7 @@ internal class GameSetsScreenTest : ComponentTest() {
         setContent { content() }
 
         showsGameSets()
+        showsGameSetDescriptions()
     }
 
     @Test
@@ -54,6 +57,14 @@ internal class GameSetsScreenTest : ComponentTest() {
             .assertIsDisplayed()
 
         onNodeWithText("GAME SET 2")
+            .assertIsDisplayed()
+    }
+
+    private fun showsGameSetDescriptions() {
+        onNodeWithText("Why is the world round baby?")
+            .assertIsDisplayed()
+
+        onNodeWithText("Why is the world round baby2?")
             .assertIsDisplayed()
     }
 

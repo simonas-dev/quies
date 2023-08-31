@@ -39,6 +39,7 @@ internal class CardScreenTest : ComponentTest() {
         text = "Could you bring me some coffee?",
         level = Question.Level.Easy,
         gameSetIds = emptyList(),
+        levelDescription = "This is a test.",
     )
 
     val showingContent: @Composable () -> Unit = {
@@ -76,6 +77,7 @@ internal class CardScreenTest : ComponentTest() {
                     text = "",
                     level = Question.Level.Easy,
                     gameSetIds = emptyList(),
+                    levelDescription = ""
                 )
             ),
         )
