@@ -23,6 +23,7 @@ internal class GetNextQuestionTest {
         val expectedQuestion = Question(
             text = "hello?",
             level = Question.Level.Easy,
+            levelDescription = "This is a test.",
             gameSetIds = listOf("1"),
         )
         val question = expectedQuestion.copy(
@@ -41,6 +42,7 @@ internal class GetNextQuestionTest {
         val expectedQuestion = Question(
             text = "hello?",
             level = Question.Level.Medium,
+            levelDescription = "This is a test.",
             gameSetIds = listOf("1"),
         )
         val question = expectedQuestion.copy(

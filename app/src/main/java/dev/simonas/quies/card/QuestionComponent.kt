@@ -8,6 +8,7 @@ data class QuestionComponent(
     val id: Int = UUID.randomUUID().hashCode(),
     val text: String,
     val level: Level,
+    val levelDescription: String,
     val stateVector: Vector<State>,
     val modifiedAtSecsVector: Vector<Float> = Vector(seconds(), seconds())
 ) {
