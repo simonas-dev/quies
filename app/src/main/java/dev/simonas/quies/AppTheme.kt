@@ -18,8 +18,8 @@ object AppTheme {
         val dating = Color(0xffBB3830)
         val friends = Color(0xffE88E30)
         val debate = Color(0xff4665C0)
-        val whiteStrong = Color(0xE6FFFFFF)
-        val whiteMedium = Color(0xD9FFFFFF)
+        val whiteStrong = Color(0xEBFFFFFF)
+        val whiteMedium = Color(0xBFFFFFFF)
         val background = Color(0xFF000000)
     }
 

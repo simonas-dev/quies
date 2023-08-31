@@ -79,6 +79,7 @@ internal fun GameSetsScreen(
                         )
                         .rotate(90f),
                     sideText = set.name.uppercase(),
+                    centerVerticalText = set.description,
                     color = getColor(
                         gameSetId = set.id,
                         level = Question.Level.Hard,
@@ -102,16 +103,19 @@ private fun PreviewGameSetScreen() {
         state = GameSetsViewModel.State(
             gameSets = listOf(
                 GameSet(
-                    id = "Dating",
+                    id = "dating",
                     name = "dating",
+                    description = "Why is the world round baby?"
                 ),
                 GameSet(
-                    id = "Friendship",
+                    id = "friendship",
                     name = "friendship",
+                    description = "Let me show you my bunker."
                 ),
                 GameSet(
-                    id = "Debate",
+                    id = "debate",
                     name = "debate",
+                    description = "For real. Let's skip the bullshit. Do you believe in aliens?"
                 ),
             )
         ),

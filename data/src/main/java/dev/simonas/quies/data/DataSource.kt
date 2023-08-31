@@ -19,9 +19,16 @@ data class Data(
     data class Set(
         val id: String,
         val name: String,
-        val level1: List<String>,
-        val level2: List<String>,
-        val level3: List<String>,
+        val description: String,
+        val level1: Level,
+        val level2: Level,
+        val level3: Level,
+    )
+
+    @Serializable
+    data class Level(
+        val description: String,
+        val questions: List<String>,
     )
 }
 
