@@ -36,7 +36,7 @@ gameSets:
       - "What's something about your past that you're still dealing with?"
       - "How do you want to grow as a person?"
   - id: "friendship"
-    name: "Friendship"
+    name: "Friends"
     level1:
       - "What's one thing you love about your hometown?"
       - "Do you have any favorite podcasts or YouTube channels?"

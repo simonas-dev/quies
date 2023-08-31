@@ -24,7 +24,7 @@ internal class CardViewModel2 @Inject constructor(
     private val shuffleQuestionDeck: ShuffleQuestionDeck,
 ) : ViewModel() {
 
-    private val gameSetId: String = requireNotNull(stateHandle[NavRoutes.ARG_GAME_SET])
+    val gameSetId: String = requireNotNull(stateHandle[NavRoutes.ARG_GAME_SET])
 
     private val pool = listOf(
         Question.Level.Easy,
@@ -106,7 +106,9 @@ internal class CardViewModel2 @Inject constructor(
                     q.level.toAnother() in levelsToRemove -> {
                         q.mutate(QuestionComponent.State.Disabled)
                     }
-                    else -> q.mutate(QuestionComponent.State.OtherCard)
+                    else -> {
+                        q.mutate(QuestionComponent.State.OtherCard)
+                    }
                 }
             }
             val nextQuestion = pool.popFirstOrNull { it.level.toAnother() == question.level }

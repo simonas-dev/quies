@@ -29,7 +29,7 @@ class CardUITest : UITest() {
 
     @Test
     fun clickOnEasyQuestionCard() {
-        onNodeWithText("FRIENDSHIP")
+        onNodeWithText("FRIENDS")
             .performClick()
         onNodeWithText("LEVEL 1")
             .performClick()

@@ -28,7 +28,7 @@ class GameSetsUITest : UITest() {
     private fun showsGameSets() {
         onNodeWithText("DATING")
             .assertIsDisplayed()
-        onNodeWithText("FRIENDSHIP")
+        onNodeWithText("FRIENDS")
             .assertIsDisplayed()
         onNodeWithText("DEBATE")
             .assertIsDisplayed()

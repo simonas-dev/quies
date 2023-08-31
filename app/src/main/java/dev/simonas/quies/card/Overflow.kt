@@ -21,7 +21,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import dev.simonas.quies.template.QColors
+import dev.simonas.quies.AppTheme
 import dev.simonas.quies.utils.normalSin
 import dev.simonas.quies.utils.rescaleNormal
 import dev.simonas.quies.utils.timeMillisAsState
@@ -110,7 +110,7 @@ private fun DrawScope.drawOval(
     diameter: Float,
 ) {
     drawOval(
-        color = QColors.cardPrimaryTextColor,
+        color = AppTheme.Color.whiteMedium,
         topLeft = Offset(
             x = centerX - (diameter / 2),
             y = centerY - (diameter / 2),

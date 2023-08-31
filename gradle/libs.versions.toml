@@ -5,6 +5,8 @@ androidx_test = "1.5.0"
 androidx_test_ext = "1.1.5"
 appcompat = "1.6.1"
 benmanesversion = "0.47.0"
+colormath = "3.3.2"
+colormath-ext-jetpack-compose = "3.3.2"
 compile_sdk_version = "33"
 compose-lifecycle = "2.6.1"
 compose-navigation = "2.6.0"
@@ -48,6 +50,8 @@ androidx_test_ext_junit = { module = "androidx.test.ext:junit", version.ref = "a
 androidx_test_ext_junit_ktx = { module = "androidx.test.ext:junit-ktx", version.ref = "androidx.test.ext" }
 androidx_test_rules = { module = "androidx.test:rules", version.ref = "androidx.test" }
 androidx_test_runner = { module = "androidx.test:runner", version.ref = "androidx.test" }
+colormath = { module = "com.github.ajalt.colormath:colormath", version.ref = "colormath" }
+colormath-ext-jetpack-compose = { module = "com.github.ajalt.colormath:colormath-ext-jetpack-compose", version.ref = "colormath-ext-jetpack-compose" }
 compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
 compose_foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose_compiler" }
 compose_lifecycle = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "compose-lifecycle" }

@@ -1,13 +1,11 @@
 package dev.simonas.quies.card
 
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -22,32 +20,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.RoundRect
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Exit
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import dev.simonas.quies.AppTheme
 import dev.simonas.quies.card.Card.TAG_CENTER_TEXT
 import dev.simonas.quies.card.Card.TAG_SIDE_TEXT
-import dev.simonas.quies.template.QColors
-import dev.simonas.quies.utils.timeSecsAsState
-import kotlin.math.sin
+import dev.simonas.quies.utils.vertical
 
 internal object Card {
     const val TAG_CENTER_TEXT = "text_center"
@@ -64,13 +54,13 @@ internal fun Card(
     sideText: String? = null,
     textAlpha: Float = 1f,
     sideTextAlpha: Float = 1f,
+    color: Color = AppTheme.Color.dating,
     onClick: (() -> Unit)? = null,
 ) {
     var isTouching: Boolean by remember { mutableStateOf(false) }
     val scale: Float by animateFloatAsState(
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow,
+        animationSpec = tween(
+            durationMillis = 200,
         ),
         targetValue = when {
             onClick == null -> 1f
@@ -83,7 +73,8 @@ internal fun Card(
     val shape = RoundedCornerShape(CornerSize(64.dp))
     Surface(
         shape = shape,
-        color = QColors.cardBackground,
+        color = color,
+        border = BorderStroke(16.dp, AppTheme.Color.washoutStrong),
         enabled = onClick != null,
         onClick = { onClick?.invoke() },
         modifier = modifier
@@ -119,10 +110,6 @@ internal fun Card(
         Box(
             modifier = Modifier.fillMaxHeight(),
         ) {
-            if (onClick != null) {
-                BackgroundArt()
-            }
-
             if (centerText != null) {
                 Text(
                     modifier = Modifier
@@ -132,10 +119,8 @@ internal fun Card(
                             alpha = textAlpha
                         }
                         .testTag(TAG_CENTER_TEXT),
-                    color = QColors.cardPrimaryTextColor,
+                    style = AppTheme.Text.primaryDemiBold,
                     text = centerText,
-                    fontSize = 20.sp,
-                    lineHeight = 24.sp,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -150,10 +135,8 @@ internal fun Card(
                         }
                         .padding(top = 40.dp,)
                         .testTag(TAG_SIDE_TEXT),
-                    color = QColors.cardSecondaryTextColor,
+                    style = AppTheme.Text.primaryBold,
                     text = sideText,
-                    fontSize = 24.sp,
-                    lineHeight = 32.sp,
                 )
                 Text(
                     modifier = Modifier
@@ -165,60 +148,13 @@ internal fun Card(
                         }
                         .padding(bottom = 40.dp)
                         .testTag(TAG_SIDE_TEXT),
-                    color = QColors.cardSecondaryTextColor,
+                    style = AppTheme.Text.primaryBold,
                     text = sideText,
-                    fontSize = 24.sp,
-                    lineHeight = 32.sp,
                 )
             }
         }
     }
 }
-
-@Composable
-fun BackgroundArt() {
-    val secs = timeSecsAsState()
-
-    Spacer(
-        modifier = Modifier
-            .fillMaxSize()
-            .drawWithCache {
-                val color = QColors.cardSecondaryTextColor.copy(
-                    alpha = 0.1f,
-                )
-                onDrawBehind {
-                    val sinT = sin(secs.value / 2f)
-                    val multi = 1.05f + 0.1f * sinT
-                    val margin = 16.dp.toPx() * multi
-                    val radius = 64.dp.toPx() * ((size.width - margin * 2) / size.width)
-                    val stroke = 6.toDp().toPx() * multi
-                    val path = Path()
-                    val rect = RoundRect(
-                        rect = Rect(margin, margin, size.width - margin, size.height - margin),
-                        radiusX = radius,
-                        radiusY = radius,
-                    )
-                    path.addRoundRect(rect)
-                    drawPath(
-                        path = path,
-                        color = color,
-                        style = Stroke(width = stroke * multi),
-                    )
-                }
-            }
-    )
-}
-
-fun Modifier.vertical() =
-    layout { measurable, constraints ->
-        val placeable = measurable.measure(constraints)
-        layout(placeable.height, placeable.width) {
-            placeable.place(
-                x = -(placeable.width / 2 - placeable.height / 2),
-                y = -(placeable.height / 2 - placeable.width / 2)
-            )
-        }
-    }
 
 @Preview(widthDp = 470, heightDp = 288)
 @Composable

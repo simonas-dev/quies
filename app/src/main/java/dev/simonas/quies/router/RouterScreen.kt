@@ -1,5 +1,6 @@
 package dev.simonas.quies.router
 
+import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -9,6 +10,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dev.simonas.quies.AppTheme
 import dev.simonas.quies.card.CardScreen2
 import dev.simonas.quies.gamesets.GameSetsScreen
 import dev.simonas.quies.router.RouterScreen.TAG_SCREEN
@@ -23,7 +25,9 @@ internal fun RouterScreen() {
     val navController = rememberNavController()
 
     NavHost(
-        modifier = Modifier.testTag(TAG_SCREEN),
+        modifier = Modifier
+            .background(AppTheme.Color.background)
+            .testTag(TAG_SCREEN),
         navController = navController,
         startDestination = NavRoutes.GameSet.build(),
     ) {

@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,12 +37,13 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.simonas.quies.AppTheme
 import dev.simonas.quies.card.CardScreen2.questionState
-import dev.simonas.quies.template.QColors
+import dev.simonas.quies.data.Question
+import dev.simonas.quies.questions.getColor
 import dev.simonas.quies.utils.KeepScreenOn
 import dev.simonas.quies.utils.createTestTag
 import dev.simonas.quies.utils.fbm
@@ -66,6 +66,7 @@ internal fun CardScreen2(
     val isExitShown = cardViewModel.isExitShown.collectAsStateWithLifecycle()
 
     CardScreen2(
+        gameSetId = cardViewModel.gameSetId,
         questions = state,
         isExitShown = isExitShown,
         onClick = cardViewModel::trigger,
@@ -76,6 +77,7 @@ internal fun CardScreen2(
 
 @Composable
 internal fun CardScreen2(
+    gameSetId: String,
     questions: State<CardViewModel2.Questions>,
     isExitShown: State<Boolean>,
     onClick: (QuestionComponent) -> Unit,
@@ -90,59 +92,57 @@ internal fun CardScreen2(
         (screenWidth - Card.height) / 2f
     }
 
-    MaterialTheme {
-        Box(
-            modifier = Modifier
-                .testTag(CardScreen2.TAG_SCREEN)
-                .padding()
-                .fillMaxSize()
-        ) {
-            val components = questions.value.components
-            val size = components.size
-            components.asReversed().forEachIndexed { index, ques ->
-                key(ques.id) {
-                    StatefulCard(
-                        index = index,
-                        size = size,
-                        component = ques,
-                        onClick = {
-                            onClick(ques)
-                        }
-                    )
-                }
-            }
-
-            Overflow(
-                modifier = Modifier
-                    .testTag(CardScreen2.TAG_MENU_TOGGLE)
-                    .align(Alignment.TopCenter)
-                    .offset(y = 1.5f * verticalMargin + Card.height),
-                onClick = toggleMenu,
-            )
-
-            AnimatedVisibility(
-                modifier = Modifier
-                    .align(Alignment.Center),
-                visible = isExitShown.value,
-                enter = fadeIn() + scaleIn(),
-                exit = fadeOut() + scaleOut(),
-            ) {
-                Button(
-                    modifier = Modifier
-                        .testTag(CardScreen2.TAG_EXIT),
-                    onClick = onExit,
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = QColors.cardPrimaryTextColor,
-                        containerColor = QColors.cardBackground,
-                    ),
-                    content = {
-                        Text(
-                            text = "Exit?",
-                            fontSize = 24.sp,
-                        )
+    Box(
+        modifier = Modifier
+            .testTag(CardScreen2.TAG_SCREEN)
+            .padding()
+            .fillMaxSize()
+    ) {
+        val components = questions.value.components
+        val size = components.size
+        components.asReversed().forEachIndexed { index, ques ->
+            key(ques.id) {
+                StatefulCard(
+                    index = index,
+                    size = size,
+                    component = ques,
+                    gameSetId = gameSetId,
+                    onClick = {
+                        onClick(ques)
                     }
                 )
             }
+        }
+
+        Overflow(
+            modifier = Modifier
+                .testTag(CardScreen2.TAG_MENU_TOGGLE)
+                .align(Alignment.TopCenter)
+                .offset(y = 1.5f * verticalMargin + Card.height + 2.dp),
+            onClick = toggleMenu,
+        )
+
+        AnimatedVisibility(
+            modifier = Modifier
+                .align(Alignment.Center),
+            visible = isExitShown.value,
+            enter = fadeIn() + scaleIn(),
+            exit = fadeOut() + scaleOut(),
+        ) {
+            Button(
+                modifier = Modifier
+                    .testTag(CardScreen2.TAG_EXIT),
+                onClick = onExit,
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = getColor(gameSetId = gameSetId),
+                ),
+                content = {
+                    Text(
+                        text = "Exit?",
+                        style = AppTheme.Text.primaryBold
+                    )
+                }
+            )
         }
     }
 }
@@ -154,6 +154,7 @@ private fun BoxScope.StatefulCard(
     index: Int,
     size: Int,
     component: QuestionComponent,
+    gameSetId: String,
     onClick: () -> Unit,
 ) {
     val rotation: Float by animateFloatAsState(
@@ -280,6 +281,14 @@ private fun BoxScope.StatefulCard(
                 rotationZ = rotation
             },
         shadowElevation = 4.dp,
+        color = getColor(
+            gameSetId = gameSetId,
+            level = when (component.level) {
+                QuestionComponent.Level.Easy -> Question.Level.Easy
+                QuestionComponent.Level.Medium -> Question.Level.Medium
+                QuestionComponent.Level.Hard -> Question.Level.Hard
+            }
+        ),
         centerText = component.text,
         sideText = component.level.toText(),
         textAlpha = centerTextAlpha,
