@@ -254,6 +254,7 @@ private fun Question.withState(
     QuestionComponent(
         text = text,
         level = level.toAnother(),
+        levelDescription = this.levelDescription,
         stateVector = Vector(
             from = state,
             to = state,

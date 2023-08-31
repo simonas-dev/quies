@@ -7,6 +7,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
@@ -52,6 +53,8 @@ internal fun Card(
     shadowElevation: Dp = 4.dp,
     centerText: String? = null,
     sideText: String? = null,
+    centerVerticalText: String? = null,
+    centerVerticalTextAlpha: Float = 1f,
     textAlpha: Float = 1f,
     sideTextAlpha: Float = 1f,
     color: Color = AppTheme.Color.dating,
@@ -114,13 +117,31 @@ internal fun Card(
                 Text(
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .width(278.dp)
+                        .padding(horizontal = 64.dp)
                         .graphicsLayer {
                             alpha = textAlpha
                         }
                         .testTag(TAG_CENTER_TEXT),
                     style = AppTheme.Text.primaryDemiBold,
                     text = centerText,
+                    textAlign = TextAlign.Center,
+                )
+            }
+            if (centerVerticalText != null) {
+                Text(
+                    modifier = Modifier
+                        .vertical()
+                        .width(224.dp)
+                        .height(263.dp)
+                        .align(Alignment.CenterStart)
+                        .rotate(-90f)
+                        .offset(y = 94.dp)
+                        .graphicsLayer {
+                            alpha = centerVerticalTextAlpha
+                        }
+                        .testTag(TAG_SIDE_TEXT),
+                    style = AppTheme.Text.secondaryDemiBold,
+                    text = centerVerticalText,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -133,7 +154,7 @@ internal fun Card(
                         .graphicsLayer {
                             alpha = sideTextAlpha
                         }
-                        .padding(top = 40.dp,)
+                        .offset(y = 40.dp)
                         .testTag(TAG_SIDE_TEXT),
                     style = AppTheme.Text.primaryBold,
                     text = sideText,
@@ -158,10 +179,30 @@ internal fun Card(
 
 @Preview(widthDp = 470, heightDp = 288)
 @Composable
-private fun PreviewCard() {
+private fun PreviewCardSideText() {
     Card(
-        centerText = "Pick someone in the group you don’t know and guess what they studied in college?",
         sideText = "LEVEL 1",
+        onClick = {},
+    )
+}
+
+@Preview(widthDp = 470, heightDp = 288)
+@Composable
+private fun PreviewCardCenterText() {
+    Card(
+        centerText = "Does the influence of technology on social interactions creates social " +
+            "pressures to conform that in turn reduces our individuality and leads to more " +
+            "psychological issues?",
+        onClick = {},
+    )
+}
+
+@Preview(widthDp = 470, heightDp = 288)
+@Composable
+private fun PreviewCardVerticalCenterText() {
+    Card(
+        sideText = "LEVEL 1",
+        centerVerticalText = "Questions that will bring you closer together.",
         onClick = {},
     )
 }

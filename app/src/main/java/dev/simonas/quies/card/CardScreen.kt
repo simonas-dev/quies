@@ -569,6 +569,7 @@ private fun PreviewShowing() {
                     "which one do you imagine it would be?",
                 level = Question.Level.Easy,
                 gameSetIds = listOf("1"),
+                levelDescription = "Learn something new."
             )
         ),
         onNextQuestion = {},

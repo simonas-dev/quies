@@ -3,6 +3,7 @@ package dev.simonas.quies.data
 data class Question(
     val text: String,
     val level: Level,
+    val levelDescription: String,
     val gameSetIds: List<String>,
 ) {
     enum class Level {
@@ -28,18 +29,31 @@ class SourceQuestionsRepository(
     private fun createQuestions(): List<Question> {
         return dataSource.get().gameSets.flatMap { set ->
             listOf(
-                Question.Level.Easy to set.level1,
-                Question.Level.Medium to set.level2,
-                Question.Level.Hard to set.level3
-            ).flatMap { (level, questions) ->
-                questions.map { question ->
+                set.level1.questions.map { question ->
                     Question(
                         text = question,
-                        level = level,
+                        level = Question.Level.Easy,
+                        levelDescription = set.level1.description,
+                        gameSetIds = listOf(set.id),
+                    )
+                },
+                set.level2.questions.map { question ->
+                    Question(
+                        text = question,
+                        level = Question.Level.Medium,
+                        levelDescription = set.level2.description,
+                        gameSetIds = listOf(set.id),
+                    )
+                },
+                set.level3.questions.map { question ->
+                    Question(
+                        text = question,
+                        level = Question.Level.Hard,
+                        levelDescription = set.level3.description,
                         gameSetIds = listOf(set.id),
                     )
                 }
-            }
-        }
+            )
+        }.flatten()
     }
 }

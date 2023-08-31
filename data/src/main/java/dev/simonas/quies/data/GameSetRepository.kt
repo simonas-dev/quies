@@ -3,6 +3,7 @@ package dev.simonas.quies.data
 data class GameSet(
     val id: String,
     val name: String,
+    val description: String,
 )
 
 interface GameSetRepository {
@@ -19,6 +20,7 @@ class SourceGameSetRepository(
             GameSet(
                 id = set.id,
                 name = set.name,
+                description = set.description,
             )
         }
     }
