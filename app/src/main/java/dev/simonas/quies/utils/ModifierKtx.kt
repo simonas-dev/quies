@@ -13,6 +13,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.unit.IntOffset
@@ -42,3 +43,14 @@ internal fun Modifier.animatePlacement(): Modifier = composed {
         animatable?.let { it.value - targetOffset } ?: IntOffset.Zero
     }
 }
+
+fun Modifier.vertical() =
+    layout { measurable, constraints ->
+        val placeable = measurable.measure(constraints)
+        layout(placeable.height, placeable.width) {
+            placeable.place(
+                x = -(placeable.width / 2 - placeable.height / 2),
+                y = -(placeable.height / 2 - placeable.width / 2)
+            )
+        }
+    }
