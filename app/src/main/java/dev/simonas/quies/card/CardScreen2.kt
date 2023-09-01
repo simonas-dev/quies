@@ -7,7 +7,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -29,7 +28,6 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
@@ -147,7 +145,7 @@ internal fun CardScreen2(
     }
 }
 
-private const val ANIM_DURATION = 200
+private const val ANIM_DURATION = 250
 
 @Composable
 private fun BoxScope.StatefulCard(
@@ -157,16 +155,20 @@ private fun BoxScope.StatefulCard(
     gameSetId: String,
     onClick: () -> Unit,
 ) {
-    val rotation: Float by animateFloatAsState(
-        animationSpec = tween(
-            durationMillis = ANIM_DURATION,
-        ),
-        targetValue = when (component.state) {
-            QuestionComponent.State.Landing -> 90f
-            else -> 0f
-        },
-        label = "rotation",
-    )
+    val rotation = remember {
+        Animatable(
+            computeRotation(component.stateVector.from)
+        )
+    }
+    LaunchedEffect(component) {
+        rotation.animateTo(
+            targetValue = computeRotation(component.state),
+            animationSpec = tween(
+                durationMillis = ANIM_DURATION,
+            ),
+        )
+    }
+
     val centerTextAlpha by animateFloatAsState(
         animationSpec = tween(
             durationMillis = ANIM_DURATION,
@@ -214,11 +216,11 @@ private fun BoxScope.StatefulCard(
 
     val animatedOffsetX = remember {
         Animatable(
-            computeOffsetY(
+            computeOffsetX(
                 config = config,
                 index = component.modifiedAtSecs,
                 level = component.level,
-                state = component.state,
+                state = component.stateVector.from,
             )
         )
     }
@@ -241,7 +243,7 @@ private fun BoxScope.StatefulCard(
             computeOffsetY(
                 config = config,
                 level = component.level,
-                state = component.state,
+                state = component.stateVector.from,
                 index = component.modifiedAtSecs,
             )
         )
@@ -260,35 +262,14 @@ private fun BoxScope.StatefulCard(
         )
     }
 
-    val offset by animateOffsetAsState(
-        animationSpec = tween(
-            durationMillis = ANIM_DURATION,
-        ),
-        targetValue = Offset(
-            x = computeOffsetX(
-                config = config,
-                level = component.level,
-                state = component.state,
-                index = component.modifiedAtSecs,
-            ),
-            y = computeOffsetY(
-                config = config,
-                index = component.modifiedAtSecs,
-                level = component.level,
-                state = component.state,
-            ),
-        ),
-        label = "offset",
-    )
-
     Card(
         modifier = Modifier
             .semantics { questionState = component.state }
             .align(Alignment.Center)
             .graphicsLayer {
-                translationX = offset.x.dp.toPx()
-                translationY = offset.y.dp.toPx()
-                rotationZ = rotation
+                translationX = animatedOffsetX.value.dp.toPx()
+                translationY = animatedOffsetY.value.dp.toPx()
+                rotationZ = rotation.value
             },
         shadowElevation = 4.dp,
         color = getColor(
@@ -357,6 +338,15 @@ private fun computeOffsetX(
         }
     }
     return offset
+}
+
+private fun computeRotation(
+    state: QuestionComponent.State
+): Float {
+    return when (state) {
+        QuestionComponent.State.Landing -> 90f
+        else -> 0f
+    }
 }
 
 private fun computeOffsetY(
