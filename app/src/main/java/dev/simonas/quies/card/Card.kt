@@ -154,7 +154,7 @@ internal fun Card(
                         .graphicsLayer {
                             alpha = sideTextAlpha
                         }
-                        .offset(y = 40.dp)
+                        .padding(top = 40.dp)
                         .testTag(TAG_SIDE_TEXT),
                     style = AppTheme.Text.primaryBold,
                     text = sideText,
