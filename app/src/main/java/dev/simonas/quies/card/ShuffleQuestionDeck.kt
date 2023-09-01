@@ -21,12 +21,12 @@ internal class ShuffleQuestionDeck @Inject constructor(
                 question.level == level &&
                     question.gameSetIds.contains(gameSetId)
             }
-        val sortedQuestions = buildList {
-            repeat(questions.size) {
-                val index = random.nextInt(questions.size)
-                add(questions[index])
-            }
-        }
-        return sortedQuestions
+            .sortByRandom(random)
+        return questions
     }
+}
+
+private fun <T> List<T>.sortByRandom(random: Random): List<T> {
+    val randomWeights = associate { it.hashCode() to random.nextInt() }
+    return sortedBy { randomWeights[it.hashCode()] }
 }
