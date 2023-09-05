@@ -1,5 +1,6 @@
 package dev.simonas.quies.card
 
+import androidx.compose.runtime.State
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +16,7 @@ import dev.simonas.quies.utils.replaceFirst
 import dev.simonas.quies.utils.tryReplaceFirst
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
