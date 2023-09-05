@@ -73,6 +73,7 @@ internal fun CardScreen2(
     )
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 internal fun CardScreen2(
     gameSetId: String,
@@ -116,7 +117,8 @@ internal fun CardScreen2(
             modifier = Modifier
                 .testTag(CardScreen2.TAG_MENU_TOGGLE)
                 .align(Alignment.TopCenter)
-                .offset(y = 1.5f * verticalMargin + Card.height + 2.dp),
+                .offset(y = verticalMargin - Overflow.width / 2f),
+            icon = Overflow.Icon.Burger,
             onClick = toggleMenu,
         )
 

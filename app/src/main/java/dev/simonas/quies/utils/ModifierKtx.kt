@@ -13,12 +13,35 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
 import kotlinx.coroutines.launch
+
+fun Modifier.isTouching(isTouched: (Boolean) -> Unit): Modifier {
+    return this.pointerInput(Unit) {
+        awaitPointerEventScope {
+            while (true) {
+                val event = awaitPointerEvent()
+                when (event.type) {
+                    PointerEventType.Press -> {
+                        isTouched(true)
+                    }
+                    PointerEventType.Release -> {
+                        isTouched(false)
+                    }
+                    PointerEventType.Exit -> {
+                        isTouched(false)
+                    }
+                }
+            }
+        }
+    }
+}
 
 internal fun Modifier.animatePlacement(): Modifier = composed {
     val scope = rememberCoroutineScope()
