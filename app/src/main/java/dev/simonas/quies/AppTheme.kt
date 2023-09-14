@@ -11,6 +11,8 @@ import androidx.compose.ui.unit.sp
 
 object AppTheme {
 
+    const val ANIM_DURATION = 250
+
     object Color {
         val washoutLight = Color(0x12C5C5C5)
         val washoutMedium = Color(0x24C5C5C5)
@@ -62,6 +64,15 @@ object AppTheme {
             color = Color.whiteMedium,
             fontFamily = fonts,
             fontSize = 18.sp,
+            fontWeight = FontWeight.Normal,
+            letterSpacing = 0.sp,
+            lineHeight = 24.sp,
+        )
+
+        val labelDemiBold = TextStyle(
+            color = Color.whiteMedium,
+            fontFamily = fonts,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Normal,
             letterSpacing = 0.sp,
             lineHeight = 24.sp,

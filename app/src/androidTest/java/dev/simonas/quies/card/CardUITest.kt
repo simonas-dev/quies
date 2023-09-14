@@ -1,6 +1,7 @@
 package dev.simonas.quies.card
 
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
@@ -11,7 +12,11 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dev.simonas.quies.UITest
 import dev.simonas.quies.card.CardScreen2.questionState
 import dev.simonas.quies.gamesets.GameSetsScreen
+import dev.simonas.quies.utils.manual
+import kotlinx.coroutines.delay
 import org.junit.Test
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 @HiltAndroidTest
 class CardUITest : UITest() {
@@ -25,6 +30,7 @@ class CardUITest : UITest() {
             .performClick()
 
         showsCardScreen()
+        doesNotShowSkipLevelNotice()
     }
 
     @Test
@@ -65,6 +71,8 @@ class CardUITest : UITest() {
             .performClick()
         onNodeWithText("LEVEL 3")
             .performClick()
+        onNodeWithState(QuestionComponent.State.PrimaryHidden)
+            .performClick()
         onNodeWithState(QuestionComponent.State.NextHidden)
             .performClick()
         onNodeWithState(QuestionComponent.State.PrimaryHidden)
@@ -93,6 +101,40 @@ class CardUITest : UITest() {
             .performClick()
 
         showsGameSetScreen()
+    }
+
+    @Test
+    fun answersSomeQuestions() {
+        onNodeWithText("DATING")
+            .performClick()
+        onNodeWithText("LEVEL 1")
+            .performClick()
+        onNodeWithState(QuestionComponent.State.PrimaryHidden)
+            .performClick()
+        mainClock.manual {
+            repeat(2) {
+                advanceTimeBy(2.minutes.inWholeMilliseconds)
+                onNodeWithState(QuestionComponent.State.NextHidden)
+                    .performClick()
+                advanceTimeBy(1.seconds.inWholeMilliseconds)
+                onNodeWithState(QuestionComponent.State.PrimaryHidden)
+                    .performClick()
+            }
+
+            advanceTimeBy(1.seconds.inWholeMilliseconds)
+
+            showsSkipLevelNotice()
+        }
+    }
+
+    private fun showsSkipLevelNotice() {
+        onNode(SemanticsMatcher.keyIsDefined(Menu.isShowingMessage))
+            .assert(SemanticsMatcher.expectValue(Menu.isShowingMessage, true))
+    }
+
+    private fun doesNotShowSkipLevelNotice() {
+        onNode(SemanticsMatcher.keyIsDefined(Menu.isShowingMessage))
+            .assert(SemanticsMatcher.expectValue(Menu.isShowingMessage, false))
     }
 
     private fun showsGameSetScreen() {

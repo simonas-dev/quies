@@ -1,10 +1,11 @@
 package dev.simonas.quies.card
 
-import androidx.compose.runtime.State
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.simonas.quies.data.Question
+import dev.simonas.quies.millisSinceLaunch
 import dev.simonas.quies.router.NavRoutes
 import dev.simonas.quies.utils.Vector
 import dev.simonas.quies.utils.moveToBack
@@ -14,11 +15,19 @@ import dev.simonas.quies.utils.replace
 import dev.simonas.quies.utils.replaceEach
 import dev.simonas.quies.utils.replaceFirst
 import dev.simonas.quies.utils.tryReplaceFirst
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.runningFold
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 internal class CardViewModel2 @Inject constructor(
@@ -27,6 +36,57 @@ internal class CardViewModel2 @Inject constructor(
 ) : ViewModel() {
 
     val gameSetId: String = requireNotNull(stateHandle[NavRoutes.ARG_GAME_SET])
+
+    data class Event(
+        val type: Type,
+        val createdAt: Long,
+    ) {
+        enum class Type {
+            NextQuestion,
+        }
+    }
+
+    private val _interactionLog = MutableSharedFlow<Event>(extraBufferCapacity = 100)
+
+    private val minNumberOfLowEngagement = 3
+    private val minDurationUntilSkip = 1.minutes.inWholeMilliseconds
+    private val isNotEngagingWithQuestions = _interactionLog
+        .filter { it.type == Event.Type.NextQuestion }
+        .runningFold(Long.MIN_VALUE to -1L * minDurationUntilSkip) { lastCreatedAt, event ->
+            lastCreatedAt.second to event.createdAt
+        }
+        .map { (prevCreatedAt, newCreatedAt) -> newCreatedAt - prevCreatedAt }
+        .filter { durationUntilSkip -> durationUntilSkip < minDurationUntilSkip }
+        .filter { !pool.all { it.level == Question.Level.Hard } }
+        .runningFold(0) { skipsCount, _ ->
+            skipsCount + 1
+        }
+        .filter { skipsCount ->
+            skipsCount >= minNumberOfLowEngagement
+        }
+        .map {
+            millisSinceLaunch()
+        }
+        .take(1)
+
+    private val minNumberOfSkips = 5
+    private val hasCompletedSomeQuestions = _interactionLog
+        .filter { it.type == Event.Type.NextQuestion }
+        .runningFold(0) { skipsCount, _ ->
+            skipsCount + 1
+        }
+        .filter { skipsCount ->
+            skipsCount >= minNumberOfSkips
+        }
+        .filter { !pool.all { it.level == Question.Level.Hard } }
+        .map {
+            millisSinceLaunch()
+        }
+        .take(1)
+
+    val showLevelSkipNotice = listOf(hasCompletedSomeQuestions, isNotEngagingWithQuestions)
+        .merge()
+        .take(1)
 
     private val pool = listOf(
         Question.Level.Easy,
@@ -49,21 +109,28 @@ internal class CardViewModel2 @Inject constructor(
 
     val questions: StateFlow<Questions> = _questions
 
-    private val _isExitShown = MutableStateFlow(false)
-    val isExitShown: StateFlow<Boolean> = _isExitShown
+    private val _isMenuShown = MutableStateFlow(false)
+    val isMenuShown: StateFlow<Boolean> = _isMenuShown
+
+    val isNextLevelShown: StateFlow<Boolean> = _questions
+        .map { !pool.all { it.level == Question.Level.Hard } }
+        .stateIn(viewModelScope, SharingStarted.Lazily, false)
 
     fun trigger(question: QuestionComponent) {
         when (question.state) {
             QuestionComponent.State.Landing -> {
-                selectLevel(question)
+                logEvent(Event.Type.NextQuestion)
+                increaseLevelTo(question.level)
             }
             QuestionComponent.State.PrimaryRevealed -> {
                 closePrimaryCard(question)
             }
             QuestionComponent.State.OtherCard -> {
+                logEvent(Event.Type.NextQuestion)
                 revealPrimaryCard()
             }
             QuestionComponent.State.PrimaryHidden -> {
+                logEvent(Event.Type.NextQuestion)
                 revealPrimaryCard()
             }
             QuestionComponent.State.Closed -> {
@@ -84,46 +151,6 @@ internal class CardViewModel2 @Inject constructor(
     data class Questions(
         val components: List<QuestionComponent>,
     )
-
-    private fun selectLevel(question: QuestionComponent) {
-        val levelsToRemove: List<Question.Level> = when (question.level) {
-            QuestionComponent.Level.Easy -> {
-                listOf()
-            }
-            QuestionComponent.Level.Medium -> {
-                listOf(Question.Level.Easy)
-            }
-            QuestionComponent.Level.Hard -> {
-                listOf(Question.Level.Easy, Question.Level.Medium)
-            }
-        }
-        pool.removeAll { it.level in levelsToRemove }
-
-        _questions.updateComponents {
-            replaceEach { _, q ->
-                when {
-                    q.id == question.id -> {
-                        q.mutate(QuestionComponent.State.PrimaryRevealed)
-                    }
-                    q.level.toAnother() in levelsToRemove -> {
-                        q.mutate(QuestionComponent.State.Disabled)
-                    }
-                    else -> {
-                        q.mutate(QuestionComponent.State.OtherCard)
-                    }
-                }
-            }
-            val nextQuestion = pool.popFirstOrNull { it.level.toAnother() == question.level }
-            if (nextQuestion != null) {
-                add(
-                    index = 1,
-                    element = nextQuestion
-                        .withState(QuestionComponent.State.Landing)
-                        .mutate(QuestionComponent.State.NextHidden),
-                )
-            }
-        }
-    }
 
     private fun showClosedCard(question: QuestionComponent) {
         _questions.updateComponents {
@@ -204,11 +231,27 @@ internal class CardViewModel2 @Inject constructor(
     }
 
     fun toggleMenu() {
-        val isMenuVisible = !_isExitShown.value
-        _isExitShown.update { isMenuVisible }
+        setIsMenuShown(!isMenuShown.value)
+    }
+
+    fun nextLevel() {
+        setIsMenuShown(false)
+        val levels = pool.map { it.level }
+        when {
+            Question.Level.Easy in levels -> {
+                increaseLevelTo(QuestionComponent.Level.Medium)
+            }
+            Question.Level.Medium in levels -> {
+                increaseLevelTo(QuestionComponent.Level.Hard)
+            }
+        }
+    }
+
+    private fun setIsMenuShown(isShown: Boolean) {
+        _isMenuShown.update { isShown }
         _questions.updateComponents {
             replaceEach { index, questionComponent ->
-                if (isMenuVisible) {
+                if (isShown) {
                     if (questionComponent.state != QuestionComponent.State.Disabled) {
                         questionComponent.mutate(QuestionComponent.State.Offscreen)
                     } else {
@@ -221,6 +264,68 @@ internal class CardViewModel2 @Inject constructor(
                         questionComponent
                     }
                 }
+            }
+        }
+    }
+
+    private fun logEvent(type: Event.Type) {
+        _interactionLog.tryEmit(
+            Event(
+                type = type,
+                createdAt = millisSinceLaunch(),
+            )
+        )
+    }
+
+    private fun increaseLevelTo(level: QuestionComponent.Level) {
+        val levelsToRemove: List<Question.Level> = when (level) {
+            QuestionComponent.Level.Easy -> {
+                listOf()
+            }
+            QuestionComponent.Level.Medium -> {
+                listOf(Question.Level.Easy)
+            }
+            QuestionComponent.Level.Hard -> {
+                listOf(Question.Level.Easy, Question.Level.Medium)
+            }
+        }
+        pool.removeAll { it.level in levelsToRemove }
+        _questions.updateComponents {
+            replaceFirst(
+                first = { it.level == level },
+                replace = { it.mutate(QuestionComponent.State.PrimaryHidden) },
+            )
+            replaceAll { q ->
+                when {
+                    q.level.toAnother() in levelsToRemove -> {
+                        when (q.state) {
+                            QuestionComponent.State.Closed -> {
+                                q
+                            }
+                            QuestionComponent.State.PrimaryRevealed -> {
+                                q.mutate(QuestionComponent.State.Closed)
+                            }
+                            else -> {
+                                q.mutate(QuestionComponent.State.Disabled)
+                            }
+                        }
+                    }
+                    q.state == QuestionComponent.State.Landing -> {
+                        q.mutate(QuestionComponent.State.OtherCard)
+                    }
+                    else -> {
+                        q
+                    }
+                }
+            }
+            val nextQuestion = pool.popFirstOrNull { it.level.toAnother() == level }
+            if (nextQuestion != null) {
+                add(
+                    index = 1,
+                    element = nextQuestion
+                        .withState(QuestionComponent.State.Offscreen)
+                        .mutate(QuestionComponent.State.OtherCard),
+                )
             }
         }
     }

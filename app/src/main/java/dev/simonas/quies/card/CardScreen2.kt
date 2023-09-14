@@ -14,9 +14,12 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -25,7 +28,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -35,7 +40,6 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.simonas.quies.AppTheme
@@ -45,11 +49,15 @@ import dev.simonas.quies.questions.getColor
 import dev.simonas.quies.utils.KeepScreenOn
 import dev.simonas.quies.utils.createTestTag
 import dev.simonas.quies.utils.fbm
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 
 internal object CardScreen2 {
     val TAG_SCREEN = createTestTag("screen")
     val TAG_MENU_TOGGLE = createTestTag("menu_toggle")
     val TAG_EXIT = createTestTag("exit")
+    val TAG_NEXT_LEVEL = createTestTag("next_level")
 
     val questionState = SemanticsPropertyKey<QuestionComponent.State>("state")
     var SemanticsPropertyReceiver.questionState by questionState
@@ -61,15 +69,19 @@ internal fun CardScreen2(
     onBack: () -> Unit,
 ) {
     val state = cardViewModel.questions.collectAsStateWithLifecycle()
-    val isExitShown = cardViewModel.isExitShown.collectAsStateWithLifecycle()
+    val isMenuShown = cardViewModel.isMenuShown.collectAsStateWithLifecycle()
+    val isNextLevelShown = cardViewModel.isNextLevelShown.collectAsStateWithLifecycle()
 
     CardScreen2(
         gameSetId = cardViewModel.gameSetId,
         questions = state,
-        isExitShown = isExitShown,
+        isMenuShown = isMenuShown,
+        isNextLevelShown = isNextLevelShown,
+        showLevelSkipNotice = cardViewModel.showLevelSkipNotice,
         onClick = cardViewModel::trigger,
         toggleMenu = cardViewModel::toggleMenu,
         onExit = onBack,
+        onNextLevel = cardViewModel::nextLevel,
     )
 }
 
@@ -78,12 +90,24 @@ internal fun CardScreen2(
 internal fun CardScreen2(
     gameSetId: String,
     questions: State<CardViewModel2.Questions>,
-    isExitShown: State<Boolean>,
+    isMenuShown: State<Boolean>,
+    isNextLevelShown: State<Boolean>,
     onClick: (QuestionComponent) -> Unit,
     toggleMenu: () -> Unit,
     onExit: () -> Unit,
+    onNextLevel: () -> Unit,
+    showLevelSkipNotice: Flow<Long>,
 ) {
     KeepScreenOn()
+
+    var showMenuMessage by remember { mutableStateOf(false) }
+    LaunchedEffect(showLevelSkipNotice) {
+        showLevelSkipNotice.collectLatest {
+            showMenuMessage = true
+            delay(5000)
+            showMenuMessage = false
+        }
+    }
 
     val screenWidth = LocalConfiguration.current.screenHeightDp.dp
 
@@ -113,41 +137,62 @@ internal fun CardScreen2(
             }
         }
 
-        Overflow(
+        Menu(
             modifier = Modifier
                 .testTag(CardScreen2.TAG_MENU_TOGGLE)
                 .align(Alignment.TopCenter)
                 .offset(y = verticalMargin - Overflow.width / 2f),
-            icon = Overflow.Icon.Burger,
+            message = "Are you ready to move to the next level?",
+            showMessage = showMenuMessage,
             onClick = toggleMenu,
         )
 
         AnimatedVisibility(
             modifier = Modifier
                 .align(Alignment.Center),
-            visible = isExitShown.value,
+            visible = isMenuShown.value,
             enter = fadeIn() + scaleIn(),
             exit = fadeOut() + scaleOut(),
         ) {
-            Button(
-                modifier = Modifier
-                    .testTag(CardScreen2.TAG_EXIT),
-                onClick = onExit,
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = getColor(gameSetId = gameSetId),
-                ),
-                content = {
-                    Text(
-                        text = "Exit?",
-                        style = AppTheme.Text.primaryBold
+            LaunchedEffect(Unit) {
+                showMenuMessage = false
+            }
+            Row {
+                Button(
+                    modifier = Modifier
+                        .testTag(CardScreen2.TAG_EXIT),
+                    onClick = onExit,
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = getColor(gameSetId = gameSetId),
+                    ),
+                    content = {
+                        Text(
+                            text = "Exit?",
+                            style = AppTheme.Text.primaryBold
+                        )
+                    }
+                )
+                if (isNextLevelShown.value) {
+                    Spacer(modifier = Modifier.width(64.dp))
+                    Button(
+                        modifier = Modifier
+                            .testTag(CardScreen2.TAG_NEXT_LEVEL),
+                        onClick = onNextLevel,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = getColor(gameSetId = gameSetId),
+                        ),
+                        content = {
+                            Text(
+                                text = "Next Level?",
+                                style = AppTheme.Text.primaryBold
+                            )
+                        }
                     )
                 }
-            )
+            }
         }
     }
 }
-
-private const val ANIM_DURATION = 250
 
 @Composable
 private fun BoxScope.StatefulCard(
@@ -166,14 +211,14 @@ private fun BoxScope.StatefulCard(
         rotation.animateTo(
             targetValue = computeRotation(component.state),
             animationSpec = tween(
-                durationMillis = ANIM_DURATION,
+                durationMillis = AppTheme.ANIM_DURATION,
             ),
         )
     }
 
     val centerTextAlpha by animateFloatAsState(
         animationSpec = tween(
-            durationMillis = ANIM_DURATION,
+            durationMillis = AppTheme.ANIM_DURATION,
         ),
         targetValue = when (component.state) {
             QuestionComponent.State.Landing -> 0f
@@ -189,7 +234,7 @@ private fun BoxScope.StatefulCard(
     )
     val centerVerticalTextAlpha by animateFloatAsState(
         animationSpec = tween(
-            durationMillis = ANIM_DURATION,
+            durationMillis = AppTheme.ANIM_DURATION,
         ),
         targetValue = when (component.state) {
             QuestionComponent.State.Landing -> 1f
@@ -199,7 +244,7 @@ private fun BoxScope.StatefulCard(
     )
     val sideTextAlpha by animateFloatAsState(
         animationSpec = tween(
-            durationMillis = ANIM_DURATION,
+            durationMillis = AppTheme.ANIM_DURATION,
         ),
         targetValue = when (component.state) {
             QuestionComponent.State.Landing -> 1f
@@ -235,7 +280,7 @@ private fun BoxScope.StatefulCard(
                 index = component.modifiedAtSecs,
             ),
             animationSpec = tween(
-                durationMillis = ANIM_DURATION,
+                durationMillis = AppTheme.ANIM_DURATION,
             ),
         )
     }
@@ -259,7 +304,7 @@ private fun BoxScope.StatefulCard(
                 state = component.state,
             ),
             animationSpec = tween(
-                durationMillis = ANIM_DURATION,
+                durationMillis = AppTheme.ANIM_DURATION,
             ),
         )
     }
