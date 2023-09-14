@@ -52,13 +52,13 @@ internal fun GameSetsScreen(
     Box(modifier.testTag(GameSetsScreen.TAG_SCREEN)) {
         Text(
             modifier = Modifier.offset(x = 60.dp, y = 60.dp),
-            text = "DEEP QUESTIONS",
+            text = "WE ARE ALIKE",
             style = AppTheme.Text.primaryBlack,
         )
 
         Text(
-            modifier = Modifier.offset(x = 60.dp, y = 114.dp),
-            text = "Create deep and sincere conversations with the people you love.",
+            modifier = Modifier.offset(x = 66.dp, y = 114.dp),
+            text = "We are just looking for the right question.",
             style = AppTheme.Text.secondaryDemiBold,
         )
 

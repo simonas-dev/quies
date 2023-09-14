@@ -2,9 +2,9 @@ version: 1
 gameSets:
   - id: "dating"
     name: "Dating"
-    description: "Questions that will bring you closer together."
+    description: "Leap of faith for\na profound bond."
     level1:
-      description: "Bond."
+      description: "Find connection."
       questions:
         - "What's one thing you love about your hometown?"
         - "If you had a whole day off with no responsibilities, how would you spend it?"
@@ -17,7 +17,7 @@ gameSets:
         - "What's the one dish you can cook amazingly well?"
         - "Tell me about a memorable teacher you had at school."
     level2:
-      description: "Dare to be vulnerable."
+      description: "Dare to open up."
       questions:
         - "What qualities are you looking for in a friend?"
         - "How do you define success in life?"
@@ -44,7 +44,7 @@ gameSets:
         - "How do you want to grow as a person?"
   - id: "friendship"
     name: "Friends"
-    description: "How well do you really know your best friend?"
+    description: "How well do you\nknow each other?"
     level1:
       description: "Aspirations."
       questions:
