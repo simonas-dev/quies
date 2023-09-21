@@ -108,7 +108,7 @@ internal class CardViewModel2Test {
         @BeforeEach
         fun setUp() {
             val easyCard = subject.questions.value.components.first { it.text == "easy1" }
-            subject.trigger(easyCard)
+            subject.trigger(easyCard.id)
         }
 
         @Test

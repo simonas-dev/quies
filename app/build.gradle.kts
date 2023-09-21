@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.konan.properties.Properties
-import com.github.triplet.gradle.androidpublisher.ReleaseStatus
 
 plugins {
     alias(libs.plugins.google.services)
@@ -118,6 +117,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.javapoet)
+    implementation(libs.kotlin.math)
     implementation(platform(libs.firebase.bom))
     implementation(project(":data"))
 

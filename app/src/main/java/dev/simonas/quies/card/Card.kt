@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
@@ -23,12 +24,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Exit
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
@@ -43,8 +46,8 @@ import dev.simonas.quies.utils.vertical
 internal object Card {
     const val TAG_CENTER_TEXT = "text_center"
     const val TAG_SIDE_TEXT = "text_side"
-    val width = 470.dp
-    val height = 288.dp
+    val width = 456.dp
+    val height = 280.dp
 }
 
 @Composable
@@ -59,6 +62,10 @@ internal fun Card(
     sideTextAlpha: Float = 1f,
     color: Color = AppTheme.Color.dating,
     onClick: (() -> Unit)? = null,
+    pointerInputKey: Any = Unit,
+    onDragStop: () -> Unit = {},
+    onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit = { change, _ -> change.consume() },
+    onDragStart: (Offset) -> Unit = {},
 ) {
     var isTouching: Boolean by remember { mutableStateOf(false) }
     val scale: Float by animateFloatAsState(
@@ -84,6 +91,14 @@ internal fun Card(
             .graphicsLayer {
                 this.shape = shape
                 this.shadowElevation = shadowElevation.toPx()
+            }
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDragEnd = onDragStop,
+                    onDragCancel = onDragStop,
+                    onDragStart = onDragStart,
+                    onDrag = onDrag,
+                )
             }
             .pointerInput(Unit) {
                 awaitEachGesture {

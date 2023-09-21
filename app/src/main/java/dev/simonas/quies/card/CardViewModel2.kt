@@ -1,5 +1,6 @@
 package dev.simonas.quies.card
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +9,7 @@ import dev.simonas.quies.data.Question
 import dev.simonas.quies.millisSinceLaunch
 import dev.simonas.quies.router.NavRoutes
 import dev.simonas.quies.utils.Vector
+import dev.simonas.quies.utils.loge
 import dev.simonas.quies.utils.moveToBack
 import dev.simonas.quies.utils.moveToFront
 import dev.simonas.quies.utils.popFirstOrNull
@@ -88,7 +90,7 @@ internal class CardViewModel2 @Inject constructor(
         .merge()
         .take(1)
 
-    private val pool = listOf(
+    private var pool = listOf(
         Question.Level.Easy,
         Question.Level.Medium,
         Question.Level.Hard,
@@ -116,7 +118,27 @@ internal class CardViewModel2 @Inject constructor(
         .map { !pool.all { it.level == Question.Level.Hard } }
         .stateIn(viewModelScope, SharingStarted.Lazily, false)
 
-    fun trigger(question: QuestionComponent) {
+    @Suppress("TooGenericExceptionCaught")
+    fun trigger(id: Int) {
+        // Due to UI changes that now allows to click drag away cards and allow clicking on
+        // elements that were not intended to be clicked before due to been behind other ones.
+        // This is strictly meant to catch those weird edge-cases that are now possible.
+        // In the future might be worth it to refactor this to be more bullet proof.
+        // For now, this will do.
+        val tempPool = pool.toMutableList()
+        val tempQuestions = _questions.value
+        try {
+            unsafeTrigger(id)
+        } catch (e: Exception) {
+            loge(e)
+            pool = tempPool
+            _questions.value = tempQuestions
+        }
+    }
+
+    private fun unsafeTrigger(id: Int) {
+        val question = _questions.value.components.single { it.id == id }
+        Log.d(this::class.java.simpleName, question.toString())
         when (question.state) {
             QuestionComponent.State.Landing -> {
                 logEvent(Event.Type.NextQuestion)
@@ -146,6 +168,7 @@ internal class CardViewModel2 @Inject constructor(
                 // nothing
             }
         }
+        Log.d(this::class.java.simpleName, questions.value.components.toString())
     }
 
     data class Questions(

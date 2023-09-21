@@ -349,7 +349,7 @@ private fun BoxScope.Showing(
         sideText = state.question.level.toText(),
         onClick = {
             isClosed = true
-        }
+        },
     )
 }
 
@@ -463,7 +463,7 @@ private fun BoxScope.Picking(
                     onChangeLevel(Question.Level.Easy)
                 }
             }
-        }
+        },
     )
 
     Card(
@@ -496,7 +496,7 @@ private fun BoxScope.Picking(
                     onChangeLevel(Question.Level.Medium)
                 }
             }
-        }
+        },
     )
 
     Card(
@@ -529,7 +529,7 @@ private fun BoxScope.Picking(
                     onChangeLevel(Question.Level.Hard)
                 }
             }
-        }
+        },
     )
 }
 
