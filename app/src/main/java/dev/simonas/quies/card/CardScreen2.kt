@@ -2,11 +2,14 @@
 
 package dev.simonas.quies.card
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -17,7 +20,6 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
@@ -30,15 +32,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,11 +55,18 @@ import dev.simonas.quies.card.CardScreen2.questionState
 import dev.simonas.quies.data.Question
 import dev.simonas.quies.questions.getColor
 import dev.simonas.quies.utils.KeepScreenOn
+import dev.simonas.quies.utils.OnSystemBackClick
 import dev.simonas.quies.utils.createTestTag
 import dev.simonas.quies.utils.fbm
+import dev.simonas.quies.utils.toPx
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import java.lang.Math.toRadians
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 
 internal object CardScreen2 {
     val TAG_SCREEN = createTestTag("screen")
@@ -72,13 +87,19 @@ internal fun CardScreen2(
     val isMenuShown = cardViewModel.isMenuShown.collectAsStateWithLifecycle()
     val isNextLevelShown = cardViewModel.isNextLevelShown.collectAsStateWithLifecycle()
 
+    OnSystemBackClick {
+        cardViewModel.toggleMenu()
+    }
+
     CardScreen2(
         gameSetId = cardViewModel.gameSetId,
         questions = state,
         isMenuShown = isMenuShown,
         isNextLevelShown = isNextLevelShown,
         showLevelSkipNotice = cardViewModel.showLevelSkipNotice,
-        onClick = cardViewModel::trigger,
+        onClick = {
+            cardViewModel.trigger(it.id)
+        },
         toggleMenu = cardViewModel::toggleMenu,
         onExit = onBack,
         onNextLevel = cardViewModel::nextLevel,
@@ -109,10 +130,11 @@ internal fun CardScreen2(
         }
     }
 
-    val screenWidth = LocalConfiguration.current.screenHeightDp.dp
+    var screenSize by remember { mutableStateOf(IntSize(0, 0)) }
 
-    val verticalMargin = remember(screenWidth) {
-        (screenWidth - Card.height) / 2f
+    val cardHeight = Card.height.toPx()
+    val verticalMargin = remember(screenSize.height) {
+        (screenSize.height - cardHeight) / 2f
     }
 
     Box(
@@ -120,6 +142,9 @@ internal fun CardScreen2(
             .testTag(CardScreen2.TAG_SCREEN)
             .padding()
             .fillMaxSize()
+            .onGloballyPositioned {
+                screenSize = it.size
+            },
     ) {
         val components = questions.value.components
         val size = components.size
@@ -130,18 +155,20 @@ internal fun CardScreen2(
                     size = size,
                     component = ques,
                     gameSetId = gameSetId,
-                    onClick = {
-                        onClick(ques)
-                    }
+                    onClick = onClick
                 )
             }
         }
 
+        val menuHeight = Menu.height.toPx()
+        val menuYOffset = (verticalMargin / 2f) - (menuHeight / 2f)
         Menu(
             modifier = Modifier
                 .testTag(CardScreen2.TAG_MENU_TOGGLE)
                 .align(Alignment.TopCenter)
-                .offset(y = verticalMargin - Overflow.width / 2f),
+                .graphicsLayer {
+                    translationY = menuYOffset
+                },
             message = "Are you ready to move to the next level?",
             showMessage = showMenuMessage,
             onClick = toggleMenu,
@@ -194,15 +221,22 @@ internal fun CardScreen2(
     }
 }
 
+@SuppressLint("ClickableViewAccessibility")
 @Composable
 private fun BoxScope.StatefulCard(
     index: Int,
     size: Int,
     component: QuestionComponent,
     gameSetId: String,
-    onClick: () -> Unit,
+    onClick: (QuestionComponent) -> Unit,
 ) {
-    val rotation = remember {
+    val density = LocalDensity.current
+    val dragOffsetX = remember { Animatable(0f) }
+    val dragOffsetY = remember { Animatable(0f) }
+
+    var isDragThresholdReached by remember { mutableStateOf(false) }
+
+    val rotation = remember(component.stateVector.from) {
         Animatable(
             computeRotation(component.stateVector.from)
         )
@@ -258,26 +292,40 @@ private fun BoxScope.StatefulCard(
         },
         label = "sideTextAlpha",
     )
+    val cardScale by animateFloatAsState(
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioHighBouncy,
+        ),
+        targetValue = when {
+            isDragThresholdReached -> 0.9524f
+            else -> 1f
+        },
+        label = "cardScale",
+    )
 
     val config = LocalConfiguration.current
 
-    val animatedOffsetX = remember {
+    val stateOffsetX = remember {
         Animatable(
-            computeOffsetX(
-                config = config,
-                index = component.modifiedAtSecs,
-                level = component.level,
-                state = component.stateVector.from,
+            density.dpToPx(
+                computeOffsetX(
+                    config = config,
+                    index = component.modifiedAtSecs,
+                    level = component.level,
+                    state = component.stateVector.from,
+                )
             )
         )
     }
     LaunchedEffect(component) {
-        animatedOffsetX.animateTo(
-            targetValue = computeOffsetX(
-                config = config,
-                level = component.level,
-                state = component.state,
-                index = component.modifiedAtSecs,
+        stateOffsetX.animateTo(
+            targetValue = density.dpToPx(
+                computeOffsetX(
+                    config = config,
+                    level = component.level,
+                    state = component.state,
+                    index = component.modifiedAtSecs,
+                )
             ),
             animationSpec = tween(
                 durationMillis = AppTheme.ANIM_DURATION,
@@ -285,27 +333,56 @@ private fun BoxScope.StatefulCard(
         )
     }
 
-    val animatedOffsetY = remember {
+    val stateOffsetY = remember {
         Animatable(
-            computeOffsetY(
-                config = config,
-                level = component.level,
-                state = component.stateVector.from,
-                index = component.modifiedAtSecs,
+            density.dpToPx(
+                computeOffsetY(
+                    config = config,
+                    level = component.level,
+                    state = component.stateVector.from,
+                    index = component.modifiedAtSecs,
+                )
             )
         )
     }
     LaunchedEffect(component) {
-        animatedOffsetY.animateTo(
-            targetValue = computeOffsetY(
-                config = config,
-                index = component.modifiedAtSecs,
-                level = component.level,
-                state = component.state,
+        stateOffsetY.animateTo(
+            targetValue = density.dpToPx(
+                computeOffsetY(
+                    config = config,
+                    index = component.modifiedAtSecs,
+                    level = component.level,
+                    state = component.state,
+                )
             ),
             animationSpec = tween(
                 durationMillis = AppTheme.ANIM_DURATION,
             ),
+        )
+    }
+
+    val coroutineCtx = rememberCoroutineScope()
+
+    val dragTrigger = with(LocalDensity.current) { 64.dp.toPx() }
+
+    val cardDragOffset = {
+        val dragOffset = {
+            Offset(
+                x = dragOffsetX.value,
+                y = dragOffsetY.value,
+            )
+        }
+        computeCardDragOffset(
+            rotation = rotation.value,
+            dragOffset = dragOffset(),
+        )
+    }
+
+    val cardTranslationOffset = {
+        val dragOffset = cardDragOffset()
+        Offset(
+            x = stateOffsetX.value + dragOffset.x,
+            y = stateOffsetY.value + dragOffset.y,
         )
     }
 
@@ -314,11 +391,20 @@ private fun BoxScope.StatefulCard(
             .semantics { questionState = component.state }
             .align(Alignment.Center)
             .graphicsLayer {
-                translationX = animatedOffsetX.value.dp.toPx()
-                translationY = animatedOffsetY.value.dp.toPx()
+                val offset = cardTranslationOffset()
+                translationX = offset.x
+                translationY = offset.y
                 rotationZ = rotation.value
+                scaleX = cardScale
+                scaleY = cardScale
             },
         shadowElevation = 4.dp,
+        centerText = component.text,
+        sideText = component.level.toText(),
+        centerVerticalText = component.levelDescription,
+        centerVerticalTextAlpha = centerVerticalTextAlpha,
+        textAlpha = centerTextAlpha,
+        sideTextAlpha = sideTextAlpha,
         color = getColor(
             gameSetId = gameSetId,
             level = when (component.level) {
@@ -327,14 +413,36 @@ private fun BoxScope.StatefulCard(
                 QuestionComponent.Level.Hard -> Question.Level.Hard
             }
         ),
-        centerText = component.text,
-        centerVerticalText = component.levelDescription,
-        centerVerticalTextAlpha = centerVerticalTextAlpha,
-        sideText = component.level.toText(),
-        textAlpha = centerTextAlpha,
-        sideTextAlpha = sideTextAlpha,
         onClick = {
-            onClick()
+            onClick(component)
+        },
+        onDragStop = {
+            isDragThresholdReached = false
+            if (abs(dragOffsetX.value) > dragTrigger) {
+                val cardOffset = cardTranslationOffset()
+                coroutineCtx.launch {
+                    dragOffsetX.snapTo(0f)
+                    dragOffsetY.snapTo(0f)
+                    stateOffsetX.snapTo(cardOffset.x)
+                    stateOffsetY.snapTo(cardOffset.y)
+                    onClick(component)
+                }
+            } else {
+                coroutineCtx.launch {
+                    dragOffsetX.animateTo(0f, spring(0.5f))
+                }
+                coroutineCtx.launch {
+                    dragOffsetY.animateTo(0f, spring(0.5f))
+                }
+            }
+        },
+        onDrag = { change, dragAmount ->
+            isDragThresholdReached = abs(dragOffsetX.value) > dragTrigger ||
+                abs(dragOffsetY.value) > dragTrigger
+            coroutineCtx.launch {
+                dragOffsetX.snapTo(dragOffsetX.value + dragAmount.x)
+                dragOffsetY.snapTo(dragOffsetY.value + dragAmount.y)
+            }
         }
     )
 }
@@ -379,7 +487,6 @@ private fun computeOffsetX(
         QuestionComponent.State.Disabled -> {
             // center
         }
-
         QuestionComponent.State.Offscreen -> {
             // center
         }
@@ -436,3 +543,19 @@ private fun QuestionComponent.Level.toText(): String =
             "LEVEL 3"
         }
     }
+
+private fun computeCardDragOffset(
+    rotation: Float,
+    dragOffset: Offset,
+): Offset {
+    val rotRads = toRadians(rotation.toDouble())
+    val absDragX = dragOffset.x * cos(rotRads) + -1 * dragOffset.y * sin(rotRads)
+    val absDragY = dragOffset.y * cos(rotRads) + dragOffset.x * sin(rotRads)
+    return Offset(
+        x = absDragX.toFloat(),
+        y = absDragY.toFloat(),
+    )
+}
+
+private fun Density.dpToPx(value: Float): Float =
+    value.dp.toPx()

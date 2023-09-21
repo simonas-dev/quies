@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -36,7 +37,7 @@ import kotlin.math.pow
 
 object Menu {
     val width = 470.dp
-    val height = 56.dp
+    val height = 24.dp
 
     val isShowingMessage = SemanticsPropertyKey<Boolean>("isShowingMessage")
     var SemanticsPropertyReceiver.isShowingMessage by isShowingMessage

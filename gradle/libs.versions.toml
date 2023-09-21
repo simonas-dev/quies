@@ -27,6 +27,7 @@ junit = "4.13.2"
 junit-jupiter = "5.8.1"
 kaml = "0.55.0"
 kotlin = "1.8.10"
+kotlin-math = "1.5.3"
 ktlint_gradle = "11.5.0"
 min_sdk_version = "31"
 mockito-android = "5.4.0"
@@ -77,6 +78,7 @@ junit = { module = "junit:junit", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 kgp = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-math = { module = "dev.romainguy:kotlin-math", version.ref = "kotlin-math" }
 mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockito-android" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito-kotlin" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
