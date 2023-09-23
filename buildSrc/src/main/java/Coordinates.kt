@@ -2,6 +2,6 @@ const val PUBLISHING_GROUP = "dev.simonas"
 
 object AppCoordinates {
     const val APP_ID = "dev.simonas.quies"
-    const val APP_VERSION_NAME = "0.4.3"
-    const val APP_VERSION_CODE = 12
+    const val APP_VERSION_NAME = "0.5.0"
+    const val APP_VERSION_CODE = 13
 }
