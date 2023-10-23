@@ -3,7 +3,6 @@
 package dev.simonas.quies.card
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Animatable
@@ -38,19 +37,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.simonas.quies.AppTheme
+import dev.simonas.quies.LocalUiGuide
+import dev.simonas.quies.UiGuide
 import dev.simonas.quies.card.CardScreen2.questionState
 import dev.simonas.quies.data.Question
 import dev.simonas.quies.questions.getColor
@@ -58,6 +56,7 @@ import dev.simonas.quies.utils.KeepScreenOn
 import dev.simonas.quies.utils.OnSystemBackClick
 import dev.simonas.quies.utils.createTestTag
 import dev.simonas.quies.utils.fbm
+import dev.simonas.quies.utils.nthGoldenChildRatio
 import dev.simonas.quies.utils.toPx
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -130,21 +129,13 @@ internal fun CardScreen2(
         }
     }
 
-    var screenSize by remember { mutableStateOf(IntSize(0, 0)) }
-
-    val cardHeight = Card.height.toPx()
-    val verticalMargin = remember(screenSize.height) {
-        (screenSize.height - cardHeight) / 2f
-    }
+    val bigSpace = LocalUiGuide.current.bigSpace
 
     Box(
         modifier = Modifier
             .testTag(CardScreen2.TAG_SCREEN)
             .padding()
-            .fillMaxSize()
-            .onGloballyPositioned {
-                screenSize = it.size
-            },
+            .fillMaxSize(),
     ) {
         val components = questions.value.components
         val size = components.size
@@ -155,13 +146,14 @@ internal fun CardScreen2(
                     size = size,
                     component = ques,
                     gameSetId = gameSetId,
+                    bigSpace = bigSpace,
                     onClick = onClick
                 )
             }
         }
 
         val menuHeight = Menu.height.toPx()
-        val menuYOffset = (verticalMargin / 2f) - (menuHeight / 2f)
+        val menuYOffset = (bigSpace / 2f) - (menuHeight / 2f)
         Menu(
             modifier = Modifier
                 .testTag(CardScreen2.TAG_MENU_TOGGLE)
@@ -228,8 +220,10 @@ private fun BoxScope.StatefulCard(
     size: Int,
     component: QuestionComponent,
     gameSetId: String,
+    bigSpace: Float,
     onClick: (QuestionComponent) -> Unit,
 ) {
+    val uiGuide = LocalUiGuide.current
     val density = LocalDensity.current
     val dragOffsetX = remember { Animatable(0f) }
     val dragOffsetY = remember { Animatable(0f) }
@@ -307,25 +301,21 @@ private fun BoxScope.StatefulCard(
 
     val stateOffsetX = remember {
         Animatable(
-            density.dpToPx(
-                computeOffsetX(
-                    config = config,
-                    index = component.modifiedAtSecs,
-                    level = component.level,
-                    state = component.stateVector.from,
-                )
+            computeOffsetX(
+                index = component.modifiedAtSecs,
+                level = component.level,
+                state = component.stateVector.from,
+                uiGuide = uiGuide,
             )
         )
     }
     LaunchedEffect(component) {
         stateOffsetX.animateTo(
-            targetValue = density.dpToPx(
-                computeOffsetX(
-                    config = config,
-                    level = component.level,
-                    state = component.state,
-                    index = component.modifiedAtSecs,
-                )
+            targetValue = computeOffsetX(
+                level = component.level,
+                state = component.state,
+                index = component.modifiedAtSecs,
+                uiGuide = uiGuide,
             ),
             animationSpec = tween(
                 durationMillis = AppTheme.ANIM_DURATION,
@@ -335,25 +325,21 @@ private fun BoxScope.StatefulCard(
 
     val stateOffsetY = remember {
         Animatable(
-            density.dpToPx(
-                computeOffsetY(
-                    config = config,
-                    level = component.level,
-                    state = component.stateVector.from,
-                    index = component.modifiedAtSecs,
-                )
+            computeOffsetY(
+                level = component.level,
+                state = component.stateVector.from,
+                index = component.modifiedAtSecs,
+                uiGuide = uiGuide,
             )
         )
     }
     LaunchedEffect(component) {
         stateOffsetY.animateTo(
-            targetValue = density.dpToPx(
-                computeOffsetY(
-                    config = config,
-                    index = component.modifiedAtSecs,
-                    level = component.level,
-                    state = component.state,
-                )
+            targetValue = computeOffsetY(
+                index = component.modifiedAtSecs,
+                level = component.level,
+                state = component.state,
+                uiGuide = uiGuide,
             ),
             animationSpec = tween(
                 durationMillis = AppTheme.ANIM_DURATION,
@@ -389,7 +375,7 @@ private fun BoxScope.StatefulCard(
     Card(
         modifier = Modifier
             .semantics { questionState = component.state }
-            .align(Alignment.Center)
+            .align(Alignment.TopCenter)
             .graphicsLayer {
                 val offset = cardTranslationOffset()
                 translationX = offset.x
@@ -448,12 +434,13 @@ private fun BoxScope.StatefulCard(
 }
 
 private fun computeOffsetX(
-    config: Configuration,
     index: Float,
     level: QuestionComponent.Level,
     state: QuestionComponent.State,
+    uiGuide: UiGuide,
 ): Float {
     var offset = 0f
+    val cardHeight = uiGuide.card.x
     when (state) {
         QuestionComponent.State.PrimaryRevealed -> {
             // center
@@ -461,28 +448,30 @@ private fun computeOffsetX(
         QuestionComponent.State.Landing -> {
             when (level) {
                 QuestionComponent.Level.Easy -> {
-                    offset -= 470 / 2
+                    offset -= uiGuide.card.y
+                    offset += cardHeight.nthGoldenChildRatio(6)
                 }
                 QuestionComponent.Level.Medium -> {
                     // nothing
                 }
                 QuestionComponent.Level.Hard -> {
-                    offset += 470 / 2
+                    offset += uiGuide.card.y
+                    offset -= cardHeight.nthGoldenChildRatio(6)
                 }
             }
         }
         QuestionComponent.State.OtherCard -> {
-            offset += 470 + 64
+            offset += cardHeight + uiGuide.bigSpace
         }
         QuestionComponent.State.Closed -> {
-            offset -= 470 + 64
-            offset += fbm(seed = index, octaves = 7) * 32
+            offset -= cardHeight + uiGuide.bigSpace
+            offset += fbm(seed = index, octaves = 7) * cardHeight.nthGoldenChildRatio(7)
         }
         QuestionComponent.State.PrimaryHidden -> {
             // center
         }
         QuestionComponent.State.NextHidden -> {
-            offset += 470 + 64
+            offset += cardHeight + uiGuide.bigSpace
         }
         QuestionComponent.State.Disabled -> {
             // center
@@ -504,28 +493,36 @@ private fun computeRotation(
 }
 
 private fun computeOffsetY(
-    config: Configuration,
     index: Float,
     level: QuestionComponent.Level,
     state: QuestionComponent.State,
+    uiGuide: UiGuide,
 ): Float {
+    val screenH = uiGuide.displayHeight
+    val cardSize = uiGuide.card.x
+    val cornerOffset = cardSize.nthGoldenChildRatio(2)
+
     var offset = 0f
     when (state) {
         QuestionComponent.State.Landing -> {
-            offset += 64 * 4
-            offset -= 64 * level.ordinal
+            // correction due to rotation
+            offset += (uiGuide.card.x - uiGuide.card.y) / 2
+            offset += screenH
+            offset -= cardSize.nthGoldenChildRatio(2)
+            offset -= cardSize.nthGoldenChildRatio(4) * level.ordinal
         }
         QuestionComponent.State.Closed -> {
-            offset += fbm(seed = index, octaves = 4) * 32
+            offset += fbm(seed = index, octaves = 4) * cardSize.nthGoldenChildRatio(5)
+            offset += uiGuide.bigSpace
         }
         QuestionComponent.State.Disabled -> {
-            offset += config.screenHeightDp + 64
+            offset += screenH + cornerOffset
         }
         QuestionComponent.State.Offscreen -> {
-            offset += config.screenHeightDp + 64
+            offset += screenH + 64
         }
         else -> {
-            // center
+            offset += uiGuide.bigSpace
         }
     }
     return offset
@@ -556,6 +553,3 @@ private fun computeCardDragOffset(
         y = absDragY.toFloat(),
     )
 }
-
-private fun Density.dpToPx(value: Float): Float =
-    value.dp.toPx()

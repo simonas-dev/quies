@@ -8,8 +8,8 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,15 +39,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.simonas.quies.AppTheme
+import dev.simonas.quies.LocalUiGuide
 import dev.simonas.quies.card.Card.TAG_CENTER_TEXT
 import dev.simonas.quies.card.Card.TAG_SIDE_TEXT
+import dev.simonas.quies.utils.nthGoldenChildRatio
+import dev.simonas.quies.utils.toDp
 import dev.simonas.quies.utils.vertical
 
 internal object Card {
     const val TAG_CENTER_TEXT = "text_center"
     const val TAG_SIDE_TEXT = "text_side"
-    val width = 456.dp
-    val height = 280.dp
 }
 
 @Composable
@@ -80,11 +81,26 @@ internal fun Card(
         label = "touch animation",
     )
 
-    val shape = RoundedCornerShape(CornerSize(64.dp))
+    val descSpacing = LocalUiGuide.current.card.x
+        .nthGoldenChildRatio(3)
+
+    val levelSpacing = LocalUiGuide.current.card.x
+        .nthGoldenChildRatio(4)
+
+    val cornerSize = LocalUiGuide.current.card.x
+        .nthGoldenChildRatio(4)
+
+    val borderSize = LocalUiGuide.current.card.x
+        .nthGoldenChildRatio(7)
+
+    val shape = RoundedCornerShape(CornerSize(cornerSize))
     Surface(
         shape = shape,
         color = color,
-        border = BorderStroke(16.dp, AppTheme.Color.washoutStrong),
+        border = BorderStroke(
+            width = borderSize.toDp(),
+            color = AppTheme.Color.washoutStrong,
+        ),
         enabled = onClick != null,
         onClick = { onClick?.invoke() },
         modifier = modifier
@@ -108,12 +124,15 @@ internal fun Card(
                             Press -> {
                                 isTouching = true
                             }
+
                             Release -> {
                                 isTouching = false
                             }
+
                             Exit -> {
                                 isTouching = false
                             }
+
                             Move -> {
                                 event.changes
                             }
@@ -122,8 +141,8 @@ internal fun Card(
                 }
             }
             .scale(scale)
-            .width(Card.width)
-            .height(Card.height),
+            .width(LocalUiGuide.current.card.x.toDp())
+            .height(LocalUiGuide.current.card.y.toDp()),
     ) {
         Box(
             modifier = Modifier.fillMaxHeight(),
@@ -132,7 +151,7 @@ internal fun Card(
                 Text(
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .padding(horizontal = 64.dp)
+                        .padding(horizontal = cornerSize.toDp())
                         .graphicsLayer {
                             alpha = textAlpha
                         }
@@ -146,11 +165,9 @@ internal fun Card(
                 Text(
                     modifier = Modifier
                         .vertical()
-                        .width(224.dp)
-                        .height(263.dp)
                         .align(Alignment.CenterStart)
                         .rotate(-90f)
-                        .offset(y = 94.dp)
+                        .paddingFromBaseline(top = descSpacing.toDp())
                         .graphicsLayer {
                             alpha = centerVerticalTextAlpha
                         }
@@ -161,6 +178,8 @@ internal fun Card(
                 )
             }
             if (sideText != null) {
+                var firstBaselineOffset by remember { mutableStateOf(0f) }
+
                 Text(
                     modifier = Modifier
                         .vertical()
@@ -169,8 +188,11 @@ internal fun Card(
                         .graphicsLayer {
                             alpha = sideTextAlpha
                         }
-                        .padding(top = 40.dp)
+                        .padding(top = (levelSpacing - firstBaselineOffset).toDp())
                         .testTag(TAG_SIDE_TEXT),
+                    onTextLayout = {
+                        firstBaselineOffset = it.firstBaseline
+                    },
                     style = AppTheme.Text.primaryBold,
                     text = sideText,
                 )
@@ -182,7 +204,7 @@ internal fun Card(
                         .graphicsLayer {
                             alpha = sideTextAlpha
                         }
-                        .padding(bottom = 40.dp)
+                        .padding(bottom = (levelSpacing - firstBaselineOffset).toDp())
                         .testTag(TAG_SIDE_TEXT),
                     style = AppTheme.Text.primaryBold,
                     text = sideText,

@@ -104,7 +104,8 @@ internal class CardViewModel2 @Inject constructor(
                 pool.popFirstOrNull { it.level == Question.Level.Medium },
                 pool.popFirstOrNull { it.level == Question.Level.Hard },
             ).map { q ->
-                q.withState(QuestionComponent.State.Landing)
+                q.withState(QuestionComponent.State.Offscreen)
+                    .mutate(QuestionComponent.State.Landing)
             },
         ),
     )

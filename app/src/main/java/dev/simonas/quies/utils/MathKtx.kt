@@ -47,3 +47,13 @@ fun snappyMirrorCurvePath(
         }
         transform(rescale)
     }
+
+fun Float.nthGoldenChildRatio(nth: Int): Float {
+    require(nth > 0) { "Nth must be more than zero!" }
+    val ratio = this / 1.618f
+    return if (nth == 1) {
+        ratio
+    } else {
+        ratio.nthGoldenChildRatio(nth - 1)
+    }
+}
