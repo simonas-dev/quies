@@ -2,15 +2,15 @@
 plugins {
     id("com.android.library")
     kotlin("android")
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.4.20"
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 android {
     namespace = "dev.simonas.quies.data"
-    compileSdk = 33
+    compileSdk = libs.versions.compile.sdk.version.get().toInt()
 
     defaultConfig {
-        minSdk = 31
+        minSdk = libs.versions.min.sdk.version.get().toInt()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")

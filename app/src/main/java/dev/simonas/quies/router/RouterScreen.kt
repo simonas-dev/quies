@@ -1,5 +1,6 @@
 package dev.simonas.quies.router
 
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -54,7 +55,7 @@ internal fun RouterScreen() {
 
 private fun NavGraphBuilder.composable(
     navDest: NavDest,
-    content: @Composable (NavBackStackEntry) -> Unit
+    content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
 ) {
     composable(
         route = navDest.route,
