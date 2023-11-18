@@ -82,7 +82,7 @@ internal fun GameSetsScreen(
                     x = 60.dp,
                     y = (displayHeight - cardPeakHeight - primaryTextBaseline - primarySpacing).toDp(),
                 ),
-            text = "WE ARE ALIKE",
+            text = "Coalesce".uppercase(),
             style = AppTheme.Text.primaryBlack,
             onTextLayout = {
                 primaryTextBaseline = it.firstBaseline
@@ -95,7 +95,7 @@ internal fun GameSetsScreen(
                     x = 66.dp,
                     y = (displayHeight - cardPeakHeight - secondaryTextBaseline - secondarySpacing).toDp(),
                 ),
-            text = "We are just looking for the right question.",
+            text = "Are you looking for the right question?",
             style = AppTheme.Text.secondaryDemiBold,
             onTextLayout = {
                 secondaryTextBaseline = it.firstBaseline
