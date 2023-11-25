@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -134,7 +135,7 @@ internal fun CardScreen(
 private fun BoxScope.Landing(
     onNextQuestion: (Question.Level) -> Unit,
 ) {
-    var startupAnimation: Float by remember { mutableStateOf(0f) }
+    var startupAnimation: Float by remember { mutableFloatStateOf(0f) }
     LaunchedEffect(Unit) {
         animate(
             initialValue = 0.6f,
@@ -284,7 +285,7 @@ private fun BoxScope.Showing(
     prevQuestions: List<Question>,
     onQuestionClosed: (Question) -> Unit,
 ) {
-    var startupAnimation: Float by remember { mutableStateOf(0f) }
+    var startupAnimation: Float by remember { mutableFloatStateOf(0f) }
     LaunchedEffect(Unit) {
         animate(
             initialValue = 0.6f,
@@ -298,7 +299,7 @@ private fun BoxScope.Showing(
         )
     }
 
-    var showCloseQuestionAnimation: Float by remember { mutableStateOf(0f) }
+    var showCloseQuestionAnimation: Float by remember { mutableFloatStateOf(0f) }
 
     var isClosed: Boolean by remember { mutableStateOf(false) }
     val closeCardAnim: Float by animateFloatAsState(
@@ -361,7 +362,7 @@ private fun BoxScope.Picking(
     onChangeLevel: (Question.Level) -> Unit,
     onNextQuestion: (Question.Level) -> Unit,
 ) {
-    var startupAnimation: Float by remember { mutableStateOf(0f) }
+    var startupAnimation: Float by remember { mutableFloatStateOf(0f) }
     LaunchedEffect(Unit) {
         animate(
             initialValue = 0.0f,

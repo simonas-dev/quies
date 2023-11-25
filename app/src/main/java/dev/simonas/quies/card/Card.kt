@@ -17,6 +17,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -178,7 +179,7 @@ internal fun Card(
                 )
             }
             if (sideText != null) {
-                var firstBaselineOffset by remember { mutableStateOf(0f) }
+                var firstBaselineOffset by remember { mutableFloatStateOf(0f) }
 
                 Text(
                     modifier = Modifier

@@ -10,7 +10,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -70,8 +70,8 @@ internal fun GameSetsScreen(
             }
         }
 
-        var primaryTextBaseline by remember { mutableStateOf(0f) }
-        var secondaryTextBaseline by remember { mutableStateOf(0f) }
+        var primaryTextBaseline by remember { mutableFloatStateOf(0f) }
+        var secondaryTextBaseline by remember { mutableFloatStateOf(0f) }
 
         val primarySpacing = cardHeight.nthGoldenChildRatio(3)
         val secondarySpacing = cardHeight.nthGoldenChildRatio(4)
