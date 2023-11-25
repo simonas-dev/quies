@@ -3,7 +3,7 @@ package dev.simonas.quies.utils
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import dev.simonas.quies.startedAt
 import kotlinx.coroutines.android.awaitFrame
@@ -11,11 +11,11 @@ import kotlinx.coroutines.isActive
 
 @Composable
 fun timeSecsAsState(): State<Float> {
-    val toolingOverride = remember { mutableStateOf(getTimeInSecs()) }
+    val toolingOverride = remember { mutableFloatStateOf(getTimeInSecs()) }
     LaunchedEffect(Unit) {
         while (isActive) {
             awaitFrame()
-            toolingOverride.value = getTimeInSecs()
+            toolingOverride.floatValue = getTimeInSecs()
         }
     }
     return toolingOverride
@@ -26,11 +26,11 @@ private fun getTimeInSecs(): Float =
 
 @Composable
 fun timeMillisAsState(): State<Float> {
-    val toolingOverride = remember { mutableStateOf(getTimeInMillis()) }
+    val toolingOverride = remember { mutableFloatStateOf(getTimeInMillis()) }
     LaunchedEffect(Unit) {
         while (isActive) {
             awaitFrame()
-            toolingOverride.value = getTimeInMillis()
+            toolingOverride.floatValue = getTimeInMillis()
         }
     }
     return toolingOverride

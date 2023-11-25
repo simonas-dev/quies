@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -66,7 +67,7 @@ private fun Shapes(
     modifier: Modifier,
     onClick: () -> Unit,
 ) {
-    var startupAnimation: Float by remember { mutableStateOf(0f) }
+    var startupAnimation: Float by remember { mutableFloatStateOf(0f) }
     LaunchedEffect(Unit) {
         animate(
             initialValue = 0f,
@@ -136,7 +137,7 @@ private fun Cross(
     modifier: Modifier,
     onClick: () -> Unit,
 ) {
-    var startupAnimation: Float by remember { mutableStateOf(0f) }
+    var startupAnimation: Float by remember { mutableFloatStateOf(0f) }
     LaunchedEffect(Unit) {
         animate(
             initialValue = 0f,
@@ -194,7 +195,7 @@ private fun Burger(
     modifier: Modifier,
     onClick: () -> Unit,
 ) {
-    var startupAnimation: Float by remember { mutableStateOf(0f) }
+    var startupAnimation: Float by remember { mutableFloatStateOf(0f) }
     LaunchedEffect(Unit) {
         animate(
             initialValue = 0f,
