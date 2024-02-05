@@ -43,6 +43,8 @@ import dev.simonas.quies.AppTheme
 import dev.simonas.quies.LocalUiGuide
 import dev.simonas.quies.card.Card.TAG_CENTER_TEXT
 import dev.simonas.quies.card.Card.TAG_SIDE_TEXT
+import dev.simonas.quies.utils.lerpNonAlpha
+import dev.simonas.quies.utils.mutColor
 import dev.simonas.quies.utils.nthGoldenChildRatio
 import dev.simonas.quies.utils.toDp
 import dev.simonas.quies.utils.vertical
@@ -55,6 +57,8 @@ internal object Card {
 @Composable
 internal fun Card(
     modifier: Modifier = Modifier,
+    backgroundActiveness: Float = 1f,
+    textActiveness: Float = 1f,
     shadowElevation: Dp = 4.dp,
     centerText: String? = null,
     sideText: String? = null,
@@ -95,12 +99,21 @@ internal fun Card(
         .nthGoldenChildRatio(7)
 
     val shape = RoundedCornerShape(CornerSize(cornerSize))
+
+    val colorActivenessMut: Color.() -> Color = {
+        lerpNonAlpha(Color.Black, 1f - backgroundActiveness)
+    }
+
+    val colorTextActivenessMut: Color.() -> Color = {
+        lerpNonAlpha(Color.Black, 1f - textActiveness)
+    }
+
     Surface(
         shape = shape,
-        color = color,
+        color = color.colorActivenessMut(),
         border = BorderStroke(
             width = borderSize.toDp(),
-            color = AppTheme.Color.washoutStrong,
+            color = AppTheme.Color.washoutStrong.colorTextActivenessMut(),
         ),
         enabled = onClick != null,
         onClick = { onClick?.invoke() },
@@ -125,15 +138,12 @@ internal fun Card(
                             Press -> {
                                 isTouching = true
                             }
-
                             Release -> {
                                 isTouching = false
                             }
-
                             Exit -> {
                                 isTouching = false
                             }
-
                             Move -> {
                                 event.changes
                             }
@@ -157,7 +167,8 @@ internal fun Card(
                             alpha = textAlpha
                         }
                         .testTag(TAG_CENTER_TEXT),
-                    style = AppTheme.Text.primaryDemiBold,
+                    style = AppTheme.Text.primaryDemiBold
+                        .mutColor(colorTextActivenessMut),
                     text = centerText,
                     textAlign = TextAlign.Center,
                 )
@@ -173,7 +184,8 @@ internal fun Card(
                             alpha = centerVerticalTextAlpha
                         }
                         .testTag(TAG_SIDE_TEXT),
-                    style = AppTheme.Text.secondaryDemiBold,
+                    style = AppTheme.Text.secondaryDemiBold
+                        .mutColor(colorTextActivenessMut),
                     text = centerVerticalText,
                     textAlign = TextAlign.Center,
                 )
@@ -194,7 +206,8 @@ internal fun Card(
                     onTextLayout = {
                         firstBaselineOffset = it.firstBaseline
                     },
-                    style = AppTheme.Text.primaryBold,
+                    style = AppTheme.Text.primaryBold
+                        .mutColor(colorTextActivenessMut),
                     text = sideText,
                 )
                 Text(
@@ -207,7 +220,8 @@ internal fun Card(
                         }
                         .padding(bottom = (levelSpacing - firstBaselineOffset).toDp())
                         .testTag(TAG_SIDE_TEXT),
-                    style = AppTheme.Text.primaryBold,
+                    style = AppTheme.Text.primaryBold
+                        .mutColor(colorTextActivenessMut),
                     text = sideText,
                 )
             }

@@ -29,15 +29,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsPropertyKey
@@ -47,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.simonas.quies.AppTheme
+import dev.simonas.quies.AppTheme.SCREEN_SAVER_FADE_FRAC
 import dev.simonas.quies.LocalUiGuide
 import dev.simonas.quies.UiGuide
 import dev.simonas.quies.card.CardScreen2.questionState
@@ -65,6 +68,7 @@ import kotlinx.coroutines.launch
 import java.lang.Math.toRadians
 import kotlin.math.abs
 import kotlin.math.cos
+import kotlin.math.pow
 import kotlin.math.sin
 
 internal object CardScreen2 {
@@ -105,9 +109,9 @@ internal fun CardScreen2(
     )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @Composable
-internal fun CardScreen2(
+private fun CardScreen2(
     gameSetId: String,
     questions: State<CardViewModel2.Questions>,
     isMenuShown: State<Boolean>,
@@ -120,6 +124,8 @@ internal fun CardScreen2(
 ) {
     KeepScreenOn()
 
+    var lastTouchEvent by remember { mutableLongStateOf(System.currentTimeMillis()) }
+
     var showMenuMessage by remember { mutableStateOf(false) }
     LaunchedEffect(showLevelSkipNotice) {
         showLevelSkipNotice.collectLatest {
@@ -131,9 +137,43 @@ internal fun CardScreen2(
 
     val bigSpace = LocalUiGuide.current.bigSpace
 
+    val uiAlpha = remember {
+        Animatable(1f)
+    }
+
+    var isIdle by remember { mutableStateOf(false) }
+
+    LaunchedEffect(lastTouchEvent) {
+        isIdle = false
+        delay(2000)
+        isIdle = true
+    }
+
+    LaunchedEffect(isIdle) {
+        if (isIdle) {
+            uiAlpha.animateTo(
+                targetValue = SCREEN_SAVER_FADE_FRAC,
+                animationSpec = tween(
+                    durationMillis = 50000,
+                ),
+            )
+        } else {
+            uiAlpha.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = 1000,
+                ),
+            )
+        }
+    }
+
     Box(
         modifier = Modifier
             .testTag(CardScreen2.TAG_SCREEN)
+            .pointerInteropFilter {
+                lastTouchEvent = System.currentTimeMillis()
+                false
+            }
             .padding()
             .fillMaxSize(),
     ) {
@@ -147,6 +187,7 @@ internal fun CardScreen2(
                     component = ques,
                     gameSetId = gameSetId,
                     bigSpace = bigSpace,
+                    secondaryUIAlpha = uiAlpha.value,
                     onClick = onClick
                 )
             }
@@ -160,6 +201,7 @@ internal fun CardScreen2(
                 .align(Alignment.TopCenter)
                 .graphicsLayer {
                     translationY = menuYOffset
+                    alpha = uiAlpha.value
                 },
             message = "Are you ready to move to the next level?",
             showMessage = showMenuMessage,
@@ -221,10 +263,10 @@ private fun BoxScope.StatefulCard(
     component: QuestionComponent,
     gameSetId: String,
     bigSpace: Float,
+    secondaryUIAlpha: Float,
     onClick: (QuestionComponent) -> Unit,
 ) {
     val uiGuide = LocalUiGuide.current
-    val density = LocalDensity.current
     val dragOffsetX = remember { Animatable(0f) }
     val dragOffsetY = remember { Animatable(0f) }
 
@@ -296,8 +338,6 @@ private fun BoxScope.StatefulCard(
         },
         label = "cardScale",
     )
-
-    val config = LocalConfiguration.current
 
     val stateOffsetX = remember {
         Animatable(
@@ -384,6 +424,31 @@ private fun BoxScope.StatefulCard(
                 scaleX = cardScale
                 scaleY = cardScale
             },
+        backgroundActiveness = when {
+            component.state == QuestionComponent.State.Landing -> {
+                1f
+            }
+            component.state == QuestionComponent.State.PrimaryHidden -> {
+                secondaryUIAlpha.pow(1f / 2f)
+            }
+            else -> {
+                secondaryUIAlpha
+            }
+        },
+        textActiveness = when {
+            component.state == QuestionComponent.State.Landing -> {
+                1f
+            }
+            component.state == QuestionComponent.State.PrimaryRevealed -> {
+                secondaryUIAlpha.pow(1f / 4f)
+            }
+            component.state == QuestionComponent.State.PrimaryHidden -> {
+                secondaryUIAlpha.pow(1f / 8f)
+            }
+            else -> {
+                secondaryUIAlpha
+            }
+        },
         shadowElevation = 4.dp,
         centerText = component.text,
         sideText = component.level.toText(),
