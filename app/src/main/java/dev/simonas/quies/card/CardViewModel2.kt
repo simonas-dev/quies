@@ -48,6 +48,9 @@ internal class CardViewModel2 @Inject constructor(
         }
     }
 
+    private val _isEndgame = MutableStateFlow(false)
+    val isEndgame: StateFlow<Boolean> = _isEndgame
+
     private val _interactionLog = MutableSharedFlow<Event>(extraBufferCapacity = 100)
 
     private val minNumberOfLowEngagement = 3
@@ -239,6 +242,8 @@ internal class CardViewModel2 @Inject constructor(
                     replace = { q -> q.mutate(QuestionComponent.State.PrimaryHidden) },
                 )
                 moveToFront(indexOfNext)
+            } else {
+                _isEndgame.value = true
             }
             val indexOfOther = indexOfFirst { q ->
                 q.state == QuestionComponent.State.OtherCard && q.level == question.level

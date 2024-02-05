@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInteropFilter
@@ -45,6 +46,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -86,9 +88,10 @@ internal fun CardScreen2(
     cardViewModel: CardViewModel2 = hiltViewModel(),
     onBack: () -> Unit,
 ) {
-    val state = cardViewModel.questions.collectAsStateWithLifecycle()
+    val questions = cardViewModel.questions.collectAsStateWithLifecycle()
     val isMenuShown = cardViewModel.isMenuShown.collectAsStateWithLifecycle()
     val isNextLevelShown = cardViewModel.isNextLevelShown.collectAsStateWithLifecycle()
+    val isEndgame = cardViewModel.isEndgame.collectAsStateWithLifecycle()
 
     OnSystemBackClick {
         cardViewModel.toggleMenu()
@@ -96,8 +99,9 @@ internal fun CardScreen2(
 
     CardScreen2(
         gameSetId = cardViewModel.gameSetId,
-        questions = state,
+        questions = questions,
         isMenuShown = isMenuShown,
+        isEndgame = isEndgame,
         isNextLevelShown = isNextLevelShown,
         showLevelSkipNotice = cardViewModel.showLevelSkipNotice,
         onClick = {
@@ -115,6 +119,7 @@ private fun CardScreen2(
     gameSetId: String,
     questions: State<CardViewModel2.Questions>,
     isMenuShown: State<Boolean>,
+    isEndgame: State<Boolean>,
     isNextLevelShown: State<Boolean>,
     onClick: (QuestionComponent) -> Unit,
     toggleMenu: () -> Unit,
@@ -177,6 +182,31 @@ private fun CardScreen2(
             .padding()
             .fillMaxSize(),
     ) {
+        val endgameQuestionAlpha by animateFloatAsState(
+            animationSpec = tween(2000),
+            targetValue = when {
+                isMenuShown.value -> {
+                    0f
+                }
+                isEndgame.value -> {
+                    1f
+                }
+                else -> {
+                    0f
+                }
+            },
+            label = "endgameQuestionAlpha",
+        )
+
+        Text(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .alpha(endgameQuestionAlpha),
+            style = AppTheme.Text.primaryDemiBold,
+            text = "How do you feel?",
+            textAlign = TextAlign.Center,
+        )
+
         val components = questions.value.components
         val size = components.size
         components.asReversed().forEachIndexed { index, ques ->
