@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import dev.simonas.quies.startedAt
 import kotlinx.coroutines.android.awaitFrame
@@ -38,3 +39,15 @@ fun timeMillisAsState(): State<Float> {
 
 private fun getTimeInMillis(): Float =
     (System.currentTimeMillis() - startedAt).toFloat()
+
+@Composable
+fun timeMillisAsStateL(): State<Long> {
+    val toolingOverride = remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (isActive) {
+            awaitFrame()
+            toolingOverride.longValue = System.currentTimeMillis()
+        }
+    }
+    return toolingOverride
+}

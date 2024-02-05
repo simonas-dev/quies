@@ -13,6 +13,8 @@ object AppTheme {
 
     const val ANIM_DURATION = 250
 
+    const val SCREEN_SAVER_FADE_FRAC = 0.1f
+
     object Color {
         val washoutLight = Color(0x12C5C5C5)
         val washoutMedium = Color(0x24C5C5C5)
