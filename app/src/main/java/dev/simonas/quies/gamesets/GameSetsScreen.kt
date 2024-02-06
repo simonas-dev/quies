@@ -56,7 +56,11 @@ internal fun GameSetsScreen(
     state: GameSetsViewModel.State,
     onGameSetSelected: (id: String) -> Unit,
 ) {
-    Box(modifier.testTag(GameSetsScreen.TAG_SCREEN)) {
+    Box(
+        modifier
+            .testTag(GameSetsScreen.TAG_SCREEN)
+            .fillMaxSize(),
+    ) {
         val displayHeight = LocalUiGuide.current.displayHeight
         val cardHeight = LocalUiGuide.current.card.x
         val cardPeakHeight = LocalUiGuide.current.card.x.nthGoldenChildRatio(2)
