@@ -120,6 +120,9 @@ dependencies {
     implementation(libs.kotlin.math)
     implementation(platform(libs.firebase.bom))
     implementation(project(":data"))
+    implementation(libs.datastore)
+    implementation(libs.datastore.preferences)
+
 
     kapt(libs.hilt.android.compiler)
 
