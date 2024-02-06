@@ -72,6 +72,8 @@ import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 internal object CardScreen2 {
     val TAG_SCREEN = createTestTag("screen")
@@ -127,7 +129,10 @@ private fun CardScreen2(
     onNextLevel: () -> Unit,
     showLevelSkipNotice: Flow<Long>,
 ) {
-    KeepScreenOn()
+    var keepScreenOn by remember { mutableStateOf(true) }
+    if (keepScreenOn) {
+        KeepScreenOn()
+    }
 
     var lastTouchEvent by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
@@ -135,7 +140,7 @@ private fun CardScreen2(
     LaunchedEffect(showLevelSkipNotice) {
         showLevelSkipNotice.collectLatest {
             showMenuMessage = true
-            delay(5000)
+            delay(5.seconds)
             showMenuMessage = false
         }
     }
@@ -150,8 +155,14 @@ private fun CardScreen2(
 
     LaunchedEffect(lastTouchEvent) {
         isIdle = false
-        delay(2000)
+        delay(20.seconds)
         isIdle = true
+    }
+
+    LaunchedEffect(lastTouchEvent) {
+        keepScreenOn = true
+        delay(10.minutes)
+        keepScreenOn = false
     }
 
     LaunchedEffect(isIdle) {
@@ -159,14 +170,14 @@ private fun CardScreen2(
             uiAlpha.animateTo(
                 targetValue = SCREEN_SAVER_FADE_FRAC,
                 animationSpec = tween(
-                    durationMillis = 50000,
+                    durationMillis = 50_000,
                 ),
             )
         } else {
             uiAlpha.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(
-                    durationMillis = 1000,
+                    durationMillis = 1_000,
                 ),
             )
         }
