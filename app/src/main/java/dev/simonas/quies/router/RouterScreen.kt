@@ -2,6 +2,8 @@ package dev.simonas.quies.router
 
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -41,34 +43,41 @@ internal fun RouterScreen() {
         spaceHeight = screenSize.height.toFloat(),
     )
 
-    CompositionLocalProvider(LocalUiGuide provides uiGuide) {
-        NavHost(
-            modifier = Modifier
-                .onGloballyPositioned {
-                    screenSize = it.size
-                }
-                .background(AppTheme.Color.background)
-                .testTag(TAG_SCREEN),
-            navController = navController,
-            startDestination = NavRoutes.GameSet.build(),
-        ) {
-            composable(NavRoutes.Card) {
-                CardScreen2(
-                    onBack = {
-                        navController.popBackStack()
-                    }
-                )
-            }
-            composable(NavRoutes.GameSet) {
-                GameSetsScreen(
-                    onGameSetSelected = { gameSetId ->
-                        navController.navigate(
-                            NavRoutes.Card.build(
-                                gameSetId = gameSetId
-                            )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppTheme.Color.background)
+            .onGloballyPositioned {
+                screenSize = it.size
+            },
+    ) {
+        CompositionLocalProvider(LocalUiGuide provides uiGuide) {
+            if (LocalUiGuide.current.displayHeight != 0f) {
+                NavHost(
+                    modifier = Modifier
+                        .testTag(TAG_SCREEN),
+                    navController = navController,
+                    startDestination = NavRoutes.GameSet.build(),
+                ) {
+                    composable(NavRoutes.Card) {
+                        CardScreen2(
+                            onBack = {
+                                navController.popBackStack()
+                            }
                         )
                     }
-                )
+                    composable(NavRoutes.GameSet) {
+                        GameSetsScreen(
+                            onGameSetSelected = { gameSetId ->
+                                navController.navigate(
+                                    NavRoutes.Card.build(
+                                        gameSetId = gameSetId
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
             }
         }
     }

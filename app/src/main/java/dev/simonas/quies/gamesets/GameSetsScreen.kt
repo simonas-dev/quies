@@ -10,12 +10,11 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,7 +30,9 @@ import dev.simonas.quies.questions.getColor
 import dev.simonas.quies.utils.QDevices
 import dev.simonas.quies.utils.createTestTag
 import dev.simonas.quies.utils.nthGoldenChildRatio
+import dev.simonas.quies.utils.offsetFromFirstBaseline
 import dev.simonas.quies.utils.toDp
+import dev.simonas.quies.utils.toPx
 import dev.simonas.quies.utils.vertical
 
 internal object GameSetsScreen {
@@ -74,36 +75,27 @@ internal fun GameSetsScreen(
             }
         }
 
-        var primaryTextBaseline by remember { mutableFloatStateOf(0f) }
-        var secondaryTextBaseline by remember { mutableFloatStateOf(0f) }
-
         val primarySpacing = cardHeight.nthGoldenChildRatio(3)
         val secondarySpacing = cardHeight.nthGoldenChildRatio(4)
 
         Text(
             modifier = Modifier
-                .offset(
-                    x = 60.dp,
-                    y = (displayHeight - cardPeakHeight - primaryTextBaseline - primarySpacing).toDp(),
+                .offsetFromFirstBaseline(
+                    x = 60.dp.toPx(),
+                    y = (displayHeight - cardPeakHeight - primarySpacing),
                 ),
             text = "Coalesce".uppercase(),
             style = AppTheme.Text.primaryBlack,
-            onTextLayout = {
-                primaryTextBaseline = it.firstBaseline
-            },
         )
 
         Text(
             modifier = Modifier
-                .offset(
-                    x = 66.dp,
-                    y = (displayHeight - cardPeakHeight - secondaryTextBaseline - secondarySpacing).toDp(),
+                .offsetFromFirstBaseline(
+                    x = 60.dp.toPx(),
+                    y = (displayHeight - cardPeakHeight - secondarySpacing),
                 ),
             text = "Are you looking for the right question?",
             style = AppTheme.Text.secondaryDemiBold,
-            onTextLayout = {
-                secondaryTextBaseline = it.firstBaseline
-            },
         )
 
         LazyRow(
