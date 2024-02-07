@@ -23,7 +23,7 @@ object AppTheme {
         val friends = Color(0xffE88E30)
         val debate = Color(0xff4665C0)
         val whiteStrong = Color(0xEBFFFFFF)
-        val whiteMedium = Color(0xBFFFFFFF)
+        val whiteMedium = Color(0xD9FFFFFF)
         val background = Color(0xFF000000)
     }
 
@@ -38,10 +38,9 @@ object AppTheme {
         val primaryBlack = TextStyle(
             color = Color.whiteStrong,
             fontFamily = fonts,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Black,
-            letterSpacing = 2.sp,
-            lineHeight = 32.sp,
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Normal,
+            letterSpacing = (-1.5).sp,
         )
 
         val primaryBold = TextStyle(
