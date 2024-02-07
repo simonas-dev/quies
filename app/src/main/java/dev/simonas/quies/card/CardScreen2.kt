@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -508,34 +509,37 @@ private fun BoxScope.StatefulCard(
         onClick = {
             onClick(component)
         },
-        onDragStop = {
-            isDragThresholdReached = false
-            if (abs(dragOffsetX.value) > dragTrigger) {
-                val cardOffset = cardTranslationOffset()
-                coroutineCtx.launch {
-                    dragOffsetX.snapTo(0f)
-                    dragOffsetY.snapTo(0f)
-                    stateOffsetX.snapTo(cardOffset.x)
-                    stateOffsetY.snapTo(cardOffset.y)
-                    onClick(component)
+        dragListener = object : DragListener {
+            override fun onStop() {
+                isDragThresholdReached = false
+                if (abs(dragOffsetX.value) > dragTrigger) {
+                    val cardOffset = cardTranslationOffset()
+                    coroutineCtx.launch {
+                        dragOffsetX.snapTo(0f)
+                        dragOffsetY.snapTo(0f)
+                        stateOffsetX.snapTo(cardOffset.x)
+                        stateOffsetY.snapTo(cardOffset.y)
+                        onClick(component)
+                    }
+                } else {
+                    coroutineCtx.launch {
+                        dragOffsetX.animateTo(0f, spring(0.5f))
+                    }
+                    coroutineCtx.launch {
+                        dragOffsetY.animateTo(0f, spring(0.5f))
+                    }
                 }
-            } else {
+            }
+
+            override fun onDrag(change: PointerInputChange, dragAmount: Offset) {
+                isDragThresholdReached = abs(dragOffsetX.value) > dragTrigger ||
+                    abs(dragOffsetY.value) > dragTrigger
                 coroutineCtx.launch {
-                    dragOffsetX.animateTo(0f, spring(0.5f))
-                }
-                coroutineCtx.launch {
-                    dragOffsetY.animateTo(0f, spring(0.5f))
+                    dragOffsetX.snapTo(dragOffsetX.value + dragAmount.x)
+                    dragOffsetY.snapTo(dragOffsetY.value + dragAmount.y)
                 }
             }
         },
-        onDrag = { change, dragAmount ->
-            isDragThresholdReached = abs(dragOffsetX.value) > dragTrigger ||
-                abs(dragOffsetY.value) > dragTrigger
-            coroutineCtx.launch {
-                dragOffsetX.snapTo(dragOffsetX.value + dragAmount.x)
-                dragOffsetY.snapTo(dragOffsetY.value + dragAmount.y)
-            }
-        }
     )
 }
 

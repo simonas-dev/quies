@@ -3,7 +3,6 @@ package dev.simonas.quies.card
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
@@ -55,6 +54,11 @@ internal object Card {
     const val TAG_SIDE_TEXT = "text_side"
 }
 
+interface DragListener {
+    fun onStop()
+    fun onDrag(change: PointerInputChange, dragAmount: Offset)
+}
+
 @Composable
 internal fun Card(
     modifier: Modifier = Modifier,
@@ -70,9 +74,7 @@ internal fun Card(
     color: Color = AppTheme.Color.dating,
     onClick: (() -> Unit)? = null,
     pointerInputKey: Any = Unit,
-    onDragStop: () -> Unit = {},
-    onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit = { change, _ -> change.consume() },
-    onDragStart: (Offset) -> Unit = {},
+    dragListener: DragListener? = null,
 ) {
     var isTouching: Boolean by remember { mutableStateOf(false) }
     val scale: Float by animateFloatAsState(
@@ -124,12 +126,13 @@ internal fun Card(
                 this.shadowElevation = shadowElevation.toPx()
             }
             .pointerInput(Unit) {
-                detectDragGestures(
-                    onDragEnd = onDragStop,
-                    onDragCancel = onDragStop,
-                    onDragStart = onDragStart,
-                    onDrag = onDrag,
-                )
+                if (dragListener != null) {
+                    detectDragGestures(
+                        onDragEnd = dragListener::onStop,
+                        onDragCancel = dragListener::onStop,
+                        onDrag = dragListener::onDrag,
+                    )
+                }
             }
             .pointerInput(Unit) {
                 awaitEachGesture {
