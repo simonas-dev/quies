@@ -17,7 +17,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,6 +45,7 @@ import dev.simonas.quies.card.Card.TAG_SIDE_TEXT
 import dev.simonas.quies.utils.lerpNonAlpha
 import dev.simonas.quies.utils.mutColor
 import dev.simonas.quies.utils.nthGoldenChildRatio
+import dev.simonas.quies.utils.offsetFromFirstBaseline
 import dev.simonas.quies.utils.toDp
 import dev.simonas.quies.utils.vertical
 
@@ -138,12 +138,15 @@ internal fun Card(
                             Press -> {
                                 isTouching = true
                             }
+
                             Release -> {
                                 isTouching = false
                             }
+
                             Exit -> {
                                 isTouching = false
                             }
+
                             Move -> {
                                 event.changes
                             }
@@ -191,8 +194,6 @@ internal fun Card(
                 )
             }
             if (sideText != null) {
-                var firstBaselineOffset by remember { mutableFloatStateOf(0f) }
-
                 Text(
                     modifier = Modifier
                         .vertical()
@@ -201,11 +202,11 @@ internal fun Card(
                         .graphicsLayer {
                             alpha = sideTextAlpha
                         }
-                        .padding(top = (levelSpacing - firstBaselineOffset).toDp())
+                        .offsetFromFirstBaseline(
+                            x = 0f,
+                            y = levelSpacing,
+                        )
                         .testTag(TAG_SIDE_TEXT),
-                    onTextLayout = {
-                        firstBaselineOffset = it.firstBaseline
-                    },
                     style = AppTheme.Text.primaryBold
                         .mutColor(colorTextActivenessMut),
                     text = sideText,
@@ -218,7 +219,10 @@ internal fun Card(
                         .graphicsLayer {
                             alpha = sideTextAlpha
                         }
-                        .padding(bottom = (levelSpacing - firstBaselineOffset).toDp())
+                        .offsetFromFirstBaseline(
+                            x = 0f,
+                            y = -levelSpacing,
+                        )
                         .testTag(TAG_SIDE_TEXT),
                     style = AppTheme.Text.primaryBold
                         .mutColor(colorTextActivenessMut),
