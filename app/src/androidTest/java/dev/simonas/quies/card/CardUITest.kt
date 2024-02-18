@@ -19,7 +19,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @HiltAndroidTest
-class CardUITest : UITest() {
+internal class CardUITest : UITest() {
 
     private fun onNodeWithState(state: QuestionComponent.State) =
         onNode(SemanticsMatcher.expectValue(questionState, state))
