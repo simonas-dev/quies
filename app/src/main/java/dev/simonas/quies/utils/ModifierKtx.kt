@@ -7,6 +7,7 @@ import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -21,6 +22,39 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
 import kotlinx.coroutines.launch
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+
+fun Modifier.shortTap(
+    shortDuration: Duration = 200.milliseconds,
+    tap: () -> Unit,
+    isTouching: (Boolean) -> Unit,
+): Modifier = composed {
+    var pressAt by remember { mutableLongStateOf(0L) }
+    this.pointerInput(Unit) {
+        awaitPointerEventScope {
+            while (true) {
+                val event = awaitPointerEvent()
+                when (event.type) {
+                    PointerEventType.Press -> {
+                        pressAt = System.currentTimeMillis()
+                        isTouching(true)
+                    }
+                    PointerEventType.Release -> {
+                        val delta = System.currentTimeMillis() - pressAt
+                        if (delta < shortDuration.inWholeMilliseconds) {
+                            tap()
+                        }
+                        isTouching(false)
+                    }
+                    PointerEventType.Exit -> {
+                        isTouching(false)
+                    }
+                }
+            }
+        }
+    }
+}
 
 fun Modifier.isTouching(isTouched: (Boolean) -> Unit): Modifier {
     return this.pointerInput(Unit) {
@@ -49,22 +83,26 @@ internal fun Modifier.animatePlacement(): Modifier = composed {
     var animatable by remember {
         mutableStateOf<Animatable<IntOffset, AnimationVector2D>?>(null)
     }
-    this.onPlaced {
-        // Calculate the position in the parent layout
-        targetOffset = it.positionInParent().round()
-    }.offset {
-        // Animate to the new target offset when alignment changes.
-        val anim = animatable ?: Animatable(targetOffset, IntOffset.VectorConverter)
-            .also { animatable = it }
-        if (anim.targetValue != targetOffset) {
-            scope.launch {
-                anim.animateTo(targetOffset, spring(stiffness = Spring.StiffnessMediumLow))
-            }
+    this
+        .onPlaced {
+            // Calculate the position in the parent layout
+            targetOffset = it
+                .positionInParent()
+                .round()
         }
-        // Offset the child in the opposite direction to the targetOffset, and slowly catch
-        // up to zero offset via an animation to achieve an overall animated movement.
-        animatable?.let { it.value - targetOffset } ?: IntOffset.Zero
-    }
+        .offset {
+            // Animate to the new target offset when alignment changes.
+            val anim = animatable ?: Animatable(targetOffset, IntOffset.VectorConverter)
+                .also { animatable = it }
+            if (anim.targetValue != targetOffset) {
+                scope.launch {
+                    anim.animateTo(targetOffset, spring(stiffness = Spring.StiffnessMediumLow))
+                }
+            }
+            // Offset the child in the opposite direction to the targetOffset, and slowly catch
+            // up to zero offset via an animation to achieve an overall animated movement.
+            animatable?.let { it.value - targetOffset } ?: IntOffset.Zero
+        }
 }
 
 fun Modifier.vertical() =

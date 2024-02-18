@@ -24,6 +24,7 @@ object AppTheme {
         val debate = Color(0xff4665C0)
         val whiteStrong = Color(0xEBFFFFFF)
         val whiteMedium = Color(0xD9FFFFFF)
+        val whiteLow = Color(0x80FFFFFF)
         val background = Color(0xFF000000)
     }
 
