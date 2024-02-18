@@ -7,7 +7,7 @@ import org.junit.Ignore
 import org.junit.Test
 
 @HiltAndroidTest
-class Screenshots : UITest() {
+internal class Screenshots : UITest() {
 
     @Ignore("Needs Impl")
     @Test

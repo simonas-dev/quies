@@ -7,10 +7,12 @@ import androidx.compose.ui.test.performClick
 import dagger.hilt.android.testing.HiltAndroidTest
 import dev.simonas.quies.UITest
 import dev.simonas.quies.card.CardScreen
+import dev.simonas.quies.card.showsCardScreen
+import dev.simonas.quies.onboarding.userCompletesOnboarding
 import org.junit.Test
 
 @HiltAndroidTest
-class GameSetsUITest : UITest() {
+internal class GameSetsUITest : UITest() {
 
     @Test
     fun init() {
@@ -23,18 +25,5 @@ class GameSetsUITest : UITest() {
             .performClick()
 
         showsCardScreen()
-    }
-
-    private fun showsGameSets() {
-        onNodeWithText("DATING")
-            .assertIsDisplayed()
-        onNodeWithText("FRIENDS")
-            .assertIsDisplayed()
-        onNodeWithText("DEBATE")
-            .assertIsDisplayed()
-    }
-
-    private fun showsCardScreen() {
-        onNodeWithTag(CardScreen.TAG_SCREEN)
     }
 }
