@@ -6,7 +6,7 @@ import androidx.compose.ui.test.performTouchInput
 import dev.simonas.quies.UITest
 
 internal fun UITest.userCompletesOnboarding() {
-    repeat(6) {
+    repeat(7) {
         onNodeWithTag(OnboardingScreen.TAG_SCREEN)
             .performTouchInput { click(centerRight) }
     }

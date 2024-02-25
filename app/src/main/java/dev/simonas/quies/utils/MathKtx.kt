@@ -68,6 +68,9 @@ fun Float.rangeNorm(vararg ranges: ClosedRange<Float>): Float {
     return sum
 }
 
+fun ClosedRange<Float>.middle(): Float =
+    start + ((endInclusive - start) / 2f)
+
 fun Float.rangeNorm(
     range: ClosedRange<Float>,
 ): Float {
