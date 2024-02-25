@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package dev.simonas.quies.utils
 
 import android.graphics.Matrix
@@ -18,7 +20,7 @@ fun Float.rescaleNormal(min: Float, max: Float): Float =
 fun distance(a: Float, b: Float): Float =
     abs(a - b)
 
-fun cubicBezier(x1: Float, y1: Float, x2: Float, y2: Float): (Float) -> (Float) {
+fun cubicBezier(x1: Float, y1: Float, x2: Float = 1f - x1, y2: Float = 1f - x2): (Float) -> (Float) {
     val interpolator = PathInterpolator(x1, y1, x2, y2)
     return { t ->
         interpolator.getInterpolation(t)
@@ -56,4 +58,37 @@ fun Float.nthGoldenChildRatio(nth: Int): Float {
     } else {
         ratio.nthGoldenChildRatio(nth - 1)
     }
+}
+
+fun Float.rangeNorm(vararg ranges: ClosedRange<Float>): Float {
+    var sum = 0f
+    for (range in ranges) {
+        sum += rangeNorm(range)
+    }
+    return sum
+}
+
+fun Float.rangeNorm(
+    range: ClosedRange<Float>,
+): Float {
+    if (this < range.start) return 0f
+    if (this > range.endInclusive) return 0f
+    return (this - range.start) / (range.endInclusive - range.start)
+}
+
+fun Float.hill(steepness: Float): Float {
+    require(this in (0f..1f))
+
+    return when {
+        this < steepness -> {
+            this / steepness
+        }
+        this > 1f - steepness -> {
+            1f - ((this - (1f - steepness)) / steepness)
+        }
+        else -> {
+            1f
+        }
+    }.coerceAtLeast(0f)
+        .coerceAtMost(1f)
 }

@@ -3,6 +3,12 @@ package dev.simonas.quies.utils
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 
+fun Color.alpha(frac: Float = 0.0f): Color {
+    return this.copy(
+        alpha = frac,
+    )
+}
+
 fun Color.lerp(b: Color, frac: Float = 0.5f): Color {
     return Color(
         red = lerp(red, b.red, frac),
