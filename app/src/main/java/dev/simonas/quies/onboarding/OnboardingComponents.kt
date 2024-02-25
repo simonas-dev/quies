@@ -146,7 +146,7 @@ class LetItOutDialogLine(
         drawDialogLine(
             textMeasurer,
             isGlitch = isGlitch,
-            text = "Share things both of you have kept to yourselves",
+            text = "Share things we have kept to ourselves",
             vals = vals,
         )
         return vals
