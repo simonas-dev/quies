@@ -1,25 +1,28 @@
 package dev.simonas.quies.onboarding
 
-import androidx.compose.foundation.background
+import android.graphics.RenderEffect
+import android.graphics.Shader
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.asComposeRenderEffect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,7 +30,6 @@ import dev.simonas.quies.AppTheme
 import dev.simonas.quies.storypager.StoryPager
 import dev.simonas.quies.utils.QDevices
 import dev.simonas.quies.utils.createTestTag
-import dev.simonas.quies.utils.isTouching
 import dev.simonas.quies.utils.shortTap
 import kotlin.time.Duration.Companion.seconds
 
@@ -61,12 +63,10 @@ private fun OnboardingScreen(
     val pageCount = 6
     var overridePage by remember { mutableIntStateOf(0) }
     var isPaused by remember { mutableStateOf(false) }
-    var progress by remember { mutableFloatStateOf(0f) }
+    val progress = remember { mutableFloatStateOf(0f) }
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(AppTheme.Color.background)
+        modifier = modifier.fillMaxSize()
     ) {
         Box(modifier = Modifier.padding(8.dp)) {
             StoryPager(
@@ -74,7 +74,7 @@ private fun OnboardingScreen(
                 isPaused = { isPaused },
                 displayDuration = 4.seconds,
                 progressUpdate = {
-                    progress = it
+                    progress.floatValue = it
                 },
                 onCompleted = {
                     on(OnboardingViewModel.Interaction.EndOnboarding)
@@ -83,32 +83,14 @@ private fun OnboardingScreen(
             )
         }
 
-        val aFrac = 1f - progress % 1f
-        Text(
-            modifier = Modifier
-                .padding(start = 64.dp)
-                .alpha(aFrac)
-                .align(Alignment.CenterStart),
-            style = AppTheme.Text.primaryBlack,
-            text = getText(progress),
-        )
-
-        val bFrac = progress % 1f
-        Text(
-            modifier = Modifier
-                .padding(start = 64.dp)
-                .alpha(bFrac)
-                .align(Alignment.CenterStart),
-            style = AppTheme.Text.primaryBlack,
-            text = getText(progress + 1f),
-        )
+        Onboarding(progress)
 
         Row {
             Spacer(
                 modifier = Modifier
                     .shortTap(
                         tap = {
-                            overridePage = (progress.toInt() - 1)
+                            overridePage = (progress.floatValue.toInt() - 1)
                                 .coerceAtLeast(0)
                                 .coerceAtMost(pageCount)
                         },
@@ -123,7 +105,7 @@ private fun OnboardingScreen(
                 modifier = Modifier
                     .shortTap(
                         tap = {
-                            overridePage = (progress.toInt() + 1)
+                            overridePage = (progress.floatValue.toInt() + 1)
                                 .coerceAtLeast(0)
                                 .coerceAtMost(pageCount)
                         },
@@ -139,17 +121,59 @@ private fun OnboardingScreen(
 }
 
 @Composable
-private fun getText(progress: Float): String {
-    return listOf(
-        "This game is about creating meaningful dialogues",
-        "Slowly getting the conversation to the next level",
-        "An excuse to talk about things you’ve never had",
-        "Share things both of you have kept to yourselves",
-        "Build a bridge between two or more inner worlds",
-        "Be honest\nShare your feelings\nThat’s the way to win",
-        "",
-        "",
-    )[progress.toInt()]
+private fun Onboarding(progress: MutableFloatState) {
+    val textMeasurer = rememberTextMeasurer()
+    val components = listOf<CanvasComponent>(
+        OpenerDialogLine(textMeasurer),
+        ChillOutDialogLine(textMeasurer),
+        ExcuseDialogLine(textMeasurer),
+        LetItOutDialogLine(textMeasurer),
+        ConnectionDialogLine(textMeasurer),
+        OutroDialogLine(textMeasurer),
+    )
+    var lastDraw = System.currentTimeMillis()
+    var avgDur = 16f
+    Canvas(
+        modifier = Modifier
+            .fillMaxSize(),
+    ) {
+        for (c in components) {
+            c.draw(progress.floatValue, false)
+        }
+
+//        val dur = System.currentTimeMillis() - lastDraw
+//        avgDur = avgDur * 0.95f + dur * 0.05f
+//        logd("TTT: $avgDur")
+//        lastDraw = System.currentTimeMillis()
+    }
+
+    val bluriness = remember { mutableFloatStateOf(16f) }
+
+    Canvas(
+        modifier = Modifier
+            .graphicsLayer {
+                renderEffect = RenderEffect
+                    .createBlurEffect(
+                        bluriness.floatValue.dp.toPx(),
+                        bluriness.floatValue.dp.toPx(),
+                        Shader.TileMode.DECAL,
+                    )
+                    .asComposeRenderEffect()
+            }
+            .fillMaxSize(),
+    ) {
+        val maxGlitch = components
+            .map { c ->
+                c.draw(progress.floatValue, true)
+            }
+            .maxBy { it.glichyness }
+        bluriness.floatValue = 12f * maxGlitch.glichyness + 4f
+
+//        val dur = System.currentTimeMillis() - lastDraw
+//        avgDur = avgDur * 0.95f + dur * 0.05f
+//        logd("TTT: $avgDur")
+//        lastDraw = System.currentTimeMillis()
+    }
 }
 
 @Composable

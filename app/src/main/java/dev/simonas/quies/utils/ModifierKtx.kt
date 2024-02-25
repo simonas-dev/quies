@@ -27,8 +27,8 @@ import kotlin.time.Duration.Companion.milliseconds
 
 fun Modifier.shortTap(
     shortDuration: Duration = 200.milliseconds,
+    isTouching: (Boolean) -> Unit = {},
     tap: () -> Unit,
-    isTouching: (Boolean) -> Unit,
 ): Modifier = composed {
     var pressAt by remember { mutableLongStateOf(0L) }
     this.pointerInput(Unit) {
