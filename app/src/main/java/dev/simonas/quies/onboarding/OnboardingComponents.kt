@@ -2,19 +2,20 @@ package dev.simonas.quies.onboarding
 
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dev.simonas.quies.AppTheme
 import dev.simonas.quies.onboarding.CanvasComponent.Vals
 import dev.simonas.quies.utils.alpha
 import dev.simonas.quies.utils.cubicBezier
 import dev.simonas.quies.utils.hill
 import dev.simonas.quies.utils.lerp
+import dev.simonas.quies.utils.middle
 import dev.simonas.quies.utils.rangeNorm
 import kotlin.math.sin
 
@@ -56,6 +57,49 @@ private fun glitch(
         }
 }
 
+class Splash(
+    private val textMeasurer: TextMeasurer,
+    private val text: String,
+    private val textOffset: Offset,
+    private val enter: ClosedRange<Float>,
+    private val exit: ClosedRange<Float>,
+) : CanvasComponent {
+
+    context(DrawScope)
+    override fun draw(progress: Float, isGlitch: Boolean): Vals {
+        val vals = Vals(
+            glichyness = progress.rangeNorm(
+                enter,
+                exit,
+            ).let {
+                when {
+                    it > 0.01f -> 1f - it
+                    else -> 0f
+                }
+            }.hill(0.5f),
+            visibility = progress
+                .rangeNorm(enter.middle()..exit.middle())
+                .hill(0.5f)
+                .times(0.8f),
+        )
+
+        drawDialogLine(
+            textMeasurer,
+            isGlitch = isGlitch,
+            text = text,
+            vals = vals,
+            offset = textOffset,
+            textSizeMulti = 0.75f,
+            glitchPaleness = 0f,
+            offsetMultiplierX = 2f,
+            offsetMultiplierY = 2f,
+        )
+        return vals.copy(
+            glichyness = vals.glichyness,
+        )
+    }
+}
+
 class OpenerDialogLine(
     private val textMeasurer: TextMeasurer,
 ) : CanvasComponent {
@@ -63,18 +107,9 @@ class OpenerDialogLine(
     context(DrawScope)
     override fun draw(progress: Float, isGlitch: Boolean): Vals {
         val vals = Vals(
-            glichyness = glitch(
-                index = 0,
-                progress = progress,
-                glitchNorm = {
-                    progress.rangeNorm(
-                        -GLITCH_HILL_SIDE / 2f..GLITCH_HILL_SIDE,
-                        1f - GLITCH_HILL_SIDE..1f + GLITCH_HILL_SIDE
-                    )
-                }
-            ),
+            glichyness = glitch(1, progress),
             visibility = progress
-                .rangeNorm(0.00f..0.95f)
+                .rangeNorm(0.80f..1.95f)
                 .hill(DIALOG_HILL_SIDE),
         )
         drawDialogLine(
@@ -94,9 +129,9 @@ class ChillOutDialogLine(
     context(DrawScope)
     override fun draw(progress: Float, isGlitch: Boolean): Vals {
         val vals = Vals(
-            glichyness = glitch(1, progress),
+            glichyness = glitch(2, progress),
             visibility = progress
-                .rangeNorm(1.00f..1.95f)
+                .rangeNorm(2.00f..2.95f)
                 .hill(DIALOG_HILL_SIDE),
         )
         drawDialogLine(
@@ -116,9 +151,9 @@ class ExcuseDialogLine(
     context(DrawScope)
     override fun draw(progress: Float, isGlitch: Boolean): Vals {
         val vals = Vals(
-            glichyness = glitch(2, progress),
+            glichyness = glitch(3, progress),
             visibility = progress
-                .rangeNorm(2.00f..2.95f)
+                .rangeNorm(3.00f..3.95f)
                 .hill(DIALOG_HILL_SIDE),
         )
         drawDialogLine(
@@ -138,9 +173,9 @@ class LetItOutDialogLine(
     context(DrawScope)
     override fun draw(progress: Float, isGlitch: Boolean): Vals {
         val vals = Vals(
-            glichyness = glitch(3, progress),
+            glichyness = glitch(4, progress),
             visibility = progress
-                .rangeNorm(3.00f..3.95f)
+                .rangeNorm(4.00f..4.95f)
                 .hill(DIALOG_HILL_SIDE),
         )
         drawDialogLine(
@@ -160,9 +195,9 @@ class ConnectionDialogLine(
     context(DrawScope)
     override fun draw(progress: Float, isGlitch: Boolean): Vals {
         val vals = Vals(
-            glichyness = glitch(4, progress),
+            glichyness = glitch(5, progress),
             visibility = progress
-                .rangeNorm(4.00f..4.95f)
+                .rangeNorm(5.00f..5.95f)
                 .hill(DIALOG_HILL_SIDE),
         )
         drawDialogLine(
@@ -183,17 +218,17 @@ class OutroDialogLine(
     override fun draw(progress: Float, isGlitch: Boolean): Vals {
         val vals = Vals(
             glichyness = glitch(
-                index = 5,
+                index = 6,
                 progress = progress,
                 glitchNorm = {
                     progress.rangeNorm(
-                        5f - GLITCH_HILL_SIDE..5f + GLITCH_HILL_SIDE,
-                        5.8f - GLITCH_HILL_SIDE..5.9f
+                        6f - GLITCH_HILL_SIDE..6f + GLITCH_HILL_SIDE,
+                        6.8f - GLITCH_HILL_SIDE..6.9f
                     )
                 }
             ),
             visibility = progress
-                .rangeNorm(5.00f..5.95f)
+                .rangeNorm(6.00f..6.95f)
                 .hill(DIALOG_HILL_SIDE),
         )
         drawDialogLine(
@@ -211,10 +246,18 @@ private fun DrawScope.drawDialogLine(
     textMeasurer: TextMeasurer,
     isGlitch: Boolean,
     text: String,
+    offset: Offset = Offset(0f, 0f),
+    offsetMultiplierX: Float = 12f,
+    offsetMultiplierY: Float = 12f,
+    textSizeMulti: Float = 1f,
     vals: Vals,
+    glitchPaleness: Float = 1f - vals.glichyness,
+    glitchTransparency: Float = vals.glichyness.minus(0.1f).coerceAtLeast(0f)
+
 ) {
     val style = AppTheme.Text.primaryBlack
         .copy(
+            fontSize = (28 * textSizeMulti).sp,
             textMotion = TextMotion.Animated,
         )
     val size = textMeasurer.measure(
@@ -238,15 +281,19 @@ private fun DrawScope.drawDialogLine(
             style = style
                 .copy(
                     color = AppTheme.Color.dating
-                        .lerp(style.color, 1f - vals.glichyness)
-                        .alpha(
-                            vals.glichyness.minus(0.1f).coerceAtLeast(0f)
-                        ),
+                        .lerp(style.color, glitchPaleness)
+                        .alpha(glitchTransparency),
                 ),
-            topLeft = textOffset.value +
+            topLeft = textOffset.value + offset +
                 Offset(
-                    x = (12f * vals.glichyness * sin(vals.glichyness + 56456f + text.hashCode().toFloat())).dp.toPx(),
-                    y = (12f * vals.glichyness * sin(vals.glichyness + 56456f + text.hashCode().toFloat())).dp.toPx(),
+                    x = offsetMultiplierX
+                        .times(vals.glichyness)
+                        .times(sin(vals.glichyness + 56456f + text.hashCode().toFloat()))
+                        .dp.toPx(),
+                    y = offsetMultiplierY
+                        .times(vals.glichyness)
+                        .times(sin(vals.glichyness + 56456f + text.hashCode().toFloat()))
+                        .dp.toPx(),
                 ),
         )
 
@@ -256,15 +303,19 @@ private fun DrawScope.drawDialogLine(
             style = style
                 .copy(
                     color = AppTheme.Color.friends
-                        .lerp(style.color, 1f - vals.glichyness)
-                        .alpha(
-                            vals.glichyness.minus(0.1f).coerceAtLeast(0f)
-                        ),
+                        .lerp(style.color, glitchPaleness)
+                        .alpha(glitchTransparency),
                 ),
-            topLeft = textOffset.value +
+            topLeft = textOffset.value + offset +
                 Offset(
-                    x = (12f * vals.glichyness * sin(vals.glichyness + 7456f + text.hashCode().toFloat())).dp.toPx(),
-                    y = (12f * vals.glichyness * sin(vals.glichyness + 7658f + text.hashCode().toFloat())).dp.toPx(),
+                    x = offsetMultiplierX
+                        .times(vals.glichyness)
+                        .times(sin(vals.glichyness + 7456f + text.hashCode().toFloat()))
+                        .dp.toPx(),
+                    y = offsetMultiplierY
+                        .times(vals.glichyness)
+                        .times(sin(vals.glichyness + 7658f + text.hashCode().toFloat()))
+                        .dp.toPx(),
                 ),
         )
         drawText(
@@ -273,15 +324,19 @@ private fun DrawScope.drawDialogLine(
             style = style
                 .copy(
                     color = AppTheme.Color.debate
-                        .lerp(style.color, 1f - vals.glichyness)
-                        .alpha(
-                            vals.glichyness.minus(0.1f).coerceAtLeast(0f)
-                        ),
+                        .lerp(style.color, glitchPaleness)
+                        .alpha(glitchTransparency),
                 ),
-            topLeft = textOffset.value +
+            topLeft = textOffset.value + offset +
                 Offset(
-                    x = (12f * vals.glichyness * sin(vals.glichyness + 34456f + text.hashCode().toFloat())).dp.toPx(),
-                    y = (12f * vals.glichyness * sin(vals.glichyness + 26356f + text.hashCode().toFloat())).dp.toPx(),
+                    x = offsetMultiplierX
+                        .times(vals.glichyness)
+                        .times(sin(vals.glichyness + 34456f + text.hashCode().toFloat()))
+                        .dp.toPx(),
+                    y = offsetMultiplierY
+                        .times(vals.glichyness)
+                        .times(sin(vals.glichyness + 26356f + text.hashCode().toFloat()))
+                        .dp.toPx(),
                 ),
         )
     } else {
@@ -297,7 +352,7 @@ private fun DrawScope.drawDialogLine(
                     blurRadius = 2.dp.toPx(),
                 )
             ),
-            topLeft = textOffset.value,
+            topLeft = textOffset.value + offset,
         )
     }
 }

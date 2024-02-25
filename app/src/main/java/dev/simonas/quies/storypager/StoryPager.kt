@@ -1,5 +1,6 @@
 package dev.simonas.quies.storypager
 
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -39,14 +40,15 @@ fun StoryPager(
     onCompleted: () -> Unit,
     pageCount: Int,
     modifier: Modifier = Modifier,
-    index: Int = 0,
+    indexRequest: Pair<Int, Long> = -1 to 0,
 ) {
     var currentPage by remember { mutableIntStateOf(0) }
     var skipFrac by remember { mutableFloatStateOf(0f) }
     var isAnimating by remember { mutableStateOf(false) }
     val progress by animateFloatAsState(
         animationSpec = tween(
-            durationMillis = 0,
+            durationMillis = 500,
+            easing = LinearOutSlowInEasing
         ),
         finishedListener = {
             isAnimating = false
@@ -55,9 +57,16 @@ fun StoryPager(
         label = "pager progress",
     )
 
-    LaunchedEffect(index) {
-        currentPage = index
-        skipFrac = 0f
+    LaunchedEffect(indexRequest) {
+        if (indexRequest.first != -1) {
+            currentPage = if (isAnimating) {
+                indexRequest.first + 1
+            } else {
+                indexRequest.first
+            }
+
+            skipFrac = 0f
+        }
     }
 
     LaunchedEffect(progress) {
