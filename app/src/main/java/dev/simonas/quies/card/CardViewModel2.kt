@@ -322,7 +322,7 @@ internal class CardViewModel2 @Inject constructor(
         _questions.updateComponents {
             replaceFirst(
                 first = { it.level == level },
-                replace = { it.mutate(QuestionComponent.State.PrimaryHidden) },
+                replace = { q -> q.mutate(QuestionComponent.State.PrimaryRevealed) }
             )
             replaceAll { q ->
                 when {
@@ -353,7 +353,7 @@ internal class CardViewModel2 @Inject constructor(
                     index = 1,
                     element = nextQuestion
                         .withState(QuestionComponent.State.Offscreen)
-                        .mutate(QuestionComponent.State.OtherCard),
+                        .mutate(QuestionComponent.State.NextHidden),
                 )
             }
         }
