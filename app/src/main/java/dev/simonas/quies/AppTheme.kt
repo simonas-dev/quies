@@ -3,6 +3,7 @@ package dev.simonas.quies
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -36,12 +37,18 @@ object AppTheme {
             Font(R.font.avenirnext_heavy, weight = FontWeight.Black),
         )
 
+        private val textShadow = Shadow(
+            color = Color.whiteLow,
+            blurRadius = 1.5f,
+        )
+
         val primaryBlack = TextStyle(
             color = Color.whiteStrong,
             fontFamily = fonts,
             fontSize = 32.sp,
             fontWeight = FontWeight.Normal,
             letterSpacing = (-1.5).sp,
+            shadow = textShadow,
         )
 
         val primaryBold = TextStyle(
@@ -51,6 +58,7 @@ object AppTheme {
             fontWeight = FontWeight.Bold,
             letterSpacing = 2.sp,
             lineHeight = 32.sp,
+            shadow = textShadow,
         )
 
         val primaryDemiBold = TextStyle(
@@ -60,6 +68,7 @@ object AppTheme {
             fontWeight = FontWeight.Normal,
             letterSpacing = 0.sp,
             lineHeight = 28.sp,
+            shadow = textShadow,
         )
 
         val secondaryDemiBold = TextStyle(
@@ -69,6 +78,7 @@ object AppTheme {
             fontWeight = FontWeight.Normal,
             letterSpacing = 0.sp,
             lineHeight = 24.sp,
+            shadow = textShadow,
         )
 
         val labelDemiBold = TextStyle(
@@ -78,6 +88,7 @@ object AppTheme {
             fontWeight = FontWeight.Normal,
             letterSpacing = 0.sp,
             lineHeight = 24.sp,
+            shadow = textShadow,
         )
     }
 }
