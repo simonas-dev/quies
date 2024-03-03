@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.simonas.quies.AppTheme
+import dev.simonas.quies.card.OnboardingCardOverlay
 import dev.simonas.quies.storypager.StoryPager
 import dev.simonas.quies.utils.KeepScreenOn
 import dev.simonas.quies.utils.QDevices
@@ -207,6 +208,7 @@ private fun Onboarding(progress: MutableFloatState) {
 //        logd("TTT: $avgDur")
 //        lastDraw = System.currentTimeMillis()
     }
+    OnboardingCardOverlay(progress)
 }
 
 @Composable

@@ -20,6 +20,7 @@ object AppTheme {
         val washoutLight = Color(0x12C5C5C5)
         val washoutMedium = Color(0x24C5C5C5)
         val washoutStrong = Color(0x1AFFFFFF)
+        val onboarding = Color(0xff1B1B1B)
         val dating = Color(0xffBB3830)
         val friends = Color(0xffE88E30)
         val debate = Color(0xff4665C0)
