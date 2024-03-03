@@ -29,10 +29,15 @@ fun uiGuide(
         screenHeight = spaceHeight,
         cardHeight = card.y,
     )
-    val bigSpace = bigSpacing(
+    var bigSpace = bigSpacing(
         screenHeight = spaceHeight,
         cardHeight = card.y,
     )
+    val minWidthReq = bigSpace + (card.x / 2f) + (card.x / 5f)
+    if (minWidthReq > (spaceWidth / 2f)) {
+        val offset = minWidthReq - (spaceWidth / 2f)
+        bigSpace -= offset
+    }
     return UiGuide(
         card = card,
         smallSpace = smallSpace,
