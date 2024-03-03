@@ -27,6 +27,7 @@ jobs:
         run:
           ./data/downloadProdSource.sh $DATA_FETCH_GH_TOKEN
           ./data/replaceSecrets.sh -k $DATA_AES_KEY -i DATA_AES_IV
+          ./data/createAsset.sh
       - name: Create Service Account Key for Flank
         env:
           FLANK_SERVICE_ACCOUNT_KEY: ${{ secrets.FLANK_SERVICE_ACCOUNT_KEY }}
