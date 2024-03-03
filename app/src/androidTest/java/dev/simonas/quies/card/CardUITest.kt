@@ -71,8 +71,6 @@ internal class CardUITest : UITest() {
             .performClick()
         onNodeWithText("LEVEL 3")
             .performClick()
-        onNodeWithState(QuestionComponent.State.PrimaryHidden)
-            .performClick()
         onNodeWithState(QuestionComponent.State.NextHidden)
             .performClick()
         onNodeWithState(QuestionComponent.State.PrimaryHidden)
@@ -109,10 +107,8 @@ internal class CardUITest : UITest() {
             .performClick()
         onNodeWithText("LEVEL 1")
             .performClick()
-        onNodeWithState(QuestionComponent.State.PrimaryHidden)
-            .performClick()
         mainClock.manual {
-            repeat(2) {
+            repeat(3) {
                 advanceTimeBy(2.minutes.inWholeMilliseconds)
                 onNodeWithState(QuestionComponent.State.NextHidden)
                     .performClick()
