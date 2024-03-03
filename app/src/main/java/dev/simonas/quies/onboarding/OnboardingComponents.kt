@@ -259,6 +259,7 @@ private fun DrawScope.drawDialogLine(
         .copy(
             fontSize = (28 * textSizeMulti).sp,
             textMotion = TextMotion.Animated,
+            shadow = null,
         )
     val size = textMeasurer.measure(
         text = text,
