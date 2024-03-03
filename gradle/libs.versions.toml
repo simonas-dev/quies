@@ -1,5 +1,5 @@
 [versions]
-agp = "8.2.2"
+agp = "8.3.0"
 androidx_activity_compose = "1.8.0"
 androidx_test = "1.5.0"
 androidx_test_ext = "1.1.5"
@@ -40,7 +40,6 @@ target_sdk_version = "34"
 truth = "1.1.5"
 turbine = "1.0.0"
 org-jetbrains-kotlin-jvm = "1.8.0"
-agp2 = "8.1.0"
 material = "1.10.0"
 material3-android = "1.2.0"
 
@@ -100,5 +99,5 @@ play_publisher = { id = "com.github.triplet.play", version.ref = "play_publisher
 simple_flank = { id = "io.github.flank.gradle.simple-flank", version.ref = "simple_flank" }
 versions = { id = "com.github.ben-manes.versions", version.ref = "benmanesversion" }
 org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "org-jetbrains-kotlin-jvm" }
-com-android-library = { id = "com.android.library", version.ref = "agp2" }
+com-android-library = { id = "com.android.library", version.ref = "agp" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version = "1.9.0" }
