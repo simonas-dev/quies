@@ -26,7 +26,7 @@ jobs:
           DATA_AES_IV: ${{ secrets.DATA_AES_IV }}
         run: |
           ./data/downloadProdSource.sh $DATA_FETCH_GH_TOKEN
-          ./data/replaceSecrets.sh -k $DATA_AES_KEY -i DATA_AES_IV
+          ./data/replaceSecrets.sh -k $DATA_AES_KEY -i $DATA_AES_IV
           chmod a+x ./data/createAsset.sh
           ./data/createAsset.sh
       - name: Create Service Account Key for Flank
