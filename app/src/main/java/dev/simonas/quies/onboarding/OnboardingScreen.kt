@@ -138,24 +138,17 @@ private fun Onboarding(progress: MutableFloatState) {
         ),
         Splash(
             textMeasurer = textMeasurer,
-            text = "What does love need to last?",
-            textOffset = Offset(56f * 18f, 56f * -3.5f),
-            enter = -0.1f..0.2f,
-            exit = 0.4f..0.5f,
-        ),
-        Splash(
-            textMeasurer = textMeasurer,
             text = "Are you holding on to something you need to let go of?",
             textOffset = Offset(56f * 3f, 56f * 5f),
-            enter = 0.2f..0.3f,
-            exit = 0.5f..0.6f,
+            enter = -0.05f..0.15f,
+            exit = 0.4f..0.5f,
         ),
         Splash(
             textMeasurer = textMeasurer,
             text = "What changes have you noticed in yourself in the past five years?",
             textOffset = Offset(56f * 0f, 56f * -6f),
-            enter = 0.3f..0.4f,
-            exit = 0.6f..0.7f,
+            enter = 0.2f..0.3f,
+            exit = 0.5f..0.6f,
         ),
         Splash(
             textMeasurer = textMeasurer,
