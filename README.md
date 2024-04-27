@@ -1,4 +1,4 @@
-![logo](book/imgs/logo.png)
+![logo](book/imgs/logo.svg)
 # Coalesce
 
 So that strange faces would become familiar. 
