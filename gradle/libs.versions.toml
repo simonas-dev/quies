@@ -20,7 +20,9 @@ datastore = "1.1.1"
 datastore-preferences = "1.1.1"
 detekt = "1.23.1"
 espresso_core = "3.5.1"
+firebase_analytics = "22.0.0"
 firebase_bom = "33.0.0"
+firebase_crashlytics = "19.0.0"
 firebase_ktx = "22.0.0"
 google_services = "4.4.1"
 hilt = "2.49"
@@ -33,6 +35,7 @@ kotlin = "1.9.23"
 kotlin-math = "1.5.3"
 ktlint_gradle = "11.5.0"
 min_sdk_version = "31"
+mixpanel-android = "7.5.2"
 mockito-android = "5.4.0"
 mockito-kotlin = "5.1.0"
 play_publisher = "3.8.4"
@@ -70,7 +73,9 @@ datastore = { module = "androidx.datastore:datastore", version.ref = "datastore"
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore-preferences" }
 detekt_formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 espresso_core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso.core" }
+firebase-analytics =  { module = "com.google.firebase:firebase-analytics", version.ref = "firebase_analytics" }
 firebase-analytics-ktx =  { module = "com.google.firebase:firebase-analytics-ktx", version.ref = "firebase_ktx" }
+firebase-crashlytics =  { module = "com.google.firebase:firebase-crashlytics", version.ref = "firebase_crashlytics" }
 firebase_bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase_bom" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
@@ -83,6 +88,7 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jun
 kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 kgp = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-math = { module = "dev.romainguy:kotlin-math", version.ref = "kotlin-math" }
+mixpanel = { module = "com.mixpanel.android:mixpanel-android", version.ref = "mixpanel-android" }
 mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockito-android" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito-kotlin" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }

@@ -1,3 +1,4 @@
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
@@ -8,6 +9,7 @@ plugins {
     id("com.android.application")
     id("kotlin-kapt")
     kotlin("android")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -82,6 +84,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = true
+            }
         }
     }
     lint {
@@ -113,7 +118,9 @@ dependencies {
     implementation(libs.compose.ui.tooling)
     implementation(libs.coroutines.android)
     implementation(libs.coroutines.core)
+    implementation(libs.firebase.analytics)
     implementation(libs.firebase.analytics.ktx)
+    implementation(libs.firebase.crashlytics)
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.javapoet)
@@ -122,7 +129,7 @@ dependencies {
     implementation(project(":data"))
     implementation(libs.datastore)
     implementation(libs.datastore.preferences)
-
+    implementation(libs.mixpanel)
 
     kapt(libs.hilt.android.compiler)
 

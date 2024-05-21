@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -23,6 +24,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.simonas.quies.AppTheme
 import dev.simonas.quies.LocalUiGuide
+import dev.simonas.quies.analytics.EventTracker
+import dev.simonas.quies.analytics.eventTracker
 import dev.simonas.quies.card.Card
 import dev.simonas.quies.data.GameSet
 import dev.simonas.quies.data.Question
@@ -43,8 +46,13 @@ internal object GameSetsScreen {
 internal fun GameSetsScreen(
     viewModel: GameSetsViewModel = hiltViewModel(),
     onGameSetSelected: (id: String) -> Unit,
+    tracker: EventTracker = eventTracker(),
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) {
+        tracker.send("game_sets_screen_show")
+    }
+
     GameSetsScreen(
         state = state.value,
         onGameSetSelected = onGameSetSelected,

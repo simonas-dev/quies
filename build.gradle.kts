@@ -10,6 +10,7 @@ plugins {
     id("com.android.library") apply false
     id("kotlin-kapt")
     kotlin("android") apply false
+    id("com.google.firebase.crashlytics") version "3.0.1" apply false
 }
 
 allprojects {
