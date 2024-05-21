@@ -2,7 +2,6 @@ package dev.simonas.quies.gl
 
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
-import android.os.Trace
 import dev.simonas.quies.utils.logd
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -140,7 +139,6 @@ class ShaderRenderer : GLSurfaceView.Renderer {
 
     override fun onDrawFrame(gl: GL10?) {
         if (shouldPlay.get()) {
-            Trace.beginSection(eventSource)
 //            glDisable(GL10.GLES20.GL_DITHER)
 //            glClear(GL10.GLES20.GL_COLOR_BUFFER_BIT)
 //            glEnable(GL10.GLES20.GL_MULTISAMPLE)
@@ -179,8 +177,6 @@ class ShaderRenderer : GLSurfaceView.Renderer {
             }
 
             frameCount += 0.01f
-
-            Trace.endSection()
         }
     }
 
