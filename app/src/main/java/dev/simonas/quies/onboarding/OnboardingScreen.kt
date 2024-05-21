@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -27,6 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.simonas.quies.AppTheme
+import dev.simonas.quies.analytics.EventTracker
+import dev.simonas.quies.analytics.eventTracker
 import dev.simonas.quies.card.OnboardingCardOverlay
 import dev.simonas.quies.storypager.StoryPager
 import dev.simonas.quies.utils.KeepScreenOn
@@ -43,14 +46,26 @@ internal object OnboardingScreen {
 internal fun OnboardingScreen(
     onboardingCompleted: () -> Unit,
     viewModel: OnboardingViewModel = hiltViewModel(),
+    tracker: EventTracker = eventTracker(),
 ) {
-    val state = viewModel
+    val startedAt = remember { System.currentTimeMillis() }
+
+    LaunchedEffect(Unit) {
+        tracker.send("onboarding_screen_show")
+    }
+
     OnboardingScreen(
         modifier = Modifier.testTag(OnboardingScreen.TAG_SCREEN),
         on = { interaction ->
             viewModel.on(interaction)
             if (interaction == OnboardingViewModel.Interaction.EndOnboarding) {
                 onboardingCompleted()
+                tracker.send(
+                    key = "onboarding_completed",
+                    meta = mapOf(
+                        "duration" to (System.currentTimeMillis() - startedAt).toString(),
+                    )
+                )
             }
         }
     )
@@ -61,6 +76,7 @@ internal fun OnboardingScreen(
 private fun OnboardingScreen(
     on: (OnboardingViewModel.Interaction) -> Unit,
     modifier: Modifier = Modifier,
+    tracker: EventTracker = eventTracker(),
 ) {
     val pageCount = 7
     var overridePage by remember { mutableStateOf(-1 to 0L) }
@@ -94,6 +110,12 @@ private fun OnboardingScreen(
                 modifier = Modifier
                     .shortTap(
                         tap = {
+                            tracker.send(
+                                key = "onboarding_manual_prev",
+                                meta = mapOf(
+                                    "page" to progress.floatValue.toInt().toString()
+                                )
+                            )
                             val newIndex = (progress.floatValue.toInt() - 1)
                                 .coerceAtLeast(0)
                                 .coerceAtMost(pageCount)
@@ -110,6 +132,12 @@ private fun OnboardingScreen(
                 modifier = Modifier
                     .shortTap(
                         tap = {
+                            tracker.send(
+                                key = "onboarding_manual_next",
+                                meta = mapOf(
+                                    "page" to progress.floatValue.toInt().toString()
+                                )
+                            )
                             val newPage = (progress.floatValue.toInt() + 1)
                                 .coerceAtLeast(0)
                                 .coerceAtMost(pageCount)

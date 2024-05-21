@@ -55,6 +55,9 @@ import dev.simonas.quies.AppTheme
 import dev.simonas.quies.AppTheme.SCREEN_SAVER_FADE_FRAC
 import dev.simonas.quies.LocalUiGuide
 import dev.simonas.quies.UiGuide
+import dev.simonas.quies.analytics.EventTracker
+import dev.simonas.quies.analytics.eventTracker
+import dev.simonas.quies.analytics.toMeta
 import dev.simonas.quies.card.CardScreen2.questionState
 import dev.simonas.quies.data.Question
 import dev.simonas.quies.questions.getColor
@@ -88,15 +91,26 @@ internal object CardScreen2 {
 
 @Composable
 internal fun CardScreen2(
-    cardViewModel: CardViewModel2 = hiltViewModel(),
     onBack: () -> Unit,
+    cardViewModel: CardViewModel2 = hiltViewModel(),
+    tracker: EventTracker = eventTracker(),
 ) {
     val questions = cardViewModel.questions.collectAsStateWithLifecycle()
     val isMenuShown = cardViewModel.isMenuShown.collectAsStateWithLifecycle()
     val isNextLevelShown = cardViewModel.isNextLevelShown.collectAsStateWithLifecycle()
     val isEndgame = cardViewModel.isEndgame.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        tracker.send(
+            key = "card_screen_show",
+            meta = mapOf(
+                "game_set_id" to cardViewModel.gameSetId,
+            )
+        )
+    }
+
     OnSystemBackClick {
+        tracker.send("card_screen_system_back")
         cardViewModel.toggleMenu()
     }
 
@@ -108,11 +122,24 @@ internal fun CardScreen2(
         isNextLevelShown = isNextLevelShown,
         showLevelSkipNotice = cardViewModel.showLevelSkipNotice,
         onClick = {
+            tracker.send(
+                key = "card_screen_interaction",
+                meta = it.toMeta(),
+            )
             cardViewModel.trigger(it.id)
         },
-        toggleMenu = cardViewModel::toggleMenu,
-        onExit = onBack,
-        onNextLevel = cardViewModel::nextLevel,
+        toggleMenu = {
+            tracker.send("card_screen_toggle_menu")
+            cardViewModel.toggleMenu()
+        },
+        onExit = {
+            tracker.send("card_screen_exit")
+            onBack()
+        },
+        onNextLevel = {
+            tracker.send("card_screen_next_level")
+            cardViewModel.nextLevel()
+        },
     )
 }
 
