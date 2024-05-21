@@ -32,14 +32,15 @@ fun Modifier.shortTap(
 ): Modifier = composed {
     var pressAt by remember { mutableLongStateOf(0L) }
     this.pointerInput(Unit) {
-        awaitPointerEventScope {
-            while (true) {
+        while (true) {
+            awaitPointerEventScope {
                 val event = awaitPointerEvent()
                 when (event.type) {
                     PointerEventType.Press -> {
                         pressAt = System.currentTimeMillis()
                         isTouching(true)
                     }
+
                     PointerEventType.Release -> {
                         val delta = System.currentTimeMillis() - pressAt
                         if (delta < shortDuration.inWholeMilliseconds) {
@@ -47,6 +48,7 @@ fun Modifier.shortTap(
                         }
                         isTouching(false)
                     }
+
                     PointerEventType.Exit -> {
                         isTouching(false)
                     }
@@ -58,8 +60,8 @@ fun Modifier.shortTap(
 
 fun Modifier.isTouching(isTouched: (Boolean) -> Unit): Modifier {
     return this.pointerInput(Unit) {
-        awaitPointerEventScope {
-            while (true) {
+        while (true) {
+            awaitPointerEventScope {
                 val event = awaitPointerEvent()
                 when (event.type) {
                     PointerEventType.Press -> {
