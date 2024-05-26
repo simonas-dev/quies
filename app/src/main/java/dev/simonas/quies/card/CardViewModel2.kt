@@ -107,7 +107,7 @@ internal class CardViewModel2 @Inject constructor(
                 pool.popFirstOrNull { it.level == Question.Level.Medium },
                 pool.popFirstOrNull { it.level == Question.Level.Hard },
             ).map { q ->
-                q.withState(QuestionComponent.State.Offscreen)
+                q.withState(QuestionComponent.State.Blank)
                     .mutate(QuestionComponent.State.Landing)
             },
         ),
@@ -168,7 +168,7 @@ internal class CardViewModel2 @Inject constructor(
             QuestionComponent.State.Disabled -> {
                 // nothing
             }
-            QuestionComponent.State.Offscreen -> {
+            QuestionComponent.State.Blank -> {
                 // nothing
             }
         }
@@ -282,13 +282,13 @@ internal class CardViewModel2 @Inject constructor(
             replaceEach { index, questionComponent ->
                 if (isShown) {
                     if (questionComponent.state != QuestionComponent.State.Disabled) {
-                        questionComponent.mutate(QuestionComponent.State.Offscreen)
+                        questionComponent.copy(isOffscreen = true)
                     } else {
                         questionComponent
                     }
                 } else {
                     if (questionComponent.state != QuestionComponent.State.Disabled) {
-                        questionComponent.revert()
+                        questionComponent.copy(isOffscreen = false)
                     } else {
                         questionComponent
                     }
@@ -352,7 +352,7 @@ internal class CardViewModel2 @Inject constructor(
                 add(
                     index = 1,
                     element = nextQuestion
-                        .withState(QuestionComponent.State.Offscreen)
+                        .withState(QuestionComponent.State.Blank)
                         .mutate(QuestionComponent.State.NextHidden),
                 )
             }
@@ -391,6 +391,7 @@ private fun Question.withState(
         text = text,
         level = level.toAnother(),
         levelDescription = this.levelDescription,
+        isOffscreen = false,
         stateVector = Vector(
             from = state,
             to = state,

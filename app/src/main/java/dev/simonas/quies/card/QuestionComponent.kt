@@ -4,12 +4,13 @@ import dev.simonas.quies.seconds
 import dev.simonas.quies.utils.Vector
 import java.util.UUID
 
-data class QuestionComponent(
+data class QuestionComponent constructor(
     val id: Int = UUID.randomUUID().hashCode(),
     val text: String,
     val level: Level,
     val levelDescription: String,
     val stateVector: Vector<State>,
+    val isOffscreen: Boolean,
     val modifiedAtSecsVector: Vector<Float> = Vector(seconds(), seconds())
 ) {
     val state: State = stateVector.to
@@ -22,7 +23,7 @@ data class QuestionComponent(
         Landing,
         OtherCard,
         Disabled,
-        Offscreen,
+        Blank,
         Closed,
     }
 
