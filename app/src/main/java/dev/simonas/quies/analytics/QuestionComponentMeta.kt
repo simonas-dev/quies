@@ -23,6 +23,6 @@ private fun QuestionComponent.State.toMetaString(): String =
         QuestionComponent.State.Landing -> "Landing"
         QuestionComponent.State.OtherCard -> "OtherCard"
         QuestionComponent.State.Disabled -> "Disabled"
-        QuestionComponent.State.Offscreen -> "Offscreen"
+        QuestionComponent.State.Blank -> "Blank"
         QuestionComponent.State.Closed -> "Closed"
     }

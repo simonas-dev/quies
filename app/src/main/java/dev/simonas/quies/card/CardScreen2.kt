@@ -367,7 +367,7 @@ private fun BoxScope.StatefulCard(
             QuestionComponent.State.PrimaryHidden -> 0f
             QuestionComponent.State.NextHidden -> 0f
             QuestionComponent.State.Disabled -> 0f
-            QuestionComponent.State.Offscreen -> 0f
+            QuestionComponent.State.Blank -> 0f
         },
         label = "centerTextAlpha",
     )
@@ -393,7 +393,7 @@ private fun BoxScope.StatefulCard(
             QuestionComponent.State.PrimaryHidden -> 1f
             QuestionComponent.State.NextHidden -> 1f
             QuestionComponent.State.Disabled -> 1f
-            QuestionComponent.State.Offscreen -> 0f
+            QuestionComponent.State.Blank -> 0f
         },
         label = "sideTextAlpha",
     )
@@ -412,6 +412,7 @@ private fun BoxScope.StatefulCard(
         Animatable(
             computeOffsetX(
                 index = component.modifiedAtSecs,
+                comp = component,
                 level = component.level,
                 state = component.stateVector.from,
                 uiGuide = uiGuide,
@@ -421,6 +422,7 @@ private fun BoxScope.StatefulCard(
     LaunchedEffect(component) {
         stateOffsetX.animateTo(
             targetValue = computeOffsetX(
+                comp = component,
                 level = component.level,
                 state = component.state,
                 index = component.modifiedAtSecs,
@@ -435,6 +437,7 @@ private fun BoxScope.StatefulCard(
     val stateOffsetY = remember {
         Animatable(
             computeOffsetY(
+                comp = component,
                 level = component.level,
                 state = component.stateVector.from,
                 index = component.modifiedAtSecs,
@@ -445,6 +448,7 @@ private fun BoxScope.StatefulCard(
     LaunchedEffect(component) {
         stateOffsetY.animateTo(
             targetValue = computeOffsetY(
+                comp = component,
                 index = component.modifiedAtSecs,
                 level = component.level,
                 state = component.state,
@@ -572,6 +576,7 @@ private fun BoxScope.StatefulCard(
 
 private fun computeOffsetX(
     index: Float,
+    comp: QuestionComponent,
     level: QuestionComponent.Level,
     state: QuestionComponent.State,
     uiGuide: UiGuide,
@@ -613,9 +618,12 @@ private fun computeOffsetX(
         QuestionComponent.State.Disabled -> {
             // center
         }
-        QuestionComponent.State.Offscreen -> {
+        QuestionComponent.State.Blank -> {
             // center
         }
+    }
+    if (comp.isOffscreen) {
+        offset = 0f
     }
     return offset
 }
@@ -633,6 +641,7 @@ private fun computeOffsetY(
     index: Float,
     level: QuestionComponent.Level,
     state: QuestionComponent.State,
+    comp: QuestionComponent,
     uiGuide: UiGuide,
 ): Float {
     val screenH = uiGuide.displayHeight
@@ -655,12 +664,15 @@ private fun computeOffsetY(
         QuestionComponent.State.Disabled -> {
             offset += screenH + cornerOffset
         }
-        QuestionComponent.State.Offscreen -> {
+        QuestionComponent.State.Blank -> {
             offset += screenH + 64
         }
         else -> {
             offset += uiGuide.bigSpace
         }
+    }
+    if (comp.isOffscreen) {
+        offset += screenH + 64
     }
     return offset
 }
