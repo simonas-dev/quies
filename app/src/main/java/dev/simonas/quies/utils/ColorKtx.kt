@@ -32,4 +32,11 @@ private fun lerp(a: Float, b: Float, frac: Float = 0.5f): Float {
 }
 
 fun TextStyle.mutColor(exec: (Color) -> Color): TextStyle =
-    copy(color = exec(this.color))
+    copy(
+        color = exec(this.color),
+        shadow = this.shadow?.let { shadow ->
+            shadow.copy(
+                color = exec(shadow.color)
+            )
+        }
+    )
