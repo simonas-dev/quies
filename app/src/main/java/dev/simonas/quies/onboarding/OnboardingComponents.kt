@@ -257,7 +257,7 @@ private fun DrawScope.drawDialogLine(
 ) {
     val style = AppTheme.Text.primaryBlack
         .copy(
-            fontSize = (28 * textSizeMulti).sp,
+            fontSize = (26 * textSizeMulti).sp,
             textMotion = TextMotion.Animated,
             shadow = null,
         )

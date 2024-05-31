@@ -37,6 +37,7 @@ import dev.simonas.quies.UiGuide
 import dev.simonas.quies.seconds
 import dev.simonas.quies.utils.Vector
 import dev.simonas.quies.utils.nthGoldenChildRatio
+import dev.simonas.quies.utils.toPx
 import kotlinx.coroutines.launch
 import java.lang.Math.toRadians
 import java.util.UUID
@@ -418,15 +419,16 @@ private fun computeOffsetX(
     val cardHeight = uiGuide.card.x
     when (state) {
         OverlayComponent.State.Peaking -> {
-            offset += cardHeight + uiGuide.bigSpace
+            offset += (uiGuide.displayWidth / 2) + (cardHeight / 2f) - (cardHeight * 0.216f)
             offset += cardHeight.nthGoldenChildRatio(11) * index
 //            offset += fbm(seed = index, octaves = 7) * cardHeight.nthGoldenChildRatio(8)
         }
         OverlayComponent.State.Offscreen -> {
-            offset += uiGuide.displayWidth
+            offset += (uiGuide.displayWidth / 2) + (cardHeight / 2f)
         }
         OverlayComponent.State.Center -> {
-            offset += (cardHeight / 2f) - uiGuide.smallSpace
+            val borderWidth = cardHeight.nthGoldenChildRatio(7)
+            offset += (uiGuide.displayWidth / 2) + (cardHeight / 2f) - cardHeight - borderWidth
         }
     }
     return offset
