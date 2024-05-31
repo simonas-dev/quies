@@ -83,6 +83,7 @@ internal fun Card(
     onClick: (() -> Unit)? = null,
     pointerInputKey: Any = Unit,
     dragListener: DragListener? = null,
+    isTouchScalingEnabled: Boolean = true,
 ) {
     var isTouching: Boolean by remember { mutableStateOf(false) }
     val scale: Float by animateFloatAsState(
@@ -90,6 +91,7 @@ internal fun Card(
             durationMillis = 200,
         ),
         targetValue = when {
+            !isTouchScalingEnabled -> 1f
             onClick == null -> 1f
             isTouching -> 1.05f
             else -> 1f
