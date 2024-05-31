@@ -1,6 +1,6 @@
 [versions]
 agp = "8.4.1"
-androidx_activity_compose = "1.9.0"
+androidx_activity_compose = "1.8.0"
 androidx_test = "1.5.0"
 androidx_test_ext = "1.1.5"
 appcompat = "1.6.1"
@@ -8,11 +8,10 @@ benmanesversion = "0.47.0"
 colormath = "3.3.2"
 colormath-ext-jetpack-compose = "3.3.2"
 compile_sdk_version = "34"
-compose-lifecycle = "2.7.0"
-compose-navigation = "2.7.7"
-compose_compiler = "1.5.12"
-compose_material3 = "1.2.1"
-compose_ui = "1.6.7"
+compose-lifecycle = "2.6.2"
+compose-navigation = "2.7.5"
+compose_compiler = "1.5.4"
+compose_material3 = "1.1.2"
 constraint_layout = "2.1.4"
 core_ktx = "1.10.1"
 coroutines = "1.7.3"
@@ -31,7 +30,7 @@ javapoet = "1.13.0"
 junit = "4.13.2"
 junit-jupiter = "5.8.1"
 kaml = "0.55.0"
-kotlin = "1.9.23"
+kotlin = "1.9.20"
 kotlin-math = "1.5.3"
 ktlint_gradle = "11.5.0"
 min_sdk_version = "31"
@@ -59,13 +58,13 @@ androidx_test_runner = { module = "androidx.test:runner", version.ref = "android
 colormath = { module = "com.github.ajalt.colormath:colormath", version.ref = "colormath" }
 colormath-ext-jetpack-compose = { module = "com.github.ajalt.colormath:colormath-ext-jetpack-compose", version.ref = "colormath-ext-jetpack-compose" }
 compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
-compose_foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose_ui" }
+compose_foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose_compiler" }
 compose_lifecycle = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "compose-lifecycle" }
 compose_material3 = { module = "androidx.compose.material3:material3", version.ref = "compose_material3" }
-compose_ui = { module = "androidx.compose.ui:ui", version.ref = "compose_ui" }
-compose_ui_test_junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose_ui" }
-compose_ui_test_manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose_ui" }
-compose_ui_tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose_ui" }
+compose_ui = { module = "androidx.compose.ui:ui", version.ref = "compose_compiler" }
+compose_ui_test_junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose_compiler" }
+compose_ui_test_manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose_compiler" }
+compose_ui_tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose_compiler" }
 coroutines_android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 coroutines_core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 coroutines_test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
