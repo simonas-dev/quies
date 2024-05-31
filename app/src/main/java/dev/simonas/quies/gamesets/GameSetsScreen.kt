@@ -128,6 +128,7 @@ internal fun GameSetsScreen(
                         gameSetId = set.id,
                         level = Question.Level.Hard,
                     ),
+                    isTouchScalingEnabled = false,
                     onClick = {
                         onGameSetSelected(set.id)
                     },
