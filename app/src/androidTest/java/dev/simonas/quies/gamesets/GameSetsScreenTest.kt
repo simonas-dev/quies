@@ -38,7 +38,7 @@ internal class GameSetsScreenTest : ComponentTest() {
     }
 
     @Test
-    fun `shows game sets`() {
+    fun init() {
         setContent { content() }
 
         showsGameSets()
@@ -46,7 +46,7 @@ internal class GameSetsScreenTest : ComponentTest() {
     }
 
     @Test
-    fun `selects game set 1`() {
+    fun selectsGameSet1() {
         setContent { content() }
         onNodeWithText("GAME SET 1")
             .performClick()

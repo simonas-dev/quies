@@ -2,6 +2,7 @@ package dev.simonas.quies.onboarding
 
 import android.graphics.RenderEffect
 import android.graphics.Shader
+import android.os.Build
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -193,8 +194,7 @@ private fun Onboarding(progress: MutableFloatState) {
         ConnectionDialogLine(textMeasurer),
         OutroDialogLine(textMeasurer),
     )
-    var lastDraw = System.currentTimeMillis()
-    var avgDur = 16f
+
     Canvas(
         modifier = Modifier
             .fillMaxSize(),
@@ -202,39 +202,31 @@ private fun Onboarding(progress: MutableFloatState) {
         for (c in components) {
             c.draw(progress.floatValue, false)
         }
-
-//        val dur = System.currentTimeMillis() - lastDraw
-//        avgDur = avgDur * 0.95f + dur * 0.05f
-//        logd("TTT: $avgDur")
-//        lastDraw = System.currentTimeMillis()
     }
 
-    val bluriness = remember { mutableFloatStateOf(16f) }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val bluriness = remember { mutableFloatStateOf(16f) }
 
-    Canvas(
-        modifier = Modifier
-            .graphicsLayer {
-                renderEffect = RenderEffect
-                    .createBlurEffect(
-                        bluriness.floatValue.dp.toPx(),
-                        bluriness.floatValue.dp.toPx(),
-                        Shader.TileMode.DECAL,
-                    )
-                    .asComposeRenderEffect()
-            }
-            .fillMaxSize(),
-    ) {
-        val maxGlitch = components
-            .map { c ->
-                c.draw(progress.floatValue, true)
-            }
-            .maxBy { it.glichyness }
-        bluriness.floatValue = 12f * maxGlitch.glichyness + 4f
-
-//        val dur = System.currentTimeMillis() - lastDraw
-//        avgDur = avgDur * 0.95f + dur * 0.05f
-//        logd("TTT: $avgDur")
-//        lastDraw = System.currentTimeMillis()
+        Canvas(
+            modifier = Modifier
+                .graphicsLayer {
+                    renderEffect = RenderEffect
+                        .createBlurEffect(
+                            bluriness.floatValue.dp.toPx(),
+                            bluriness.floatValue.dp.toPx(),
+                            Shader.TileMode.DECAL,
+                        )
+                        .asComposeRenderEffect()
+                }
+                .fillMaxSize(),
+        ) {
+            val maxGlitch = components
+                .map { c ->
+                    c.draw(progress.floatValue, true)
+                }
+                .maxBy { it.glichyness }
+            bluriness.floatValue = 12f * maxGlitch.glichyness + 4f
+        }
     }
     OnboardingCardOverlay(progress)
 }
