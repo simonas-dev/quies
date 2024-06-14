@@ -6,6 +6,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.hasParent
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -86,7 +87,7 @@ internal class CardUITest : UITest() {
     fun togglesMenu() {
         onNodeWithText("DEBATE")
             .performClick()
-        onNodeWithTag(CardScreen2.TAG_MENU_TOGGLE)
+        onNodeWithTag(Menu.TAG_MENU)
             .performClick()
 
         showsExit()
@@ -96,7 +97,7 @@ internal class CardUITest : UITest() {
     fun exit() {
         onNodeWithText("DEBATE")
             .performClick()
-        onNodeWithTag(CardScreen2.TAG_MENU_TOGGLE)
+        onNodeWithTag(Menu.TAG_MENU)
             .performClick()
         onNodeWithTag(CardScreen2.TAG_EXIT)
             .performClick()

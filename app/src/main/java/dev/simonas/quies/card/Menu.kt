@@ -23,6 +23,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.onClick
@@ -33,13 +34,25 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.simonas.quies.AppTheme
+import dev.simonas.quies.card.Menu.TAG_MENU
 import dev.simonas.quies.card.Menu.isShowingMessage
+import dev.simonas.quies.utils.createTestTag
 import dev.simonas.quies.utils.isTouching
 import kotlin.math.pow
 
 object Menu {
     val width = 470.dp
     val height = 24.dp
+
+    /**
+     * I am unsure why tag coming via modifier arg isn't working, but it isn't clicking on the thing
+     * in test suite.
+     *
+     * Hate wasting time on this at the moment. Might be a stupid mistake. Better just go ahead with
+     * the launch.
+     */
+    @Deprecated("Hack")
+    val TAG_MENU = createTestTag("menu_toggle")
 
     val isShowingMessage = SemanticsPropertyKey<Boolean>("isShowingMessage")
     var SemanticsPropertyReceiver.isShowingMessage by isShowingMessage
@@ -92,7 +105,8 @@ fun Menu(
     val textMeasurer = rememberTextMeasurer()
 
     Canvas(
-        modifier = Modifier
+        modifier = modifier
+            .testTag(TAG_MENU)
             .semantics { this.isShowingMessage = showMessage }
             .height(Menu.height)
             .width(Menu.width)
@@ -102,7 +116,6 @@ fun Menu(
                 },
                 onTap = onClick
             )
-            .then(modifier)
     ) {
         val touchExpansionWidth = 34.dp.toPx() * touchScale
         val textMeasurements = textMeasurer.measure(
