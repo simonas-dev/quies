@@ -7,8 +7,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -27,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.drawText
@@ -93,18 +92,17 @@ fun Menu(
     val textMeasurer = rememberTextMeasurer()
 
     Canvas(
-        modifier = modifier
+        modifier = Modifier
             .semantics { this.isShowingMessage = showMessage }
             .height(Menu.height)
             .width(Menu.width)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick,
+            .isTouching(
+                isTouched = { isTouched ->
+                    isTouching = isTouched
+                },
+                onTap = onClick
             )
-            .isTouching { isTouched ->
-                isTouching = isTouched
-            }
+            .then(modifier)
     ) {
         val touchExpansionWidth = 34.dp.toPx() * touchScale
         val textMeasurements = textMeasurer.measure(

@@ -5,6 +5,7 @@ import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -14,7 +15,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onPlaced
@@ -32,50 +32,42 @@ fun Modifier.shortTap(
 ): Modifier = composed {
     var pressAt by remember { mutableLongStateOf(0L) }
     this.pointerInput(Unit) {
-        while (true) {
-            awaitPointerEventScope {
-                val event = awaitPointerEvent()
-                when (event.type) {
-                    PointerEventType.Press -> {
-                        pressAt = System.currentTimeMillis()
-                        isTouching(true)
+        detectTapGestures(
+            onPress = {
+                try {
+                    pressAt = System.currentTimeMillis()
+                    isTouching(true)
+                    tryAwaitRelease()
+                } finally {
+                    val delta = System.currentTimeMillis() - pressAt
+                    if (delta < shortDuration.inWholeMilliseconds) {
+                        tap()
                     }
-
-                    PointerEventType.Release -> {
-                        val delta = System.currentTimeMillis() - pressAt
-                        if (delta < shortDuration.inWholeMilliseconds) {
-                            tap()
-                        }
-                        isTouching(false)
-                    }
-
-                    PointerEventType.Exit -> {
-                        isTouching(false)
-                    }
+                    isTouching(false)
                 }
             }
-        }
+        )
     }
 }
 
-fun Modifier.isTouching(isTouched: (Boolean) -> Unit): Modifier {
+fun Modifier.isTouching(
+    onTap: () -> Unit = {},
+    isTouched: (Boolean) -> Unit,
+): Modifier {
     return this.pointerInput(Unit) {
-        while (true) {
-            awaitPointerEventScope {
-                val event = awaitPointerEvent()
-                when (event.type) {
-                    PointerEventType.Press -> {
-                        isTouched(true)
-                    }
-                    PointerEventType.Release -> {
-                        isTouched(false)
-                    }
-                    PointerEventType.Exit -> {
-                        isTouched(false)
-                    }
+        detectTapGestures(
+            onTap = {
+                onTap()
+            },
+            onPress = {
+                try {
+                    isTouched(true)
+                    tryAwaitRelease()
+                } finally {
+                    isTouched(false)
                 }
             }
-        }
+        )
     }
 }
 

@@ -91,6 +91,7 @@ android {
     }
     lint {
         disable.add("GradleDependency")
+        disable.add("AndroidGradlePluginVersion")
         warningsAsErrors = true
         abortOnError = true
         baseline = rootProject.file("app/lint-baseline.xml")
@@ -170,6 +171,7 @@ simpleFlank {
             )
         )
     )
+    recordVideo = true
 }
 
 play {
