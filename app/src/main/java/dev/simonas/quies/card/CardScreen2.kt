@@ -266,7 +266,6 @@ private fun CardScreen2(
         val menuYOffset = (bigSpace / 2f) - (menuHeight / 2f)
         Menu(
             modifier = Modifier
-                .testTag(CardScreen2.TAG_MENU_TOGGLE)
                 .align(Alignment.TopCenter)
                 .graphicsLayer {
                     translationY = menuYOffset
