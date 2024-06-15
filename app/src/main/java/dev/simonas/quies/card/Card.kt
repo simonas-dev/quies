@@ -1,7 +1,5 @@
 package dev.simonas.quies.card
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -18,8 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,9 +34,7 @@ import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -48,6 +42,8 @@ import dev.simonas.quies.AppTheme
 import dev.simonas.quies.LocalUiGuide
 import dev.simonas.quies.card.Card.TAG_CENTER_TEXT
 import dev.simonas.quies.card.Card.TAG_SIDE_TEXT
+import dev.simonas.quies.uiglitter.revealingAnnotatedText
+import dev.simonas.quies.uiglitter.revealingTextState
 import dev.simonas.quies.utils.alpha
 import dev.simonas.quies.utils.lerpNonAlpha
 import dev.simonas.quies.utils.mutColor
@@ -191,27 +187,10 @@ internal fun Card(
                         }
                         .testTag(TAG_CENTER_TEXT),
                     style = centerTextStyle,
-                    text = buildAnnotatedString {
-                        revealingText.value.forEach { (char, alpha) ->
-                            val spanStyle = centerTextStyle.toSpanStyle().let {
-                                it.copy(
-                                    color = it.color.copy(
-                                        alpha = it.color.alpha * alpha
-                                    ),
-                                    shadow = it.shadow?.let { shadow ->
-                                        shadow.copy(
-                                            color = shadow.color.copy(
-                                                alpha = shadow.color.alpha * alpha
-                                            ),
-                                        )
-                                    }
-                                )
-                            }
-                            withStyle(style = spanStyle) {
-                                append(char)
-                            }
-                        }
-                    },
+                    text = revealingAnnotatedText(
+                        state = revealingText,
+                        style = centerTextStyle,
+                    ),
                     textAlign = TextAlign.Center,
                 )
             }
@@ -269,59 +248,6 @@ internal fun Card(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun revealingTextState(
-    text: String,
-    isVisible: Boolean,
-): State<List<Pair<Char, Float>>> {
-    val state = remember(text) {
-        mutableStateOf(text.toCharArray().map { char -> char to 0f })
-    }
-    val animation = remember(text) {
-        Animatable(0f)
-    }
-    val animState = animation.asState()
-    LaunchedEffect(text, isVisible) {
-        if (isVisible) {
-            animation.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(
-                    durationMillis = (text.length * 40f).toInt(),
-                    easing = CubicBezierEasing(0.2f, 0.2f, 0.5f, 1.0f),
-                ),
-            )
-        } else {
-            animation.snapTo(0f)
-        }
-    }
-    LaunchedEffect(animState.value) {
-        state.value = state.value.mapIndexed { index, (char, _) ->
-            val alpha = charAlpha(
-                index = index,
-                size = state.value.size,
-                animFrac = animState.value,
-            )
-            char to alpha
-        }
-    }
-    return state
-}
-
-private fun charAlpha(
-    index: Int,
-    size: Int,
-    animFrac: Float,
-): Float {
-    val charWindow = 10f
-    val animIndex = (size - 1 + charWindow) * animFrac - charWindow
-    val delta = index - animIndex
-    return when {
-        delta <= 0f -> 1f
-        delta < charWindow -> 1f - (delta / charWindow)
-        else -> 0f
     }
 }
 
