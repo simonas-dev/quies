@@ -1,9 +1,9 @@
 name: Pre Merge Checks
 
 on:
-  pull_request:
+  push:
     branches:
-      - '*'
+      - main
 
 jobs:
   validate_build:
@@ -19,14 +19,21 @@ jobs:
           java-version: '17'
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v3.1.0
-      - name: Static Analysis
-        run: ./gradlew detekt lint
-      - name: Compile Sources
-        # Sanity check before proceeding to tests.
-        run: ./gradlew compileDebugAndroidTestSources compileDebugSources compileDebugUnitTestSources compileReleaseSources
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+      - name: Replace Example Content
+        env:
+          DATA_FETCH_GH_TOKEN: ${{ secrets.DATA_FETCH_GH_TOKEN }}
+          DATA_AES_KEY: ${{ secrets.DATA_AES_KEY }}
+          DATA_AES_IV: ${{ secrets.DATA_AES_IV }}
+        run: |
+          ./data/downloadProdSource.sh $DATA_FETCH_GH_TOKEN
+          ./data/replaceSecrets.sh -k $DATA_AES_KEY -i $DATA_AES_IV
+          chmod a+x ./data/createAsset.sh
+          ./data/createAsset.sh
       - name: Create Service Account Key for Flank
         env:
           FLANK_SERVICE_ACCOUNT_KEY: ${{ secrets.FLANK_SERVICE_ACCOUNT_KEY }}
         run: echo $FLANK_SERVICE_ACCOUNT_KEY | base64 -d > app/flank-service-account-key.json
-      - name: Run Tests
-        run: ./gradlew testDebugUnitTest flankRun --continue
+      - name: Run UI Tests
+        run: ./gradlew flankRun
