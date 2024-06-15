@@ -158,7 +158,7 @@ internal class CardUITest : UITest() {
     }
 
     private fun showsHardQuestion() {
-        onNodeWithText("Does the influence of technology on social interactions creates social pressures to conform that in turn reduces our individuality and leads to more psychological issues?")
+        onNodeWithText("Does the influence of technology on social interactions create social pressure to conform that in turn reduces our individuality and leads to more psychological issues?")
             .assertIsDisplayed()
     }
 
