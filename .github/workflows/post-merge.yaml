@@ -19,8 +19,6 @@ jobs:
           java-version: '17'
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v3.1.0
-      - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest
       - name: Replace Example Content
         env:
           DATA_FETCH_GH_TOKEN: ${{ secrets.DATA_FETCH_GH_TOKEN }}
@@ -36,4 +34,4 @@ jobs:
           FLANK_SERVICE_ACCOUNT_KEY: ${{ secrets.FLANK_SERVICE_ACCOUNT_KEY }}
         run: echo $FLANK_SERVICE_ACCOUNT_KEY | base64 -d > app/flank-service-account-key.json
       - name: Run UI Tests
-        run: ./gradlew flankRun
+        run: ./gradlew testDebugUnitTest flankRun

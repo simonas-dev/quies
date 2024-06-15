@@ -6,7 +6,7 @@ on:
       - '*'
 
 jobs:
-  validate_build:
+  static-analysis:
     runs-on: ubuntu-latest
     if: ${{ !contains(github.event.head_commit.message, 'ci skip') }}
     steps:
@@ -21,6 +21,19 @@ jobs:
         uses: gradle/gradle-build-action@v3.1.0
       - name: Static Analysis
         run: ./gradlew detekt lint
+  tests:
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, 'ci skip') }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4.1.1
+      - name: Setup Java
+        uses: actions/setup-java@v4.1.0
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v3.1.0
       - name: Compile Sources
         # Sanity check before proceeding to tests.
         run: ./gradlew compileDebugAndroidTestSources compileDebugSources compileDebugUnitTestSources compileReleaseSources
