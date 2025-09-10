@@ -7,9 +7,10 @@ plugins {
     alias(libs.plugins.play.publisher)
     alias(libs.plugins.simple.flank)
     id("com.android.application")
-    id("com.google.devtools.ksp")
     kotlin("android")
     id("com.google.firebase.crashlytics")
+    alias(libs.plugins.compose.compiler)
+    id("com.google.devtools.ksp")
 }
 
 android {

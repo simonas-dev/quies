@@ -24,14 +24,15 @@ firebase_bom = "33.0.0"
 firebase_crashlytics = "19.0.0"
 firebase_ktx = "22.0.0"
 google_services = "4.4.1"
-hilt = "2.49"
+hilt = "2.56.2"
 hilt-navigation-compose = "1.2.0"
 javapoet = "1.13.0"
 junit = "4.13.2"
 junit-jupiter = "5.8.1"
 kaml = "0.55.0"
-kotlin = "1.9.20"
+kotlin = "2.2.20"
 kotlin-math = "1.5.3"
+ksp = "2.2.20-2.0.2"
 ktlint_gradle = "11.5.0"
 min_sdk_version = "28"
 mixpanel-android = "7.5.2"
@@ -106,3 +107,4 @@ versions = { id = "com.github.ben-manes.versions", version.ref = "benmanesversio
 org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "org-jetbrains-kotlin-jvm" }
 com-android-library = { id = "com.android.library", version.ref = "agp" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version = "1.9.0" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

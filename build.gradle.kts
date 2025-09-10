@@ -8,9 +8,10 @@ plugins {
     base
     id("com.android.application") apply false
     id("com.android.library") apply false
-    id("com.google.devtools.ksp") version "1.9.22-1.0.16" apply false
+    id("com.google.devtools.ksp") version libs.versions.ksp apply false
     kotlin("android") apply false
     id("com.google.firebase.crashlytics") version "3.0.1" apply false
+    alias(libs.plugins.compose.compiler) apply false
 }
 
 allprojects {
