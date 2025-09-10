@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.play.publisher)
     alias(libs.plugins.simple.flank)
     id("com.android.application")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     kotlin("android")
     id("com.google.firebase.crashlytics")
 }
@@ -132,11 +132,11 @@ dependencies {
     implementation(libs.datastore.preferences)
     implementation(libs.mixpanel)
 
-    kapt(libs.hilt.android.compiler)
+    ksp(libs.hilt.android.compiler)
 
     debugImplementation(libs.compose.ui.test.manifest)
 
-    kaptTest(libs.hilt.android.compiler)
+    kspTest(libs.hilt.android.compiler)
     testImplementation(libs.coroutines.android)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.hilt.android)
@@ -155,7 +155,7 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.hilt.testing)
     androidTestImplementation(libs.mockito.android)
-    kaptAndroidTest(libs.hilt.android.compiler)
+    kspAndroidTest(libs.hilt.android.compiler)
 }
 
 simpleFlank {
