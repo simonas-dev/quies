@@ -10,6 +10,10 @@ inline fun <reified T> T.loge(msg: String) {
     Log.e(T::class.simpleName, msg)
 }
 
+inline fun <reified T> T.loge(msg: String, tr: Throwable?) {
+    Log.e(T::class.simpleName, msg, tr)
+}
+
 inline fun <reified T> T.loge(t: Throwable) {
     Log.e(T::class.simpleName, null, t)
 }

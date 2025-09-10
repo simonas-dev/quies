@@ -15,6 +15,7 @@ import dev.simonas.quies.utils.alpha
 import dev.simonas.quies.utils.cubicBezier
 import dev.simonas.quies.utils.hill
 import dev.simonas.quies.utils.lerp
+import dev.simonas.quies.utils.loge
 import dev.simonas.quies.utils.middle
 import dev.simonas.quies.utils.rangeNorm
 import kotlin.math.sin
@@ -343,17 +344,37 @@ private fun DrawScope.drawDialogLine(
     } else {
         val color = AppTheme.Text.primaryBlack.color
             .alpha(vals.visibility)
-        drawText(
-            textMeasurer = textMeasurer,
-            text = text,
-            style = style.copy(
-                color = color,
-                shadow = Shadow(
+
+        // On OnePlus8Pro it's crashing with:
+        // Fatal Exception: java.lang.IllegalArgumentException
+        // maxHeight(-125) must be >= than minHeight(0)
+        //
+        // This becomes a deadlock.
+        val topLeft = textOffset.value + offset
+        try {
+            drawText(
+                textMeasurer = textMeasurer,
+                text = text,
+                style = style.copy(
                     color = color,
-                    blurRadius = 2.dp.toPx(),
-                )
-            ),
-            topLeft = textOffset.value + offset,
-        )
+                    shadow = Shadow(
+                        color = color,
+                        blurRadius = 2.dp.toPx(),
+                    )
+                ),
+                topLeft = topLeft,
+            )
+        } catch (e: IllegalArgumentException) {
+            loge(
+                msg = """
+                    topLeft: $topLeft;
+                    textOffset: ${textOffset.value};
+                    offset: $offset;
+                    topY: $topY;
+                    bottomY: $bottomY;
+                """.trimIndent(),
+                tr = e,
+            )
+        }
     }
 }
