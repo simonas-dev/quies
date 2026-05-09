@@ -1,4 +1,5 @@
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
@@ -18,7 +19,7 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.min.sdk.version.get().toInt()
-        targetSdk = libs.versions.compile.sdk.version.get().toInt()
+        targetSdk = libs.versions.target.sdk.version.get().toInt()
         namespace = "dev.simonas.quies"
 
         applicationId = AppCoordinates.APP_ID
@@ -37,13 +38,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
-    }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_21.toString()
-        freeCompilerArgs = listOf("-Xcontext-receivers")
     }
     signingConfigs {
         getByName("debug") {
@@ -105,6 +99,13 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_21
+        freeCompilerArgs.add("-Xcontext-receivers")
+    }
+}
+
 dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
@@ -127,6 +128,7 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     implementation(libs.javapoet)
     implementation(libs.kotlin.math)
+    implementation(platform(libs.compose.bom))
     implementation(platform(libs.firebase.bom))
     implementation(project(":data"))
     implementation(libs.datastore)
@@ -147,6 +149,7 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.truth)
 
+    androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.hilt.android)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.ext.junit.ktx)

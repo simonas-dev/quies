@@ -14,12 +14,6 @@ dependencies {
     implementation(libs.javapoet)
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_21.toString()
-    }
-}
-
 kotlin {
     jvmToolchain(21)
 }

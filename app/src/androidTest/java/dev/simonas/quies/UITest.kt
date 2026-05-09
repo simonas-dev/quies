@@ -11,7 +11,6 @@ import dev.simonas.quies.storage.Store
 import dev.simonas.quies.utils.instrumentationExec
 import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.rules.RuleChain
