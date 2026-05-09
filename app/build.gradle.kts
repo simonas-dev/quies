@@ -130,7 +130,7 @@ dependencies {
     implementation(libs.kotlin.math)
     implementation(platform(libs.compose.bom))
     implementation(platform(libs.firebase.bom))
-    implementation(project(":data"))
+    implementation(projects.data)
     implementation(libs.datastore)
     implementation(libs.datastore.preferences)
     implementation(libs.mixpanel)
