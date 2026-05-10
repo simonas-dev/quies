@@ -2,12 +2,14 @@ package dev.simonas.quies.card
 
 import dev.simonas.quies.data.Question
 import dev.simonas.quies.data.QuestionRepository
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlin.random.Random
 
-@Singleton
-internal class ShuffleQuestionDeck @Inject constructor(
+@SingleIn(AppScope::class)
+@Inject
+internal class ShuffleQuestionDeck(
     private val random: Random,
     private val questionRepository: QuestionRepository,
 ) {

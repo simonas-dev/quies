@@ -1,10 +1,9 @@
 package dev.simonas.quies.utils
 
 import java.util.concurrent.atomic.AtomicInteger
-import javax.inject.Inject
 import kotlin.random.Random
 
-internal class SeqRandom @Inject constructor() : Random() {
+internal class SeqRandom : Random() {
 
     private val counter = AtomicInteger(0)
 

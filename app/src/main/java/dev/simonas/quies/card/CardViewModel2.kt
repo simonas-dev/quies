@@ -4,7 +4,8 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.createSavedStateHandle
 import dev.simonas.quies.data.Question
 import dev.simonas.quies.millisSinceLaunch
 import dev.simonas.quies.router.NavRoutes
@@ -28,12 +29,18 @@ import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
-import javax.inject.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactoryKey
 import kotlin.time.Duration.Companion.minutes
 
-@HiltViewModel
-internal class CardViewModel2 @Inject constructor(
-    stateHandle: SavedStateHandle,
+@AssistedInject
+internal class CardViewModel2(
+    @Assisted stateHandle: SavedStateHandle,
     private val shuffleQuestionDeck: ShuffleQuestionDeck,
 ) : ViewModel() {
 
@@ -357,6 +364,16 @@ internal class CardViewModel2 @Inject constructor(
                 )
             }
         }
+    }
+
+    @AssistedFactory
+    @ViewModelAssistedFactoryKey(CardViewModel2::class)
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ViewModelAssistedFactory {
+        override fun create(extras: CreationExtras): CardViewModel2 =
+            create(extras.createSavedStateHandle())
+
+        fun create(stateHandle: SavedStateHandle): CardViewModel2
     }
 }
 

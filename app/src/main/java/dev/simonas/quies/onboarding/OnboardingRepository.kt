@@ -1,11 +1,12 @@
 package dev.simonas.quies.onboarding
 
 import dev.simonas.quies.storage.Store
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
-class OnboardingRepository @Inject constructor(
+@Inject
+class OnboardingRepository(
     private val store: Store,
 ) {
     fun isOnboardingCompleted(): Flow<Boolean> {

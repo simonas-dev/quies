@@ -1,15 +1,19 @@
 package dev.simonas.quies.gamesets
 
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.simonas.quies.data.GameSet
 import dev.simonas.quies.data.GameSetRepository
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import javax.inject.Inject
 
-@HiltViewModel
-internal class GameSetsViewModel @Inject constructor(
+@ContributesIntoMap(AppScope::class)
+@ViewModelKey
+@Inject
+internal class GameSetsViewModel(
     gameSetRepository: GameSetRepository,
 ) : ViewModel() {
 

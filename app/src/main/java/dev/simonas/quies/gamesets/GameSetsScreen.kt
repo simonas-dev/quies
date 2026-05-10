@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.simonas.quies.AppTheme
 import dev.simonas.quies.LocalUiGuide
@@ -44,7 +44,7 @@ internal object GameSetsScreen {
 
 @Composable
 internal fun GameSetsScreen(
-    viewModel: GameSetsViewModel = hiltViewModel(),
+    viewModel: GameSetsViewModel = metroViewModel(),
     onGameSetSelected: (id: String) -> Unit,
     tracker: EventTracker = eventTracker(),
 ) {

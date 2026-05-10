@@ -2,17 +2,24 @@ package dev.simonas.quies.card
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.createSavedStateHandle
 import dev.simonas.quies.data.Question
 import dev.simonas.quies.router.NavRoutes
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactoryKey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import javax.inject.Inject
 
-@HiltViewModel
-internal class CardViewModel @Inject constructor(
-    stateHandle: SavedStateHandle,
+@AssistedInject
+internal class CardViewModel(
+    @Assisted stateHandle: SavedStateHandle,
     private val getNextQuestion: GetNextQuestion,
 ) : ViewModel() {
 
@@ -70,5 +77,15 @@ internal class CardViewModel @Inject constructor(
             val currentLevel: Question.Level,
             val nextLevel: Question.Level,
         ) : State()
+    }
+
+    @AssistedFactory
+    @ViewModelAssistedFactoryKey(CardViewModel::class)
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ViewModelAssistedFactory {
+        override fun create(extras: CreationExtras): CardViewModel =
+            create(extras.createSavedStateHandle())
+
+        fun create(stateHandle: SavedStateHandle): CardViewModel
     }
 }

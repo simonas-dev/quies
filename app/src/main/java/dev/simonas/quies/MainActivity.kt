@@ -1,5 +1,6 @@
 package dev.simonas.quies
 
+import android.app.Activity
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -8,16 +9,27 @@ import android.view.WindowInsetsController.OnControllableInsetsChangedListener
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.lifecycle.lifecycleScope
-import dagger.hilt.android.AndroidEntryPoint
 import dev.simonas.quies.router.RouterScreen
 import dev.simonas.quies.utils.logd
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
+import dev.zacsweers.metrox.android.ActivityKey
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint
-internal class MainActivity : ComponentActivity() {
+@ContributesIntoMap(AppScope::class, binding<Activity>())
+@ActivityKey
+@Inject
+internal class MainActivity(
+    private val viewModelFactory: MetroViewModelFactory,
+) : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.R)
     private var insetsUpdateListener: Any? = null
@@ -27,8 +39,10 @@ internal class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AppTheme {
-                RouterScreen()
+            CompositionLocalProvider(LocalMetroViewModelFactory provides viewModelFactory) {
+                AppTheme {
+                    RouterScreen()
+                }
             }
         }
     }

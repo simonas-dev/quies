@@ -23,15 +23,13 @@ firebase_bom = "33.0.0"
 firebase_crashlytics = "19.0.0"
 firebase_ktx = "22.0.0"
 google_services = "4.4.1"
-hilt = "2.56.2"
-hilt-navigation-compose = "1.2.0"
+metro = "1.0.0"
 javapoet = "1.13.0"
 junit = "4.13.2"
 junit-jupiter = "5.11.4"
 kaml = "0.55.0"
 kotlin = "2.2.20"
 kotlin-math = "1.5.3"
-ksp = "2.3.2"
 ktlint_gradle = "11.5.0"
 min_sdk_version = "28"
 mixpanel-android = "8.2.1"
@@ -76,11 +74,10 @@ firebase-analytics =  { module = "com.google.firebase:firebase-analytics", versi
 firebase-analytics-ktx =  { module = "com.google.firebase:firebase-analytics-ktx", version.ref = "firebase_ktx" }
 firebase-crashlytics =  { module = "com.google.firebase:firebase-crashlytics", version.ref = "firebase_crashlytics" }
 firebase_bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase_bom" }
-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
-hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
-hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-navigation-compose" }
-hilt-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
+metro-runtime = { module = "dev.zacsweers.metro:runtime", version.ref = "metro" }
+metrox-android = { module = "dev.zacsweers.metro:metrox-android", version.ref = "metro" }
+metrox-viewmodel = { module = "dev.zacsweers.metro:metrox-viewmodel", version.ref = "metro" }
+metrox-viewmodel-compose = { module = "dev.zacsweers.metro:metrox-viewmodel-compose", version.ref = "metro" }
 javapoet = { module = "com.squareup:javapoet", version.ref = "javapoet" }
 junit = { module = "junit:junit", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
@@ -97,7 +94,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 [plugins]
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 google_services = { id = "com.google.gms.google-services", version.ref = "google_services" }
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
 kotlin_android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint.gradle" }
 play_publisher = { id = "com.github.triplet.play", version.ref = "play_publisher" }
