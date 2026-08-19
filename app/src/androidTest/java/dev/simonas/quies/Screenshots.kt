@@ -2,11 +2,9 @@ package dev.simonas.quies
 
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Ignore
 import org.junit.Test
 
-@HiltAndroidTest
 internal class Screenshots : UITest() {
 
     @Ignore("Needs Impl")

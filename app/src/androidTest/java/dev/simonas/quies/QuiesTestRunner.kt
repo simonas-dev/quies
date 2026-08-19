@@ -3,9 +3,8 @@ package dev.simonas.quies
 import android.app.Application
 import android.content.Context
 import androidx.test.runner.AndroidJUnitRunner
-import dagger.hilt.android.testing.HiltTestApplication
 
-class HiltTestRunner : AndroidJUnitRunner() {
+class QuiesTestRunner : AndroidJUnitRunner() {
 
     override fun newApplication(
         cl: ClassLoader?,
@@ -14,7 +13,7 @@ class HiltTestRunner : AndroidJUnitRunner() {
     ): Application =
         super.newApplication(
             cl,
-            HiltTestApplication::class.java.name,
+            TestApp::class.java.name,
             context,
         )
 }

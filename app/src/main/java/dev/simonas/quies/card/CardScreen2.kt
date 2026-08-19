@@ -49,7 +49,6 @@ import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.simonas.quies.AppTheme
 import dev.simonas.quies.AppTheme.SCREEN_SAVER_FADE_FRAC
@@ -67,6 +66,7 @@ import dev.simonas.quies.utils.createTestTag
 import dev.simonas.quies.utils.fbm
 import dev.simonas.quies.utils.nthGoldenChildRatio
 import dev.simonas.quies.utils.toPx
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
@@ -92,7 +92,7 @@ internal object CardScreen2 {
 @Composable
 internal fun CardScreen2(
     onBack: () -> Unit,
-    cardViewModel: CardViewModel2 = hiltViewModel(),
+    cardViewModel: CardViewModel2 = assistedMetroViewModel(),
     tracker: EventTracker = eventTracker(),
 ) {
     val questions = cardViewModel.questions.collectAsStateWithLifecycle()

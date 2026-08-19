@@ -8,15 +8,16 @@ import android.view.WindowInsetsController.OnControllableInsetsChangedListener
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.lifecycle.lifecycleScope
-import dagger.hilt.android.AndroidEntryPoint
+import dev.simonas.quies.analytics.LocalEventTracker
 import dev.simonas.quies.router.RouterScreen
 import dev.simonas.quies.utils.logd
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint
 internal class MainActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -26,9 +27,15 @@ internal class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val graph = (application as App).graph
         setContent {
-            AppTheme {
-                RouterScreen()
+            CompositionLocalProvider(
+                LocalMetroViewModelFactory provides graph.metroViewModelFactory,
+                LocalEventTracker provides graph.eventTracker,
+            ) {
+                AppTheme {
+                    RouterScreen()
+                }
             }
         }
     }

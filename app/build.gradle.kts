@@ -4,14 +4,13 @@ import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
     alias(libs.plugins.google.services)
-    alias(libs.plugins.hilt)
     alias(libs.plugins.play.publisher)
     alias(libs.plugins.simple.flank)
     id("com.android.application")
     kotlin("android")
     id("com.google.firebase.crashlytics")
     alias(libs.plugins.compose.compiler)
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.metro)
 }
 
 android {
@@ -25,7 +24,7 @@ android {
         applicationId = AppCoordinates.APP_ID
         versionCode = AppCoordinates.APP_VERSION_CODE
         versionName = AppCoordinates.APP_VERSION_NAME
-        testInstrumentationRunner = "dev.simonas.quies.HiltTestRunner"
+        testInstrumentationRunner = "dev.simonas.quies.QuiesTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -94,9 +93,6 @@ android {
     packaging {
         resources.excludes += "DebugProbesKt.bin"
     }
-    hilt {
-        enableAggregatingTask = true
-    }
 }
 
 kotlin {
@@ -124,10 +120,9 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.crashlytics)
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.navigation.compose)
     implementation(libs.javapoet)
     implementation(libs.kotlin.math)
+    implementation(libs.metrox.viewmodel.compose)
     implementation(platform(libs.compose.bom))
     implementation(platform(libs.firebase.bom))
     implementation(projects.data)
@@ -135,14 +130,10 @@ dependencies {
     implementation(libs.datastore.preferences)
     implementation(libs.mixpanel)
 
-    ksp(libs.hilt.android.compiler)
-
     debugImplementation(libs.compose.ui.test.manifest)
 
-    kspTest(libs.hilt.android.compiler)
     testImplementation(libs.coroutines.android)
     testImplementation(libs.coroutines.test)
-    testImplementation(libs.hilt.android)
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.mockito.kotlin)
@@ -150,16 +141,13 @@ dependencies {
     testImplementation(libs.truth)
 
     androidTestImplementation(platform(libs.compose.bom))
-    androidTestImplementation(libs.hilt.android)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.ext.junit.ktx)
     androidTestImplementation(libs.androidx.test.rules)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.compose.ui.test.junit4)
     androidTestImplementation(libs.espresso.core)
-    androidTestImplementation(libs.hilt.testing)
     androidTestImplementation(libs.mockito.android)
-    kspAndroidTest(libs.hilt.android.compiler)
 }
 
 simpleFlank {

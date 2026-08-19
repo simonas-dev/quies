@@ -12,7 +12,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
-import dagger.hilt.android.testing.HiltAndroidTest
 import dev.simonas.quies.UITest
 import dev.simonas.quies.card.CardScreen2.questionState
 import dev.simonas.quies.gamesets.GameSetsScreen
@@ -22,7 +21,6 @@ import org.junit.Test
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-@HiltAndroidTest
 internal class CardUITest : UITest() {
 
     private fun onNodeWithState(state: QuestionComponent.State) =

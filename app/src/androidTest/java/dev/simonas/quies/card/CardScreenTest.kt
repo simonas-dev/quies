@@ -6,7 +6,6 @@ import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import dagger.hilt.android.testing.HiltAndroidTest
 import dev.simonas.quies.ComponentTest
 import dev.simonas.quies.data.Question
 import org.junit.Ignore
@@ -15,7 +14,6 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
 @Ignore("broken due to LocalUiGuides")
-@HiltAndroidTest
 internal class CardScreenTest : ComponentTest() {
 
     val questionClosed: (Question) -> Unit = mock()

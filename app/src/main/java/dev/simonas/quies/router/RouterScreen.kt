@@ -16,7 +16,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
@@ -30,6 +29,7 @@ import dev.simonas.quies.onboarding.OnboardingScreen
 import dev.simonas.quies.router.RouterScreen.TAG_SCREEN
 import dev.simonas.quies.uiGuide
 import dev.simonas.quies.utils.createTestTag
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 internal object RouterScreen {
     val TAG_SCREEN = createTestTag("screen")
@@ -37,7 +37,7 @@ internal object RouterScreen {
 
 @Composable
 internal fun RouterScreen(
-    viewModel: RouterScreenViewModel = hiltViewModel()
+    viewModel: RouterScreenViewModel = metroViewModel()
 ) {
     val state = viewModel.state.collectAsState()
     var screenSize by remember { mutableStateOf(IntSize(0, 0)) }
