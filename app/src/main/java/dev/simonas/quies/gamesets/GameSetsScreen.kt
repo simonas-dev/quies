@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.simonas.quies.AppTheme
 import dev.simonas.quies.LocalUiGuide
@@ -37,6 +36,7 @@ import dev.simonas.quies.utils.offsetFromFirstBaseline
 import dev.simonas.quies.utils.toDp
 import dev.simonas.quies.utils.toPx
 import dev.simonas.quies.utils.vertical
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 internal object GameSetsScreen {
     val TAG_SCREEN = createTestTag("screen")
@@ -44,7 +44,7 @@ internal object GameSetsScreen {
 
 @Composable
 internal fun GameSetsScreen(
-    viewModel: GameSetsViewModel = hiltViewModel(),
+    viewModel: GameSetsViewModel = metroViewModel(),
     onGameSetSelected: (id: String) -> Unit,
     tracker: EventTracker = eventTracker(),
 ) {

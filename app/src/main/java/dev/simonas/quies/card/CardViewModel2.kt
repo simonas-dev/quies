@@ -3,8 +3,9 @@ package dev.simonas.quies.card
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
+import androidx.lifecycle.viewmodel.CreationExtras
 import dev.simonas.quies.data.Question
 import dev.simonas.quies.millisSinceLaunch
 import dev.simonas.quies.router.NavRoutes
@@ -17,6 +18,13 @@ import dev.simonas.quies.utils.replace
 import dev.simonas.quies.utils.replaceEach
 import dev.simonas.quies.utils.replaceFirst
 import dev.simonas.quies.utils.tryReplaceFirst
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactoryKey
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,12 +36,11 @@ import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
-import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
 
-@HiltViewModel
-internal class CardViewModel2 @Inject constructor(
-    stateHandle: SavedStateHandle,
+@AssistedInject
+internal class CardViewModel2(
+    @Assisted stateHandle: SavedStateHandle,
     private val shuffleQuestionDeck: ShuffleQuestionDeck,
 ) : ViewModel() {
 
@@ -357,6 +364,17 @@ internal class CardViewModel2 @Inject constructor(
                 )
             }
         }
+    }
+
+    @AssistedFactory
+    @ViewModelAssistedFactoryKey(CardViewModel2::class)
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ViewModelAssistedFactory {
+        override fun create(extras: CreationExtras): CardViewModel2 {
+            return create(extras.createSavedStateHandle())
+        }
+
+        fun create(@Assisted stateHandle: SavedStateHandle): CardViewModel2
     }
 }
 

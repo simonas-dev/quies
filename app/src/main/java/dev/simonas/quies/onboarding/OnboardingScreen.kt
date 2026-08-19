@@ -27,7 +27,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import dev.simonas.quies.AppTheme
 import dev.simonas.quies.analytics.EventTracker
 import dev.simonas.quies.analytics.eventTracker
@@ -37,6 +36,7 @@ import dev.simonas.quies.utils.KeepScreenOn
 import dev.simonas.quies.utils.QDevices
 import dev.simonas.quies.utils.createTestTag
 import dev.simonas.quies.utils.shortTap
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import kotlin.time.Duration.Companion.seconds
 
 internal object OnboardingScreen {
@@ -46,7 +46,7 @@ internal object OnboardingScreen {
 @Composable
 internal fun OnboardingScreen(
     onboardingCompleted: () -> Unit,
-    viewModel: OnboardingViewModel = hiltViewModel(),
+    viewModel: OnboardingViewModel = metroViewModel(),
     tracker: EventTracker = eventTracker(),
 ) {
     val startedAt = remember { System.currentTimeMillis() }

@@ -2,16 +2,18 @@ package dev.simonas.quies.card
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.simonas.quies.data.Question
 import dev.simonas.quies.router.NavRoutes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import javax.inject.Inject
 
-@HiltViewModel
-internal class CardViewModel @Inject constructor(
+// Note: unlike CardViewModel2, this ViewModel is not actually obtained via hiltViewModel() /
+// metroViewModel() anywhere in the app's navigation graph (CardScreen/CardViewModel appear to be
+// a superseded, dead code path next to CardScreen2/CardViewModel2). Left un-annotated for Metro's
+// graph (no @Inject/@ContributesIntoMap) since nothing in the graph resolves it; it's still
+// referenced by CardScreenTest.kt via direct construction of CardScreen with explicit state.
+internal class CardViewModel(
     stateHandle: SavedStateHandle,
     private val getNextQuestion: GetNextQuestion,
 ) : ViewModel() {

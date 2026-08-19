@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import dev.simonas.quies.AppTheme
@@ -333,10 +334,12 @@ private fun BoxScope.Showing(
     val index = prevQuestions.size
     Card(
         modifier = Modifier
-            .offset(
-                x = closedCardX(index) * closeCardAnim,
-                y = closedCardY(index) * closeCardAnim,
-            )
+            .offset {
+                IntOffset(
+                    x = (closedCardX(index) * closeCardAnim).roundToPx(),
+                    y = (closedCardY(index) * closeCardAnim).roundToPx(),
+                )
+            }
             .align(Alignment.Center),
         centerText = state.question.text,
         textAlpha = startupAnimation,
@@ -346,7 +349,10 @@ private fun BoxScope.Showing(
         modifier = Modifier
             .testTag(CardScreen.TAG_CLOSE_CARD)
             .align(Alignment.Center)
-            .offset(x = ((470 + 64 + (128 - 128 * showCloseQuestionAnimation)) * (1 - closeCardAnim)).dp),
+            .offset {
+                val x = (470 + 64 + (128 - 128 * showCloseQuestionAnimation)) * (1 - closeCardAnim)
+                IntOffset(x = x.dp.roundToPx(), y = 0)
+            },
         sideText = state.question.level.toText(),
         onClick = {
             isClosed = true
@@ -443,10 +449,15 @@ private fun BoxScope.Picking(
                     else -> 1f
                 }
             )
-            .offset(x = ((470 + 64) - (470 + 64) * level1Anim).dp)
+            .offset { IntOffset(x = ((470 + 64) - (470 + 64) * level1Anim).dp.roundToPx(), y = 0) }
             .let {
                 if (state.currentLevel != Question.Level.Easy) {
-                    it.offset(x = (128 * (1 - startupAnimation) + 128 * pickedCardAnim).dp)
+                    it.offset {
+                        IntOffset(
+                            x = (128 * (1 - startupAnimation) + 128 * pickedCardAnim).dp.roundToPx(),
+                            y = 0,
+                        )
+                    }
                 } else {
                     it
                 }
@@ -476,10 +487,15 @@ private fun BoxScope.Picking(
                     else -> 1f
                 }
             )
-            .offset(x = ((470 + 64) - (470 + 64) * level2Anim).dp)
+            .offset { IntOffset(x = ((470 + 64) - (470 + 64) * level2Anim).dp.roundToPx(), y = 0) }
             .let {
                 if (state.currentLevel != Question.Level.Medium) {
-                    it.offset(x = (128 * (1 - startupAnimation) + 128 * pickedCardAnim).dp)
+                    it.offset {
+                        IntOffset(
+                            x = (128 * (1 - startupAnimation) + 128 * pickedCardAnim).dp.roundToPx(),
+                            y = 0,
+                        )
+                    }
                 } else {
                     it
                 }
@@ -509,10 +525,15 @@ private fun BoxScope.Picking(
                     else -> 1f
                 }
             )
-            .offset(x = ((470 + 64) - (470 + 64) * level3Anim).dp)
+            .offset { IntOffset(x = ((470 + 64) - (470 + 64) * level3Anim).dp.roundToPx(), y = 0) }
             .let {
                 if (state.currentLevel != Question.Level.Hard) {
-                    it.offset(x = (128 * (1 - startupAnimation) + 128 * pickedCardAnim).dp)
+                    it.offset {
+                        IntOffset(
+                            x = (128 * (1 - startupAnimation) + 128 * pickedCardAnim).dp.roundToPx(),
+                            y = 0,
+                        )
+                    }
                 } else {
                     it
                 }

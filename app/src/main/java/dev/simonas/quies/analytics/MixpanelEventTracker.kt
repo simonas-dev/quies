@@ -2,19 +2,23 @@ package dev.simonas.quies.analytics
 
 import android.content.Context
 import com.mixpanel.android.mpmetrics.MixpanelAPI
-import dev.simonas.quies.AppScope
+import dev.simonas.quies.CoroutineAppScope
 import dev.simonas.quies.storage.Store
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Provider
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Provider
 
-internal class MixpanelEventTracker @Inject constructor(
+@SingleIn(AppScope::class)
+@Inject
+class MixpanelEventTracker(
     private val context: Provider<Context>,
     private val store: Store,
-    scope: AppScope,
+    scope: CoroutineAppScope,
 ) : EventTracker {
 
     init {
@@ -34,7 +38,7 @@ internal class MixpanelEventTracker @Inject constructor(
     }
 
     private fun get(): MixpanelAPI {
-        return MixpanelAPI.getInstance(context.get(), MIXPANEL_TOKEN, true)
+        return MixpanelAPI.getInstance(context(), MIXPANEL_TOKEN, true)
     }
 
     companion object {

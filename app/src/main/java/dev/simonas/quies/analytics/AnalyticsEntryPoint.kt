@@ -1,33 +1,18 @@
 package dev.simonas.quies.analytics
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
-import dagger.hilt.EntryPoint
-import dagger.hilt.EntryPoints
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.staticCompositionLocalOf
 
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface AnalyticsEntryPoint {
-    val eventTracker: EventTracker
-}
-
-private lateinit var analyticsEntryPoint: AnalyticsEntryPoint
-
-@Composable
-private fun requireTrackerEntryPoint(): AnalyticsEntryPoint {
-    if (!::analyticsEntryPoint.isInitialized) {
-        analyticsEntryPoint =
-            EntryPoints.get(
-                LocalContext.current.applicationContext,
-                AnalyticsEntryPoint::class.java,
-            )
+/**
+ * CompositionLocal for providing the graph's [EventTracker] in Compose, mirroring how
+ * `LocalMetroViewModelFactory` (from MetroX) hands composables a graph-scoped dependency without
+ * a service locator. Provided once at the composition root in `MainActivity`.
+ */
+val LocalEventTracker: ProvidableCompositionLocal<EventTracker> =
+    staticCompositionLocalOf {
+        error("No EventTracker registered")
     }
-    return analyticsEntryPoint
-}
 
 @Composable
-fun eventTracker(): EventTracker {
-    return requireTrackerEntryPoint().eventTracker
-}
+fun eventTracker(): EventTracker = LocalEventTracker.current
