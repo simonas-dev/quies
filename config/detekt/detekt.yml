@@ -715,6 +715,12 @@ formatting:
   active: true
   android: true
   autoCorrect: true
+  # detekt 1.23.8's bundled ktlint doesn't understand Kotlin 2.4's named
+  # context parameters (`context(name: Type)`) - it either crashes
+  # (Wrapping) or emits false positives (SpacingAroundColon,
+  # NoUnusedImports) on files that use them. Exclude those files from the
+  # whole formatting ruleset until detekt ships a newer ktlint.
+  excludes: ['**/onboarding/OnboardingComponents.kt', '**/utils/TurbineKtx.kt']
   AnnotationOnSeparateLine:
     active: true
     autoCorrect: true

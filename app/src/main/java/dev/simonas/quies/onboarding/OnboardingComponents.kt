@@ -22,7 +22,7 @@ import kotlin.math.sin
 
 interface CanvasComponent {
 
-    context(DrawScope)
+    context(drawScope: DrawScope)
     fun draw(progress: Float, isGlitch: Boolean): Vals
 
     data class Vals(
@@ -66,7 +66,7 @@ class Splash(
     private val exit: ClosedRange<Float>,
 ) : CanvasComponent {
 
-    context(DrawScope)
+    context(drawScope: DrawScope)
     override fun draw(progress: Float, isGlitch: Boolean): Vals {
         val vals = Vals(
             glichyness = progress.rangeNorm(
@@ -84,17 +84,19 @@ class Splash(
                 .times(0.8f),
         )
 
-        drawDialogLine(
-            textMeasurer,
-            isGlitch = isGlitch,
-            text = text,
-            vals = vals,
-            offset = textOffset,
-            textSizeMulti = 0.75f,
-            glitchPaleness = 0f,
-            offsetMultiplierX = 2f,
-            offsetMultiplierY = 2f,
-        )
+        with(drawScope) {
+            drawDialogLine(
+                textMeasurer,
+                isGlitch = isGlitch,
+                text = text,
+                vals = vals,
+                offset = textOffset,
+                textSizeMulti = 0.75f,
+                glitchPaleness = 0f,
+                offsetMultiplierX = 2f,
+                offsetMultiplierY = 2f,
+            )
+        }
         return vals.copy(
             glichyness = vals.glichyness,
         )
@@ -105,7 +107,7 @@ class OpenerDialogLine(
     private val textMeasurer: TextMeasurer,
 ) : CanvasComponent {
 
-    context(DrawScope)
+    context(drawScope: DrawScope)
     override fun draw(progress: Float, isGlitch: Boolean): Vals {
         val vals = Vals(
             glichyness = glitch(1, progress),
@@ -113,12 +115,14 @@ class OpenerDialogLine(
                 .rangeNorm(0.80f..1.95f)
                 .hill(DIALOG_HILL_SIDE),
         )
-        drawDialogLine(
-            textMeasurer,
-            isGlitch = isGlitch,
-            text = "This game is about creating meaningful dialogues",
-            vals = vals,
-        )
+        with(drawScope) {
+            drawDialogLine(
+                textMeasurer,
+                isGlitch = isGlitch,
+                text = "This game is about creating meaningful dialogues",
+                vals = vals,
+            )
+        }
         return vals
     }
 }
@@ -127,7 +131,7 @@ class ChillOutDialogLine(
     private val textMeasurer: TextMeasurer,
 ) : CanvasComponent {
 
-    context(DrawScope)
+    context(drawScope: DrawScope)
     override fun draw(progress: Float, isGlitch: Boolean): Vals {
         val vals = Vals(
             glichyness = glitch(2, progress),
@@ -135,12 +139,14 @@ class ChillOutDialogLine(
                 .rangeNorm(2.00f..2.95f)
                 .hill(DIALOG_HILL_SIDE),
         )
-        drawDialogLine(
-            textMeasurer,
-            isGlitch = isGlitch,
-            text = "Slowly getting the conversation to the next level",
-            vals = vals,
-        )
+        with(drawScope) {
+            drawDialogLine(
+                textMeasurer,
+                isGlitch = isGlitch,
+                text = "Slowly getting the conversation to the next level",
+                vals = vals,
+            )
+        }
         return vals
     }
 }
@@ -149,7 +155,7 @@ class ExcuseDialogLine(
     private val textMeasurer: TextMeasurer,
 ) : CanvasComponent {
 
-    context(DrawScope)
+    context(drawScope: DrawScope)
     override fun draw(progress: Float, isGlitch: Boolean): Vals {
         val vals = Vals(
             glichyness = glitch(3, progress),
@@ -157,12 +163,14 @@ class ExcuseDialogLine(
                 .rangeNorm(3.00f..3.95f)
                 .hill(DIALOG_HILL_SIDE),
         )
-        drawDialogLine(
-            textMeasurer,
-            isGlitch = isGlitch,
-            text = "An excuse to talk about things you’ve never had",
-            vals = vals,
-        )
+        with(drawScope) {
+            drawDialogLine(
+                textMeasurer,
+                isGlitch = isGlitch,
+                text = "An excuse to talk about things you’ve never had",
+                vals = vals,
+            )
+        }
         return vals
     }
 }
@@ -171,7 +179,7 @@ class LetItOutDialogLine(
     private val textMeasurer: TextMeasurer,
 ) : CanvasComponent {
 
-    context(DrawScope)
+    context(drawScope: DrawScope)
     override fun draw(progress: Float, isGlitch: Boolean): Vals {
         val vals = Vals(
             glichyness = glitch(4, progress),
@@ -179,12 +187,14 @@ class LetItOutDialogLine(
                 .rangeNorm(4.00f..4.95f)
                 .hill(DIALOG_HILL_SIDE),
         )
-        drawDialogLine(
-            textMeasurer,
-            isGlitch = isGlitch,
-            text = "Share things we have kept to ourselves",
-            vals = vals,
-        )
+        with(drawScope) {
+            drawDialogLine(
+                textMeasurer,
+                isGlitch = isGlitch,
+                text = "Share things we have kept to ourselves",
+                vals = vals,
+            )
+        }
         return vals
     }
 }
@@ -193,7 +203,7 @@ class ConnectionDialogLine(
     private val textMeasurer: TextMeasurer,
 ) : CanvasComponent {
 
-    context(DrawScope)
+    context(drawScope: DrawScope)
     override fun draw(progress: Float, isGlitch: Boolean): Vals {
         val vals = Vals(
             glichyness = glitch(5, progress),
@@ -201,12 +211,14 @@ class ConnectionDialogLine(
                 .rangeNorm(5.00f..5.95f)
                 .hill(DIALOG_HILL_SIDE),
         )
-        drawDialogLine(
-            textMeasurer,
-            isGlitch = isGlitch,
-            text = "Build a bridge between two or more inner worlds",
-            vals = vals,
-        )
+        with(drawScope) {
+            drawDialogLine(
+                textMeasurer,
+                isGlitch = isGlitch,
+                text = "Build a bridge between two or more inner worlds",
+                vals = vals,
+            )
+        }
         return vals
     }
 }
@@ -215,7 +227,7 @@ class OutroDialogLine(
     private val textMeasurer: TextMeasurer,
 ) : CanvasComponent {
 
-    context(DrawScope)
+    context(drawScope: DrawScope)
     override fun draw(progress: Float, isGlitch: Boolean): Vals {
         val vals = Vals(
             glichyness = glitch(
@@ -232,12 +244,14 @@ class OutroDialogLine(
                 .rangeNorm(6.00f..6.95f)
                 .hill(DIALOG_HILL_SIDE),
         )
-        drawDialogLine(
-            textMeasurer,
-            isGlitch = isGlitch,
-            text = "Be honest\nShare your feelings\nThat’s the way to win",
-            vals = vals,
-        )
+        with(drawScope) {
+            drawDialogLine(
+                textMeasurer,
+                isGlitch = isGlitch,
+                text = "Be honest\nShare your feelings\nThat’s the way to win",
+                vals = vals,
+            )
+        }
         return vals
     }
 }
