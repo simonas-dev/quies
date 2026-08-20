@@ -98,7 +98,6 @@ android {
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_21
-        freeCompilerArgs.add("-Xcontext-receivers")
     }
 }
 
@@ -121,6 +120,7 @@ dependencies {
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.crashlytics)
     implementation(libs.javapoet)
+    implementation(libs.javax.inject)
     implementation(libs.kotlin.math)
     implementation(libs.metrox.viewmodel.compose)
     implementation(platform(libs.compose.bom))
@@ -129,6 +129,14 @@ dependencies {
     implementation(libs.datastore)
     implementation(libs.datastore.preferences)
     implementation(libs.mixpanel)
+
+    constraints {
+        // androidx.test.ext:junit 1.3.0 requires concurrent-futures 1.2.0, but transitive
+        // deps like profileinstaller pull in 1.1.0 on the main classpath. AGP's consistent
+        // resolution then locks androidTest to 1.1.0, conflicting with junit's requirement.
+        // Bumping this here lets normal conflict resolution converge on 1.2.0 everywhere.
+        implementation(libs.androidx.concurrent.futures)
+    }
 
     debugImplementation(libs.compose.ui.test.manifest)
 
