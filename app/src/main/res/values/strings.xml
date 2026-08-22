@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">Coalesce</string>
+
+    <string name="card_endgame_question">How do you feel?</string>
+    <string name="card_level_skip_notice">Are you ready to move to the next level?</string>
+    <string name="card_menu_exit">Exit?</string>
+    <string name="card_menu_next_level">Next Level?</string>
+    <string name="card_level_easy">LEVEL 1</string>
+    <string name="card_level_medium">LEVEL 2</string>
+    <string name="card_level_hard">LEVEL 3</string>
+    <string name="card_state_landing">Level select card</string>
+    <string name="card_state_revealed">Current question</string>
+    <string name="card_state_hidden">Next question, face down</string>
+    <string name="card_state_closed">Answered question</string>
 </resources>
