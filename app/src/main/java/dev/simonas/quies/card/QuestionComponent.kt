@@ -2,10 +2,12 @@ package dev.simonas.quies.card
 
 import dev.simonas.quies.seconds
 import dev.simonas.quies.utils.Vector
-import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
+
+private val nextComponentId = AtomicInteger()
 
 data class QuestionComponent constructor(
-    val id: Int = UUID.randomUUID().hashCode(),
+    val id: Int = nextComponentId.incrementAndGet(),
     val text: String,
     val level: Level,
     val levelDescription: String,

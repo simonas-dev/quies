@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,10 +29,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.PointerEventType.Companion.Exit
-import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
-import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
-import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
@@ -41,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import dev.simonas.quies.AppTheme
 import dev.simonas.quies.LocalUiGuide
 import dev.simonas.quies.card.Card.TAG_CENTER_TEXT
+import dev.simonas.quies.card.Card.TAG_DESC_TEXT
 import dev.simonas.quies.card.Card.TAG_SIDE_TEXT
 import dev.simonas.quies.uiglitter.revealingAnnotatedText
 import dev.simonas.quies.uiglitter.revealingTextState
@@ -55,6 +54,7 @@ import dev.simonas.quies.utils.vertical
 internal object Card {
     const val TAG_CENTER_TEXT = "text_center"
     const val TAG_SIDE_TEXT = "text_side"
+    const val TAG_DESC_TEXT = "text_desc"
 }
 
 interface DragListener {
@@ -73,7 +73,7 @@ internal fun Card(
     centerVerticalText: String? = null,
     centerVerticalTextAlpha: Float = 1f,
     textAlpha: Float = 1f,
-    isCenterTextVisible: Boolean = textAlpha != 0f,
+    isCenterTextVisible: Boolean = textAlpha > 0f,
     sideTextAlpha: Float = 1f,
     color: Color = AppTheme.Color.dating,
     onClick: (() -> Unit)? = null,
@@ -81,6 +81,7 @@ internal fun Card(
     dragListener: DragListener? = null,
     isTouchScalingEnabled: Boolean = true,
 ) {
+    val currentDragListener by rememberUpdatedState(dragListener)
     var isTouching: Boolean by remember { mutableStateOf(false) }
     val scale: Float by animateFloatAsState(
         animationSpec = tween(
@@ -131,36 +132,27 @@ internal fun Card(
                 this.shape = shape
                 this.shadowElevation = shadowElevation.toPx()
             }
-            .pointerInput(Unit) {
+            .pointerInput(pointerInputKey, dragListener != null) {
                 if (dragListener != null) {
                     detectDragGestures(
-                        onDragEnd = dragListener::onStop,
-                        onDragCancel = dragListener::onStop,
-                        onDrag = dragListener::onDrag,
+                        onDragEnd = { currentDragListener?.onStop() },
+                        onDragCancel = { currentDragListener?.onStop() },
+                        onDrag = { change, dragAmount ->
+                            currentDragListener?.onDrag(change, dragAmount)
+                        },
                     )
                 }
             }
             .pointerInput(Unit) {
                 awaitEachGesture {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        when (event.type) {
-                            Press -> {
-                                isTouching = true
-                            }
-
-                            Release -> {
-                                isTouching = false
-                            }
-
-                            Exit -> {
-                                isTouching = false
-                            }
-
-                            Move -> {
-                                event.changes
-                            }
+                    awaitFirstDown(requireUnconsumed = false)
+                    isTouching = true
+                    try {
+                        while (awaitPointerEvent().changes.any { it.pressed }) {
+                            // track until every pointer is lifted or the gesture is cancelled
                         }
+                    } finally {
+                        isTouching = false
                     }
                 }
             }
@@ -176,7 +168,7 @@ internal fun Card(
                     .mutColor(colorTextActivenessMut)
                 val revealingText = revealingTextState(
                     text = centerText,
-                    isVisible = textAlpha > 0f,
+                    isVisible = isCenterTextVisible,
                 )
                 Text(
                     modifier = Modifier
@@ -204,7 +196,7 @@ internal fun Card(
                         .graphicsLayer {
                             alpha = centerVerticalTextAlpha
                         }
-                        .testTag(TAG_SIDE_TEXT),
+                        .testTag(TAG_DESC_TEXT),
                     style = AppTheme.Text.secondaryDemiBold
                         .mutColor(colorTextActivenessMut),
                     text = centerVerticalText,

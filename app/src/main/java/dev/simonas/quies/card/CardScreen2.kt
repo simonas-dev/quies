@@ -3,6 +3,7 @@
 package dev.simonas.quies.card
 
 import android.annotation.SuppressLint
+import android.os.SystemClock
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Animatable
@@ -27,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableLongStateOf
@@ -44,15 +46,19 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.simonas.quies.AppTheme
 import dev.simonas.quies.AppTheme.SCREEN_SAVER_FADE_FRAC
 import dev.simonas.quies.LocalUiGuide
+import dev.simonas.quies.R
 import dev.simonas.quies.UiGuide
 import dev.simonas.quies.analytics.EventTracker
 import dev.simonas.quies.analytics.eventTracker
@@ -78,6 +84,8 @@ import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+
+private const val TOUCH_SAMPLING_MILLIS = 1_000L
 
 internal object CardScreen2 {
     val TAG_SCREEN = createTestTag("screen")
@@ -162,7 +170,9 @@ private fun CardScreen2(
         KeepScreenOn()
     }
 
-    var lastTouchEvent by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    // Monotonic clock: System.currentTimeMillis() can jump backwards (user/NTP time change),
+    // which would silence the quantization guard below until the wall clock caught back up.
+    var lastTouchEvent by remember { mutableLongStateOf(SystemClock.elapsedRealtime()) }
 
     var showMenuMessage by remember { mutableStateOf(false) }
     LaunchedEffect(showLevelSkipNotice) {
@@ -215,7 +225,12 @@ private fun CardScreen2(
         modifier = Modifier
             .testTag(CardScreen2.TAG_SCREEN)
             .pointerInteropFilter {
-                lastTouchEvent = System.currentTimeMillis()
+                // Quantize updates: every write restarts the idle/screen-on effects keyed on
+                // this timestamp, so avoid one restart per motion event during a drag.
+                val now = SystemClock.elapsedRealtime()
+                if (now - lastTouchEvent > TOUCH_SAMPLING_MILLIS) {
+                    lastTouchEvent = now
+                }
                 false
             }
             .padding()
@@ -242,10 +257,11 @@ private fun CardScreen2(
                 .align(Alignment.Center)
                 .alpha(endgameQuestionAlpha),
             style = AppTheme.Text.primaryDemiBold,
-            text = "How do you feel?",
+            text = stringResource(R.string.card_endgame_question),
             textAlign = TextAlign.Center,
         )
 
+        val uiAlphaState = remember { derivedStateOf { uiAlpha.value } }
         val components = questions.value.components
         val size = components.size
         components.asReversed().forEachIndexed { index, ques ->
@@ -256,14 +272,16 @@ private fun CardScreen2(
                     component = ques,
                     gameSetId = gameSetId,
                     bigSpace = bigSpace,
-                    secondaryUIAlpha = uiAlpha.value,
+                    secondaryUIAlpha = uiAlphaState,
                     onClick = onClick
                 )
             }
         }
 
         val menuHeight = Menu.height.toPx()
-        val menuYOffset = (bigSpace / 2f) - (menuHeight / 2f)
+        // Centered in the bigSpace band, but never above the top edge: in width-constrained
+        // windows bigSpace clamps to 0 and centering alone would clip the menu's top half.
+        val menuYOffset = ((bigSpace / 2f) - (menuHeight / 2f)).coerceAtLeast(0f)
         Menu(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -271,7 +289,7 @@ private fun CardScreen2(
                     translationY = menuYOffset
                     alpha = uiAlpha.value
                 },
-            message = "Are you ready to move to the next level?",
+            message = stringResource(R.string.card_level_skip_notice),
             showMessage = showMenuMessage,
             onClick = toggleMenu,
         )
@@ -296,7 +314,7 @@ private fun CardScreen2(
                     ),
                     content = {
                         Text(
-                            text = "Exit?",
+                            text = stringResource(R.string.card_menu_exit),
                             style = AppTheme.Text.primaryBold
                         )
                     }
@@ -312,7 +330,7 @@ private fun CardScreen2(
                         ),
                         content = {
                             Text(
-                                text = "Next Level?",
+                                text = stringResource(R.string.card_menu_next_level),
                                 style = AppTheme.Text.primaryBold
                             )
                         }
@@ -331,9 +349,12 @@ private fun BoxScope.StatefulCard(
     component: QuestionComponent,
     gameSetId: String,
     bigSpace: Float,
-    secondaryUIAlpha: Float,
+    secondaryUIAlpha: State<Float>,
     onClick: (QuestionComponent) -> Unit,
 ) {
+    // Read here (not in the caller) so the idle-fade animation only invalidates each card's
+    // scope instead of the whole screen.
+    val secondaryAlpha = secondaryUIAlpha.value
     val uiGuide = LocalUiGuide.current
     val dragOffsetX = remember { Animatable(0f) }
     val dragOffsetY = remember { Animatable(0f) }
@@ -378,7 +399,7 @@ private fun BoxScope.StatefulCard(
             QuestionComponent.State.Landing -> 1f
             else -> 0f
         },
-        label = "centerTextAlpha",
+        label = "centerVerticalTextAlpha",
     )
     val sideTextAlpha by animateFloatAsState(
         animationSpec = tween(
@@ -410,7 +431,7 @@ private fun BoxScope.StatefulCard(
     val stateOffsetX = remember {
         Animatable(
             computeOffsetX(
-                index = component.modifiedAtSecs,
+                noiseSeed = component.modifiedAtSecs,
                 comp = component,
                 level = component.level,
                 state = component.stateVector.from,
@@ -418,45 +439,57 @@ private fun BoxScope.StatefulCard(
             )
         )
     }
-    LaunchedEffect(component) {
-        stateOffsetX.animateTo(
-            targetValue = computeOffsetX(
-                comp = component,
-                level = component.level,
-                state = component.state,
-                index = component.modifiedAtSecs,
-                uiGuide = uiGuide,
-            ),
-            animationSpec = tween(
-                durationMillis = AppTheme.ANIM_DURATION,
-            ),
-        )
-    }
-
     val stateOffsetY = remember {
         Animatable(
             computeOffsetY(
                 comp = component,
                 level = component.level,
                 state = component.stateVector.from,
-                index = component.modifiedAtSecs,
+                noiseSeed = component.modifiedAtSecs,
                 uiGuide = uiGuide,
             )
         )
     }
-    LaunchedEffect(component) {
-        stateOffsetY.animateTo(
-            targetValue = computeOffsetY(
-                comp = component,
-                index = component.modifiedAtSecs,
-                level = component.level,
-                state = component.state,
-                uiGuide = uiGuide,
-            ),
-            animationSpec = tween(
-                durationMillis = AppTheme.ANIM_DURATION,
-            ),
+    var animatedUiGuide by remember { mutableStateOf(uiGuide) }
+    LaunchedEffect(component, uiGuide) {
+        val targetX = computeOffsetX(
+            comp = component,
+            level = component.level,
+            state = component.state,
+            noiseSeed = component.modifiedAtSecs,
+            uiGuide = uiGuide,
         )
+        val targetY = computeOffsetY(
+            comp = component,
+            noiseSeed = component.modifiedAtSecs,
+            level = component.level,
+            state = component.state,
+            uiGuide = uiGuide,
+        )
+        if (uiGuide != animatedUiGuide) {
+            // Window resized (multi-window divider, fold posture): relocate to the position
+            // for the new dimensions without replaying the last state transition.
+            animatedUiGuide = uiGuide
+            stateOffsetX.snapTo(targetX)
+            stateOffsetY.snapTo(targetY)
+        } else {
+            launch {
+                stateOffsetX.animateTo(
+                    targetValue = targetX,
+                    animationSpec = tween(
+                        durationMillis = AppTheme.ANIM_DURATION,
+                    ),
+                )
+            }
+            launch {
+                stateOffsetY.animateTo(
+                    targetValue = targetY,
+                    animationSpec = tween(
+                        durationMillis = AppTheme.ANIM_DURATION,
+                    ),
+                )
+            }
+        }
     }
 
     val coroutineCtx = rememberCoroutineScope()
@@ -484,9 +517,20 @@ private fun BoxScope.StatefulCard(
         )
     }
 
+    val stateDesc = component.state.toStateDescription()
     Card(
         modifier = Modifier
-            .semantics { questionState = component.state }
+            .semantics {
+                questionState = component.state
+                stateDesc?.let { stateDescription = it }
+                // Keep screen readers off cards that are visually absent.
+                if (component.isOffscreen ||
+                    component.state == QuestionComponent.State.Disabled ||
+                    component.state == QuestionComponent.State.Blank
+                ) {
+                    hideFromAccessibility()
+                }
+            }
             .align(Alignment.TopCenter)
             .graphicsLayer {
                 val offset = cardTranslationOffset()
@@ -501,10 +545,10 @@ private fun BoxScope.StatefulCard(
                 1f
             }
             component.state == QuestionComponent.State.PrimaryHidden -> {
-                secondaryUIAlpha.pow(1f / 2f)
+                secondaryAlpha.pow(1f / 2f)
             }
             else -> {
-                secondaryUIAlpha
+                secondaryAlpha
             }
         },
         textActiveness = when {
@@ -512,13 +556,13 @@ private fun BoxScope.StatefulCard(
                 1f
             }
             component.state == QuestionComponent.State.PrimaryRevealed -> {
-                secondaryUIAlpha.pow(1f / 4f)
+                secondaryAlpha.pow(1f / 4f)
             }
             component.state == QuestionComponent.State.PrimaryHidden -> {
-                secondaryUIAlpha.pow(1f / 8f)
+                secondaryAlpha.pow(1f / 8f)
             }
             else -> {
-                secondaryUIAlpha
+                secondaryAlpha
             }
         },
         shadowElevation = 4.dp,
@@ -543,14 +587,16 @@ private fun BoxScope.StatefulCard(
             override fun onStop() {
                 isDragThresholdReached = false
                 if (abs(dragOffsetX.value) > dragTrigger) {
-                    val cardOffset = cardTranslationOffset()
+                    // Let the drag offset decay while the state transition animates the card
+                    // to its next position; the two run concurrently so the visual sum stays
+                    // continuous from the release point.
                     coroutineCtx.launch {
-                        dragOffsetX.snapTo(0f)
-                        dragOffsetY.snapTo(0f)
-                        stateOffsetX.snapTo(cardOffset.x)
-                        stateOffsetY.snapTo(cardOffset.y)
-                        onClick(component)
+                        dragOffsetX.animateTo(0f, tween(AppTheme.ANIM_DURATION))
                     }
+                    coroutineCtx.launch {
+                        dragOffsetY.animateTo(0f, tween(AppTheme.ANIM_DURATION))
+                    }
+                    onClick(component)
                 } else {
                     coroutineCtx.launch {
                         dragOffsetX.animateTo(0f, spring(0.5f))
@@ -562,8 +608,7 @@ private fun BoxScope.StatefulCard(
             }
 
             override fun onDrag(change: PointerInputChange, dragAmount: Offset) {
-                isDragThresholdReached = abs(dragOffsetX.value) > dragTrigger ||
-                    abs(dragOffsetY.value) > dragTrigger
+                isDragThresholdReached = abs(dragOffsetX.value) > dragTrigger
                 coroutineCtx.launch {
                     dragOffsetX.snapTo(dragOffsetX.value + dragAmount.x)
                     dragOffsetY.snapTo(dragOffsetY.value + dragAmount.y)
@@ -574,14 +619,14 @@ private fun BoxScope.StatefulCard(
 }
 
 private fun computeOffsetX(
-    index: Float,
+    noiseSeed: Float,
     comp: QuestionComponent,
     level: QuestionComponent.Level,
     state: QuestionComponent.State,
     uiGuide: UiGuide,
 ): Float {
     var offset = 0f
-    val cardHeight = uiGuide.card.x
+    val cardWidth = uiGuide.card.x
     when (state) {
         QuestionComponent.State.PrimaryRevealed -> {
             // center
@@ -590,29 +635,29 @@ private fun computeOffsetX(
             when (level) {
                 QuestionComponent.Level.Easy -> {
                     offset -= uiGuide.card.y
-                    offset += cardHeight.nthGoldenChildRatio(6)
+                    offset += cardWidth.nthGoldenChildRatio(6)
                 }
                 QuestionComponent.Level.Medium -> {
                     // nothing
                 }
                 QuestionComponent.Level.Hard -> {
                     offset += uiGuide.card.y
-                    offset -= cardHeight.nthGoldenChildRatio(6)
+                    offset -= cardWidth.nthGoldenChildRatio(6)
                 }
             }
         }
         QuestionComponent.State.OtherCard -> {
-            offset += cardHeight + uiGuide.bigSpace
+            offset += cardWidth + uiGuide.bigSpace
         }
         QuestionComponent.State.Closed -> {
-            offset -= cardHeight + uiGuide.bigSpace
-            offset += fbm(seed = index, octaves = 7) * cardHeight.nthGoldenChildRatio(7)
+            offset -= cardWidth + uiGuide.bigSpace
+            offset += fbm(seed = noiseSeed, octaves = 7) * cardWidth.nthGoldenChildRatio(7)
         }
         QuestionComponent.State.PrimaryHidden -> {
             // center
         }
         QuestionComponent.State.NextHidden -> {
-            offset += cardHeight + uiGuide.bigSpace
+            offset += cardWidth + uiGuide.bigSpace
         }
         QuestionComponent.State.Disabled -> {
             // center
@@ -637,15 +682,17 @@ private fun computeRotation(
 }
 
 private fun computeOffsetY(
-    index: Float,
+    noiseSeed: Float,
     level: QuestionComponent.Level,
     state: QuestionComponent.State,
     comp: QuestionComponent,
     uiGuide: UiGuide,
 ): Float {
     val screenH = uiGuide.displayHeight
-    val cardSize = uiGuide.card.x
-    val cornerOffset = cardSize.nthGoldenChildRatio(2)
+    // Deliberately the card *width*: Landing cards are rotated 90 degrees, so their
+    // vertical extent on screen is the card's width.
+    val cardWidth = uiGuide.card.x
+    val cornerOffset = cardWidth.nthGoldenChildRatio(2)
 
     var offset = 0f
     when (state) {
@@ -653,40 +700,56 @@ private fun computeOffsetY(
             // correction due to rotation
             offset += (uiGuide.card.x - uiGuide.card.y) / 2
             offset += screenH
-            offset -= cardSize.nthGoldenChildRatio(2)
-            offset -= cardSize.nthGoldenChildRatio(4) * level.ordinal
+            offset -= cardWidth.nthGoldenChildRatio(2)
+            offset -= cardWidth.nthGoldenChildRatio(4) * level.ordinal
         }
         QuestionComponent.State.Closed -> {
-            offset += fbm(seed = index, octaves = 4) * cardSize.nthGoldenChildRatio(5)
+            offset += fbm(seed = noiseSeed, octaves = 4) * cardWidth.nthGoldenChildRatio(5)
             offset += uiGuide.bigSpace
         }
         QuestionComponent.State.Disabled -> {
             offset += screenH + cornerOffset
         }
         QuestionComponent.State.Blank -> {
-            offset += screenH + 64
+            offset += screenH + cornerOffset
         }
         else -> {
             offset += uiGuide.bigSpace
         }
     }
     if (comp.isOffscreen) {
-        offset += screenH + 64
+        offset += screenH + cornerOffset
     }
     return offset
 }
 
+@Composable
 private fun QuestionComponent.Level.toText(): String =
+    stringResource(
+        when (this) {
+            QuestionComponent.Level.Easy -> {
+                R.string.card_level_easy
+            }
+            QuestionComponent.Level.Medium -> {
+                R.string.card_level_medium
+            }
+            QuestionComponent.Level.Hard -> {
+                R.string.card_level_hard
+            }
+        }
+    )
+
+@Composable
+private fun QuestionComponent.State.toStateDescription(): String? =
     when (this) {
-        QuestionComponent.Level.Easy -> {
-            "LEVEL 1"
-        }
-        QuestionComponent.Level.Medium -> {
-            "LEVEL 2"
-        }
-        QuestionComponent.Level.Hard -> {
-            "LEVEL 3"
-        }
+        QuestionComponent.State.Landing -> stringResource(R.string.card_state_landing)
+        QuestionComponent.State.PrimaryRevealed -> stringResource(R.string.card_state_revealed)
+        QuestionComponent.State.PrimaryHidden,
+        QuestionComponent.State.NextHidden,
+        QuestionComponent.State.OtherCard,
+        -> stringResource(R.string.card_state_hidden)
+        QuestionComponent.State.Closed -> stringResource(R.string.card_state_closed)
+        else -> null
     }
 
 private fun computeCardDragOffset(
